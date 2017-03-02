@@ -49,4 +49,20 @@ public abstract class MS {
      * @return
      */
     public abstract Status read();
+
+    /**
+     * read messages from the Message System.
+     *
+     * @param
+     * @return
+     */
+    public abstract Status seek();
+
+    /**
+     * close the Message System.
+     *
+     * @param
+     * @return
+     */
+    public abstract Status close();
 }
