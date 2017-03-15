@@ -1,9 +1,11 @@
 package cn.ac.ict;
 
+import cn.ac.ict.exception.MSException;
+
 import java.util.Properties;
 
 /**
- * Created by apple on 2017/3/1.
+ * Created by jiecxy on 2017/3/1.
  */
 public abstract class MS {
 
@@ -49,14 +51,6 @@ public abstract class MS {
      * @return
      */
     public abstract Status read();
-
-    /**
-     * read messages from the Message System.
-     *
-     * @param
-     * @return
-     */
-    public abstract Status seek();
 
     /**
      * close the Message System.

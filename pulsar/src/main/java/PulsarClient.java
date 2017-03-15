@@ -1,7 +1,19 @@
-package PACKAGE_NAME;
+import cn.ac.ict.MS;
+import cn.ac.ict.Status;
 
 /**
- * Created by apple on 2017/3/15.
+ * Created by jiecxy on 2017/3/15.
  */
-public class PulsarClient {
+public class PulsarClient extends MS {
+    public Status send(String msg) {
+        return null;
+    }
+
+    public Status read() {
+        return null;
+    }
+
+    public Status close() {
+        return null;
+    }
 }

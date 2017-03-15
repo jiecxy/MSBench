@@ -23,11 +23,17 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="core" />
+        <module name="distributedlog" />
+        <module name="kafka" />
+        <module name="pulsar" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="core" target="1.5" />
+      <module name="distributedlog" target="1.5" />
+      <module name="kafka" target="1.5" />
       <module name="MSBench" target="1.5" />
+      <module name="pulsar" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

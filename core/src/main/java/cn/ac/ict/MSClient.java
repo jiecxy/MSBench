@@ -18,9 +18,15 @@
 package cn.ac.ict;
 
 
+import cn.ac.ict.exception.MSException;
+import cn.ac.ict.exception.WorkloadException;
 import cn.ac.ict.measurements.Measurements;
+import cn.ac.ict.utils.Utils;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,6 +37,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+
+import static cn.ac.ict.constants.Constants.*;
+import static net.sourceforge.argparse4j.impl.Arguments.store;
 
 /**
  * A thread to periodically show the status of the experiment to reassure you that progress is being made.
@@ -45,8 +54,6 @@ class StatusThread extends Thread {
   // Whether or not to track the JVM stats per run
   private final boolean trackJVMStats;
 
-  // The clients that are running.
-  private final List<ClientThread> clients;
 
   private final String label;
   private final boolean standardstatus;
@@ -94,7 +101,6 @@ class StatusThread extends Thread {
                       String label, boolean standardstatus, int statusIntervalSeconds,
                       boolean trackJVMStats) {
     this.completeLatch = completeLatch;
-    this.clients = clients;
     this.label = label;
     this.standardstatus = standardstatus;
     sleeptimeNs = TimeUnit.SECONDS.toNanos(statusIntervalSeconds);
@@ -164,7 +170,7 @@ class StatusThread extends Thread {
     long interval = endIntervalMs - startTimeMs;
     double throughput = 1000.0 * (((double) totalops) / (double) interval);
     double curthroughput = 1000.0 * (((double) (totalops - lastTotalOps)) /
-        ((double) (endIntervalMs - startIntervalMs)));
+            ((double) (endIntervalMs - startIntervalMs)));
     long estremaining = (long) Math.ceil(todoops / throughput);
 
 
@@ -359,7 +365,7 @@ class ClientThread implements Runnable {
   private final CountDownLatch completeLatch;
 
   private static boolean spinSleep;
-  private DB db;
+  private MS ms;
   private boolean dotransactions;
   private Workload workload;
   private int opcount;
@@ -376,7 +382,7 @@ class ClientThread implements Runnable {
   /**
    * Constructor.
    *
-   * @param db                   the DB implementation to use
+   * @param ms                   the DB implementation to use
    * @param dotransactions       true to do transactions, false to insert data
    * @param workload             the workload to use
    * @param props                the properties defining the experiment
@@ -384,9 +390,9 @@ class ClientThread implements Runnable {
    * @param targetperthreadperms target number of operations per thread per ms
    * @param completeLatch        The latch tracking the completion of all clients.
    */
-  public ClientThread(DB db, boolean dotransactions, Workload workload, Properties props, int opcount,
+  public ClientThread(MS ms, boolean dotransactions, Workload workload, Properties props, int opcount,
                       double targetperthreadperms, CountDownLatch completeLatch) {
-    this.db = db;
+    this.ms = ms;
     this.dotransactions = dotransactions;
     this.workload = workload;
     this.opcount = opcount;
@@ -408,8 +414,8 @@ class ClientThread implements Runnable {
   @Override
   public void run() {
     try {
-      db.init();
-    } catch (DBException e) {
+      ms.init();
+    } catch (MSException e) {
       e.printStackTrace();
       e.printStackTrace(System.out);
       return;
@@ -423,6 +429,7 @@ class ClientThread implements Runnable {
       return;
     }
 
+    //TODO 这里放场景类初始化
     //NOTE: Switching to using nanoTime and parkNanos for time management here such that the measurements
     // and the client thread have the same view on time.
 
@@ -505,36 +512,22 @@ class ClientThread implements Runnable {
   }
 }
 
-/**
- * Main class for executing YCSB.
- */
-public final class Client {
-  private Client() {
-    //not used
 
+
+
+/**
+ * Main class for executing MSBench.
+ */
+public final class MSClient {
+
+  private MSClient() {
+    //not used
   }
 
-  public static final String DEFAULT_RECORD_COUNT = "0";
-
   /**
-   * The target number of operations to perform.
+   * The MS class to be used.
    */
-  public static final String OPERATION_COUNT_PROPERTY = "operationcount";
-
-  /**
-   * The number of records to load into the database initially.
-   */
-  public static final String RECORD_COUNT_PROPERTY = "recordcount";
-
-  /**
-   * The workload class to be loaded.
-   */
-  public static final String WORKLOAD_PROPERTY = "workload";
-
-  /**
-   * The database class to be used.
-   */
-  public static final String DB_PROPERTY = "db";
+  public static final String MS_PROPERTY = "sys";
 
   /**
    * The exporter class to be used. The default is
@@ -549,70 +542,28 @@ public final class Client {
   public static final String EXPORT_FILE_PROPERTY = "exportfile";
 
   /**
-   * The number of YCSB client threads to run.
-   */
-  public static final String THREAD_COUNT_PROPERTY = "threadcount";
-
-  /**
-   * Indicates how many inserts to do if less than recordcount.
-   * Useful for partitioning the load among multiple servers if the client is the bottleneck.
-   * Additionally workloads should support the "insertstart" property which tells them which record to start at.
-   */
-  public static final String INSERT_COUNT_PROPERTY = "insertcount";
-
-  /**
-   * Target number of operations per second.
-   */
-  public static final String TARGET_PROPERTY = "target";
-
-  /**
-   * The maximum amount of time (in seconds) for which the benchmark will be run.
-   */
-  public static final String MAX_EXECUTION_TIME = "maxexecutiontime";
-
-  /**
-   * Whether or not this is the transaction phase (run) or not (load).
-   */
-  public static final String DO_TRANSACTIONS_PROPERTY = "dotransactions";
-
-  /**
    * Whether or not to show status during run.
    */
   public static final String STATUS_PROPERTY = "status";
-
-  /**
-   * Use label for status (e.g. to label one experiment out of a whole batch).
-   */
-  public static final String LABEL_PROPERTY = "label";
 
   /**
    * An optional thread used to track progress and measure JVM stats.
    */
   private static StatusThread statusthread = null;
 
-  // HTrace integration related constants.
-
-  /**
-   * All keys for configuring the tracing system start with this prefix.
-   */
-  private static final String HTRACE_KEY_PREFIX = "htrace.";
-  private static final String CLIENT_WORKLOAD_INIT_SPAN = "Client#workload_init";
-  private static final String CLIENT_INIT_SPAN = "Client#init";
-  private static final String CLIENT_WORKLOAD_SPAN = "Client#workload";
-  private static final String CLIENT_CLEANUP_SPAN = "Client#cleanup";
-  private static final String CLIENT_EXPORT_MEASUREMENTS_SPAN = "Client#export_measurements";
 
   public static void usageMessage() {
-    System.out.println("Usage: java com.yahoo.ycsb.Client [options]");
+
+    System.out.println("Usage: java cn.ac.ict.MSClient [options]");
     System.out.println("Options:");
     System.out.println("  -threads n: execute using n threads (default: 1) - can also be specified as the \n" +
-        "        \"threadcount\" property using -p");
+            "        \"threadcount\" property using -p");
     System.out.println("  -target n: attempt to do n operations per second (default: unlimited) - can also\n" +
-        "       be specified as the \"target\" property using -p");
+            "       be specified as the \"target\" property using -p");
     System.out.println("  -load:  run the loading phase of the workload");
     System.out.println("  -t:  run the transactions phase of the workload (default)");
     System.out.println("  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n" +
-        "        can also be specified as the \"db\" property using -p");
+            "        can also be specified as the \"db\" property using -p");
     System.out.println("  -P propertyfile: load properties from the given file. Multiple files can");
     System.out.println("           be specified, and will be processed in the order specified");
     System.out.println("  -p name=value:  specify a property to be passed to the DB and workloads;");
@@ -623,21 +574,16 @@ public final class Client {
     System.out.println("");
     System.out.println("Required properties:");
     System.out.println("  " + WORKLOAD_PROPERTY + ": the name of the workload class to use (e.g. " +
-        "com.yahoo.ycsb.workloads.CoreWorkload)");
+            "com.yahoo.ycsb.workloads.CoreWorkload)");
     System.out.println("");
     System.out.println("To run the transaction phase from multiple servers, start a separate client on each.");
     System.out.println("To run the load phase from multiple servers, start a separate client on each; additionally,");
     System.out.println("use the \"insertcount\" and \"insertstart\" properties to divide up the records " +
-        "to be inserted");
+            "to be inserted");
   }
 
   public static boolean checkRequiredProperties(Properties props) {
-    if (props.getProperty(WORKLOAD_PROPERTY) == null) {
-      System.out.println("Missing property: " + WORKLOAD_PROPERTY);
-      return false;
-    }
-
-    return true;
+    return false;
   }
 
 
@@ -648,7 +594,7 @@ public final class Client {
    * @throws IOException Either failed to write to output stream or failed to close it.
    */
   private static void exportMeasurements(Properties props, int opcount, long runtime)
-      throws IOException {
+          throws IOException {
     MeasurementsExporter exporter = null;
     try {
       // if no destination file is provided the results will be written to stdout
@@ -662,13 +608,13 @@ public final class Client {
 
       // if no exporter is provided the default text one will be used
       String exporterStr = props.getProperty(EXPORTER_PROPERTY,
-          "com.yahoo.ycsb.measurements.exporter.TextMeasurementsExporter");
+              "com.yahoo.ycsb.measurements.exporter.TextMeasurementsExporter");
       try {
         exporter = (MeasurementsExporter) Class.forName(exporterStr).getConstructor(OutputStream.class)
-            .newInstance(out);
+                .newInstance(out);
       } catch (Exception e) {
         System.err.println("Could not find exporter " + exporterStr
-            + ", will use default text reporter.");
+                + ", will use default text reporter.");
         e.printStackTrace();
         exporter = new TextMeasurementsExporter(out);
       }
@@ -684,7 +630,7 @@ public final class Client {
         exporter.write("TOTAL_GCS_" + entry.getKey(), "Count", entry.getValue()[0]);
         exporter.write("TOTAL_GC_TIME_" + entry.getKey(), "Time(ms)", entry.getValue()[1]);
         exporter.write("TOTAL_GC_TIME_%_" + entry.getKey(), "Time(%)",
-            ((double) entry.getValue()[1] / runtime) * (double) 100);
+                ((double) entry.getValue()[1] / runtime) * (double) 100);
         totalGCCount += entry.getValue()[0];
         totalGCTime += entry.getValue()[1];
       }
@@ -692,6 +638,7 @@ public final class Client {
 
       exporter.write("TOTAL_GC_TIME", "Time(ms)", totalGCTime);
       exporter.write("TOTAL_GC_TIME_%", "Time(%)", ((double) totalGCTime / runtime) * (double) 100);
+
       if (statusthread != null && statusthread.trackJVMStats()) {
         exporter.write("MAX_MEM_USED", "MBs", statusthread.getMaxUsedMem());
         exporter.write("MIN_MEM_USED", "MBs", statusthread.getMinUsedMem());
@@ -711,6 +658,27 @@ public final class Client {
 
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
+    ArgumentParser parser = argParser();
+    try {
+      Namespace res = parser.parseArgs(args);
+      //TODO 检查若w和r都没有则抛异常
+      //TODO 解析Hosts
+
+
+    } catch (ArgumentParserException e) {
+      if (args.length == 0) {
+        parser.printHelp();
+        System.exit(0);
+      } else {
+        parser.handleError(e);
+        System.exit(1);
+      }
+    }
+
+
+
+
+    // -------------------------------------------------------------------------------------
     Properties props = parseArguments(args);
 
     boolean status = Boolean.valueOf(props.getProperty(STATUS_PROPERTY, String.valueOf(false)));
@@ -745,7 +713,7 @@ public final class Client {
     final CountDownLatch completeLatch = new CountDownLatch(threadcount);
 
     final List<ClientThread> clients = initDb(dbname, props, threadcount, targetperthreadperms,
-        workload, tracer, completeLatch);
+            workload, tracer, completeLatch);
 
     if (status) {
       boolean standardstatus = false;
@@ -754,9 +722,9 @@ public final class Client {
       }
       int statusIntervalSeconds = Integer.parseInt(props.getProperty("status.interval", "10"));
       boolean trackJVMStats = props.getProperty(Measurements.MEASUREMENT_TRACK_JVM_PROPERTY,
-          Measurements.MEASUREMENT_TRACK_JVM_PROPERTY_DEFAULT).equals("true");
+              Measurements.MEASUREMENT_TRACK_JVM_PROPERTY_DEFAULT).equals("true");
       statusthread = new StatusThread(completeLatch, clients, label, standardstatus, statusIntervalSeconds,
-          trackJVMStats);
+              trackJVMStats);
       statusthread.start();
     }
 
@@ -836,48 +804,36 @@ public final class Client {
     System.exit(0);
   }
 
-  private static List<ClientThread> initDb(String dbname, Properties props, int threadcount,
-                                           double targetperthreadperms, Workload workload, Tracer tracer,
+
+  // 用来初始化MS
+  private static List<ClientThread> initMS(String dbname, Properties props, int threadcount,
+                                           double targetperthreadperms, Workload workload
                                            CountDownLatch completeLatch) {
-    boolean initFailed = false;
-    boolean dotransactions = Boolean.valueOf(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
 
     final List<ClientThread> clients = new ArrayList<>(threadcount);
     try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
       int opcount;
-      if (dotransactions) {
-        opcount = Integer.parseInt(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
-      } else {
-        if (props.containsKey(INSERT_COUNT_PROPERTY)) {
-          opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
-        } else {
-          opcount = Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
-        }
+
+      DB db;
+      try {
+        db = MSFactory.newDB(dbname, props, tracer);
+      } catch (UnknownDBException e) {
+        System.out.println("Unknown DB " + dbname);
+        initFailed = true;
+        break;
       }
 
-      for (int threadid = 0; threadid < threadcount; threadid++) {
-        DB db;
-        try {
-          db = MSFactory.newDB(dbname, props, tracer);
-        } catch (UnknownDBException e) {
-          System.out.println("Unknown DB " + dbname);
-          initFailed = true;
-          break;
-        }
+      int threadopcount = opcount / threadcount;
 
-        int threadopcount = opcount / threadcount;
-
-        // ensure correct number of operations, in case opcount is not a multiple of threadcount
-        if (threadid < opcount % threadcount) {
-          ++threadopcount;
-        }
-
-        ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
-            completeLatch);
-
-        clients.add(t);
+      // ensure correct number of operations, in case opcount is not a multiple of threadcount
+      if (threadid < opcount % threadcount) {
+        ++threadopcount;
       }
 
+      ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
+              completeLatch);
+
+      clients.add(t);
       if (initFailed) {
         System.err.println("Error initializing datastore bindings.");
         System.exit(0);
@@ -886,225 +842,105 @@ public final class Client {
     return clients;
   }
 
-  private static Tracer getTracer(Properties props, Workload workload) {
-    return new Tracer.Builder("YCSB " + workload.getClass().getSimpleName())
-        .conf(getHTraceConfiguration(props))
-        .build();
-  }
 
-  private static void initWorkload(Properties props, Thread warningthread, Workload workload, Tracer tracer) {
-    try {
-      try (final TraceScope span = tracer.newScope(CLIENT_WORKLOAD_INIT_SPAN)) {
-        workload.init(props);
-        warningthread.interrupt();
-      }
-    } catch (WorkloadException e) {
-      e.printStackTrace();
-      e.printStackTrace(System.out);
-      System.exit(0);
-    }
-  }
 
-  private static HTraceConfiguration getHTraceConfiguration(Properties props) {
-    final Map<String, String> filteredProperties = new HashMap<>();
-    for (String key : props.stringPropertyNames()) {
-      if (key.startsWith(HTRACE_KEY_PREFIX)) {
-        filteredProperties.put(key.substring(HTRACE_KEY_PREFIX.length()), props.getProperty(key));
-      }
-    }
-    return HTraceConfiguration.fromMap(filteredProperties);
-  }
 
-  private static Thread setupWarningThread() {
-    //show a warning message that creating the workload is taking a while
-    //but only do so if it is taking longer than 2 seconds
-    //(showing the message right away if the setup wasn't taking very long was confusing people)
-    return new Thread() {
-      @Override
-      public void run() {
-        try {
-          sleep(2000);
-        } catch (InterruptedException e) {
-          return;
-        }
-        System.err.println(" (might take a few minutes for large data sets)");
-      }
-    };
-  }
 
-  private static Workload getWorkload(Properties props) {
-    ClassLoader classLoader = Client.class.getClassLoader();
+  //TODO 后期需要一个自定义场景类
 
-    try {
-      Properties projectProp = new Properties();
-      projectProp.load(classLoader.getResourceAsStream("project.properties"));
-      System.err.println("YCSB Client " + projectProp.getProperty("version"));
-    } catch (IOException e) {
-      System.err.println("Unable to retrieve client version.");
-    }
+  /** Get the command-line argument parser. */
+  //TODO 把参数改成静态变量
+  private static ArgumentParser argParser() {
+    ArgumentParser parser = ArgumentParsers
+            .newArgumentParser("MSBench")
+            .defaultHelp(true)
+            .description("This tool is used to verify the MS performance.");
 
-    System.err.println();
-    System.err.println("Loading workload...");
-    try {
-      Class workloadclass = classLoader.loadClass(props.getProperty(WORKLOAD_PROPERTY));
+    parser.addArgument(CONFIG_PRE + SN)
+            .action(store())
+            .required(true)
+            .type(Integer.class)
+            .metavar(SN)
+            .dest(SN)
+            .help(SN_DOC);
 
-      return (Workload) workloadclass.newInstance();
-    } catch (Exception e) {
-      e.printStackTrace();
-      e.printStackTrace(System.out);
-      System.exit(0);
-    }
+    parser.addArgument(CONFIG_PRE + NAME)
+            .action(store())
+            .required(true)
+            .type(String.class)
+            .metavar(NAME)
+            .dest(NAME)
+            .help(NAME_DOC);
 
-    return null;
-  }
+    parser.addArgument(CONFIG_PRE + W)
+            .action(store())
+            .required(false)
+            .type(Integer.class)
+            .metavar(W)
+            .dest(W)
+            .help(W_DOC);
 
-  private static Properties parseArguments(String[] args) {
-    Properties props = new Properties();
-    System.err.print("Command line:");
-    for (String arg : args) {
-      System.err.print(" " + arg);
-    }
+    parser.addArgument(CONFIG_PRE + R)
+            .action(store())
+            .required(false)
+            .type(Integer.class)
+            .metavar(R)
+            .dest(R)
+            .help(R_DOC);
 
-    Properties fileprops = new Properties();
-    int argindex = 0;
+    parser.addArgument(CONFIG_PRE + FROM)
+            .action(store())
+            .required(false)
+            .type(Integer.class)
+            .metavar(FROM)
+            .dest(FROM)
+            .help(FROM_DOC);
 
-    if (args.length == 0) {
-      usageMessage();
-      System.out.println("At least one argument specifying a workload is required.");
-      System.exit(0);
-    }
+    parser.addArgument(CONFIG_PRE + MS)
+            .action(store())
+            .required(true)
+            .type(Integer.class)
+            .metavar("ms")
+            .help("Message Size (Byte)");
 
-    while (args[argindex].startsWith("-")) {
-      if (args[argindex].compareTo("-threads") == 0) {
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -threads.");
-          System.exit(0);
-        }
-        int tcount = Integer.parseInt(args[argindex]);
-        props.setProperty(THREAD_COUNT_PROPERTY, String.valueOf(tcount));
-        argindex++;
-      } else if (args[argindex].compareTo("-target") == 0) {
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -target.");
-          System.exit(0);
-        }
-        int ttarget = Integer.parseInt(args[argindex]);
-        props.setProperty(TARGET_PROPERTY, String.valueOf(ttarget));
-        argindex++;
-      } else if (args[argindex].compareTo("-load") == 0) {
-        props.setProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(false));
-        argindex++;
-      } else if (args[argindex].compareTo("-t") == 0) {
-        props.setProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true));
-        argindex++;
-      } else if (args[argindex].compareTo("-s") == 0) {
-        props.setProperty(STATUS_PROPERTY, String.valueOf(true));
-        argindex++;
-      } else if (args[argindex].compareTo("-db") == 0) {
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -db.");
-          System.exit(0);
-        }
-        props.setProperty(DB_PROPERTY, args[argindex]);
-        argindex++;
-      } else if (args[argindex].compareTo("-l") == 0) {
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -l.");
-          System.exit(0);
-        }
-        props.setProperty(LABEL_PROPERTY, args[argindex]);
-        argindex++;
-      } else if (args[argindex].compareTo("-P") == 0) {
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -P.");
-          System.exit(0);
-        }
-        String propfile = args[argindex];
-        argindex++;
+    parser.addArgument("-tr")
+            .action(store())
+            .required(true)
+            .type(Integer.class)
+            .metavar("tr")
+            .help("Test Time (seconds)");
 
-        Properties myfileprops = new Properties();
-        try {
-          myfileprops.load(new FileInputStream(propfile));
-        } catch (IOException e) {
-          System.out.println("Unable to open the properties file " + propfile);
-          System.out.println(e.getMessage());
-          System.exit(0);
-        }
+    parser.addArgument("-hosts")
+            .action(store())
+            .required(true)
+            .type(String.class)
+            .metavar("hosts")
+            .help("The hosts used to be clients. Writer or Reader threads will be assigned to these hosts by round robin.");
 
-        //Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
-        for (Enumeration e = myfileprops.propertyNames(); e.hasMoreElements();) {
-          String prop = (String) e.nextElement();
+    parser.addArgument("-tp")
+            .action(store())
+            .required(true)
+            .type(Integer.class)
+            .metavar("tp")
+            .help("The Initial throughput. If ");
 
-          fileprops.setProperty(prop, myfileprops.getProperty(prop));
-        }
+    parser.addArgument("--producer-props")
+            .nargs("+")
+            .required(false)
+            .metavar("PROP-NAME=PROP-VALUE")
+            .type(String.class)
+            .dest("producerConfig")
+            .help("kafka producer related configuration properties like bootstrap.servers,client.id etc. " +
+                    "These configs take precedence over those passed via --producer.config.");
 
-      } else if (args[argindex].compareTo("-p") == 0) {
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -p");
-          System.exit(0);
-        }
-        int eq = args[argindex].indexOf('=');
-        if (eq < 0) {
-          usageMessage();
-          System.out.println("Argument '-p' expected to be in key=value format (e.g., -p operationcount=99999)");
-          System.exit(0);
-        }
+    parser.addArgument("--producer.config")
+            .action(store())
+            .required(false)
+            .type(String.class)
+            .metavar("CONFIG-FILE")
+            .dest("producerConfigFile")
+            .help("producer config properties file.");
 
-        String name = args[argindex].substring(0, eq);
-        String value = args[argindex].substring(eq + 1);
-        props.put(name, value);
-        argindex++;
-      } else {
-        usageMessage();
-        System.out.println("Unknown option " + args[argindex]);
-        System.exit(0);
-      }
-
-      if (argindex >= args.length) {
-        break;
-      }
-    }
-
-    if (argindex != args.length) {
-      usageMessage();
-      if (argindex < args.length) {
-        System.out.println("An argument value without corresponding argument specifier (e.g., -p, -s) was found. "
-            + "We expected an argument specifier and instead found " + args[argindex]);
-      } else {
-        System.out.println("An argument specifier without corresponding value was found at the end of the supplied " +
-            "command line arguments.");
-      }
-      System.exit(0);
-    }
-
-    //overwrite file properties with properties from the command line
-
-    //Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
-    for (Enumeration e = props.propertyNames(); e.hasMoreElements();) {
-      String prop = (String) e.nextElement();
-
-      fileprops.setProperty(prop, props.getProperty(prop));
-    }
-
-    props = fileprops;
-
-    if (!checkRequiredProperties(props)) {
-      System.out.println("Failed check required properties.");
-      System.exit(0);
-    }
-
-    return props;
+    return parser;
   }
 }

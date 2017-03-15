@@ -18,6 +18,9 @@
 
     <modules>
         <module>core</module>
+        <module>kafka</module>
+        <module>distributedlog</module>
+        <module>pulsar</module>
     </modules>
 
 </project>

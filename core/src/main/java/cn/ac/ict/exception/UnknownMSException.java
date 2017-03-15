@@ -15,30 +15,30 @@
  * LICENSE file.
  */
 
-package com.yahoo.ycsb;
+package cn.ac.ict.exception;
 
 /**
- * Could not create the specified DB.
+ * Could not create the specified MS.
  */
-public class UnknownDBException extends Exception {
+public class UnknownMSException extends Exception {
   /**
    *
    */
   private static final long serialVersionUID = 459099842269616836L;
 
-  public UnknownDBException(String message) {
+  public UnknownMSException(String message) {
     super(message);
   }
 
-  public UnknownDBException() {
+  public UnknownMSException() {
     super();
   }
 
-  public UnknownDBException(String message, Throwable cause) {
+  public UnknownMSException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  public UnknownDBException(Throwable cause) {
+  public UnknownMSException(Throwable cause) {
     super(cause);
   }
 

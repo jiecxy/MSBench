@@ -11,5 +11,13 @@
 
     <artifactId>kafka-binding</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>cn.ac.ict</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

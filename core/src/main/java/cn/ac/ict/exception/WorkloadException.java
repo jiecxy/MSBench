@@ -15,7 +15,7 @@
  * LICENSE file.
  */
 
-package cn.ac.ict;
+package cn.ac.ict.exception;
 
 /**
  * The workload tried to do something bad.

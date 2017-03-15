@@ -17,35 +17,37 @@
 
 package cn.ac.ict;
 
-import org.apache.htrace.core.Tracer;
+import cn.ac.ict.exception.UnknownMSException;
 
 import java.util.Properties;
 
 /**
- * Creates a DB layer by dynamically classloading the specified DB class.
+ * Creates a MS layer by dynamically classloading the specified MS class.
  */
 public final class MSFactory {
-  private MSFactory() {
-    // not used
-  }
 
-  public static DB newDB(String dbname, Properties properties, final Tracer tracer) throws UnknownDBException {
-    ClassLoader classLoader = MSFactory.class.getClassLoader();
-
-    DB ret;
-
-    try {
-      Class dbclass = classLoader.loadClass(dbname);
-
-      ret = (DB) dbclass.newInstance();
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
+    private MSFactory() {
+        // not used
     }
 
-    ret.setProperties(properties);
+    public static MS newDB(String dbname, Properties properties) throws UnknownMSException {
+        ClassLoader classLoader = MSFactory.class.getClassLoader();
 
-    return new MSWrapper(ret, tracer);
-  }
+        MS ret;
+
+        try {
+            Class dbclass = classLoader.loadClass(dbname);
+
+            ret = (MS) dbclass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        ret.setProperties(properties);
+
+        //return new MSWrapper(ret);
+        return ret;
+    }
 
 }

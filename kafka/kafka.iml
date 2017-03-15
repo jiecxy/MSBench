@@ -11,6 +11,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.yahoo.ycsb:core:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="core" scope="PROVIDED" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: net.sourceforge.argparse4j:argparse4j:0.5.0" level="project" />
   </component>
 </module>

@@ -1,7 +1,7 @@
-package cn.ac.ict;
+package cn.ac.ict.exception;
 
 /**
- * Created by apple on 2017/3/1.
+ * Created by jiecxy on 2017/3/1.
  */
 public class MSException extends Exception {
 
