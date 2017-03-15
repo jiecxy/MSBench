@@ -37,7 +37,7 @@ public class Constants {
 
     // For Throughput
     public static final String TP = "tp";
-    public static final String TP_DOC = "The Initial throughput. -1: No limit throughput. For the throughput strategy: NoLimitThroughput / GradualChangeThroughput";
+    public static final String TP_DOC = "The Initial throughput. -1: No limit throughput. For the throughput strategy: NoLimitThroughput / ConstantThroughput(only this property is set) / GradualChangeThroughput";
     public static final String FTP = "ftp";
     public static final String FTP_DOC = "The final throughput (messages/second). For the throughput strategy: GradualChangeThroughput";
     public static final String CTP = "ctp";
