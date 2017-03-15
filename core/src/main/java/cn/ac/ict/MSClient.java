@@ -805,42 +805,42 @@ public final class MSClient {
   }
 
 
-  // 用来初始化MS
-  private static List<ClientThread> initMS(String dbname, Properties props, int threadcount,
+    // 用来初始化MS
+    private static List<ClientThread> initMS(String dbname, Properties props, int threadcount,
                                            double targetperthreadperms, Workload workload
                                            CountDownLatch completeLatch) {
 
-    final List<ClientThread> clients = new ArrayList<>(threadcount);
-    try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
-      int opcount;
+        final List<ClientThread> clients = new ArrayList<>(threadcount);
+        try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
+          int opcount;
 
-      DB db;
-      try {
-        db = MSFactory.newDB(dbname, props, tracer);
-      } catch (UnknownDBException e) {
-        System.out.println("Unknown DB " + dbname);
-        initFailed = true;
-        break;
-      }
+          DB db;
+          try {
+            db = MSFactory.newDB(dbname, props, tracer);
+          } catch (UnknownDBException e) {
+            System.out.println("Unknown DB " + dbname);
+            initFailed = true;
+            break;
+          }
 
-      int threadopcount = opcount / threadcount;
+          int threadopcount = opcount / threadcount;
 
-      // ensure correct number of operations, in case opcount is not a multiple of threadcount
-      if (threadid < opcount % threadcount) {
-        ++threadopcount;
-      }
+          // ensure correct number of operations, in case opcount is not a multiple of threadcount
+          if (threadid < opcount % threadcount) {
+            ++threadopcount;
+          }
 
-      ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
-              completeLatch);
+          ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
+                  completeLatch);
 
-      clients.add(t);
-      if (initFailed) {
-        System.err.println("Error initializing datastore bindings.");
-        System.exit(0);
-      }
+          clients.add(t);
+          if (initFailed) {
+            System.err.println("Error initializing datastore bindings.");
+            System.exit(0);
+          }
+        }
+        return clients;
     }
-    return clients;
-  }
 
 
 
@@ -848,99 +848,44 @@ public final class MSClient {
 
   //TODO 后期需要一个自定义场景类
 
-  /** Get the command-line argument parser. */
-  //TODO 把参数改成静态变量
-  private static ArgumentParser argParser() {
-    ArgumentParser parser = ArgumentParsers
+    /** Get the command-line argument parser. */
+    //TODO 把参数改成静态变量
+    private static ArgumentParser argParser() {
+        ArgumentParser parser = ArgumentParsers
             .newArgumentParser("MSBench")
             .defaultHelp(true)
             .description("This tool is used to verify the MS performance.");
 
-    parser.addArgument(CONFIG_PRE + SN)
-            .action(store())
-            .required(true)
-            .type(Integer.class)
-            .metavar(SN)
-            .dest(SN)
-            .help(SN_DOC);
+        parser.addArgument(CONFIG_PRE + SN).action(store()).required(true).type(Integer.class).metavar(SN).dest(SN).help(SN_DOC);
 
-    parser.addArgument(CONFIG_PRE + NAME)
-            .action(store())
-            .required(true)
-            .type(String.class)
-            .metavar(NAME)
-            .dest(NAME)
-            .help(NAME_DOC);
+        parser.addArgument(CONFIG_PRE + NAME).action(store()).required(true).type(String.class).metavar(NAME).dest(NAME).help(NAME_DOC);
 
-    parser.addArgument(CONFIG_PRE + W)
-            .action(store())
-            .required(false)
-            .type(Integer.class)
-            .metavar(W)
-            .dest(W)
-            .help(W_DOC);
+        parser.addArgument(CONFIG_PRE + W).action(store()).required(false).type(Integer.class).metavar(W).dest(W).help(W_DOC);
 
-    parser.addArgument(CONFIG_PRE + R)
-            .action(store())
-            .required(false)
-            .type(Integer.class)
-            .metavar(R)
-            .dest(R)
-            .help(R_DOC);
+        parser.addArgument(CONFIG_PRE + SYNC).action(store()).required(false).type(Integer.class).metavar(SYNC).dest(SYNC).help(SYNC_DOC);
 
-    parser.addArgument(CONFIG_PRE + FROM)
-            .action(store())
-            .required(false)
-            .type(Integer.class)
-            .metavar(FROM)
-            .dest(FROM)
-            .help(FROM_DOC);
+        parser.addArgument(CONFIG_PRE + R).action(store()).required(false).type(Integer.class).metavar(R).dest(R).help(R_DOC);
 
-    parser.addArgument(CONFIG_PRE + MS)
-            .action(store())
-            .required(true)
-            .type(Integer.class)
-            .metavar("ms")
-            .help("Message Size (Byte)");
+        parser.addArgument(CONFIG_PRE + FROM).action(store()).required(false).type(Integer.class).metavar(FROM).dest(FROM).help(FROM_DOC);
 
-    parser.addArgument("-tr")
-            .action(store())
-            .required(true)
-            .type(Integer.class)
-            .metavar("tr")
-            .help("Test Time (seconds)");
+        parser.addArgument(CONFIG_PRE + MS).action(store()).required(true).type(Integer.class).metavar(MS).help(MS_DOC);
 
-    parser.addArgument("-hosts")
-            .action(store())
-            .required(true)
-            .type(String.class)
-            .metavar("hosts")
-            .help("The hosts used to be clients. Writer or Reader threads will be assigned to these hosts by round robin.");
+        parser.addArgument(CONFIG_PRE + TR).action(store()).required(true).type(Integer.class).metavar(TR).help(TR_DOC);
 
-    parser.addArgument("-tp")
-            .action(store())
-            .required(true)
-            .type(Integer.class)
-            .metavar("tp")
-            .help("The Initial throughput. If ");
+        parser.addArgument(CONFIG_PRE + HOSTS).action(store()).required(true).type(String.class).metavar(HOSTS).help(HOSTS_DOC);
 
-    parser.addArgument("--producer-props")
-            .nargs("+")
-            .required(false)
-            .metavar("PROP-NAME=PROP-VALUE")
-            .type(String.class)
-            .dest("producerConfig")
-            .help("kafka producer related configuration properties like bootstrap.servers,client.id etc. " +
-                    "These configs take precedence over those passed via --producer.config.");
+        parser.addArgument(CONFIG_PRE + TP).action(store()).required(false).type(Integer.class).metavar(TP).dest(TP).help(TP_DOC);
 
-    parser.addArgument("--producer.config")
-            .action(store())
-            .required(false)
-            .type(String.class)
-            .metavar("CONFIG-FILE")
-            .dest("producerConfigFile")
-            .help("producer config properties file.");
+        parser.addArgument(CONFIG_PRE + FTP).action(store()).required(false).type(Integer.class).metavar(FTP).dest(FTP).help(FTP_DOC);
 
-    return parser;
-  }
+        parser.addArgument(CONFIG_PRE + CTP).action(store()).required(false).type(Integer.class).metavar(CTP).dest(CTP).help(CTP_DOC);
+
+        parser.addArgument(CONFIG_PRE + CTPS).action(store()).required(false).type(Integer.class).metavar(CTPS).dest(CTPS).help(CTPS_DOC);
+
+        parser.addArgument(CONFIG_PRE + RTPL).action(store()).required(false).type(String.class).metavar(RTPL).dest(RTPL).help(RTPL_DOC);
+
+        parser.addArgument(CONFIG_PRE + CF).action(store()).required(false).type(String.class).metavar(CF).dest(CF).help(CF_DOC);
+
+        return parser;
+    }
 }
