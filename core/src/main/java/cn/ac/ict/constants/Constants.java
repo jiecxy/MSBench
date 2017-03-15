@@ -44,6 +44,7 @@ public class Constants {
     public static final String CTP_DOC = "The change throughput every interval (messages/second). For the throughput strategy: GradualChangeThroughput";
     public static final String CTPS = "ctps";
     public static final String CTPS_DOC = "The change interval (second). For the throughput strategy: GivenRandomChangeThroughputList / GradualChangeThroughput";
+
     public static final String RTPL = "rtpl";
     public static final String RTPL_DOC = "The random throughput list (messages/second). For the throughput strategy: GivenRandomChangeThroughputList.";
 
