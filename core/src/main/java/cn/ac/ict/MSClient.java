@@ -511,6 +511,7 @@ class ClientThread implements Runnable {
 public final class Client {
   private Client() {
     //not used
+
   }
 
   public static final String DEFAULT_RECORD_COUNT = "0";
