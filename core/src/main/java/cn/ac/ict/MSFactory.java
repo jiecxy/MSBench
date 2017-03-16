@@ -22,7 +22,7 @@ import cn.ac.ict.exception.UnknownMSException;
 import java.util.Properties;
 
 /**
- * Creates a MS layer by dynamically classloading the specified MS class.
+ * Creates a MESSAGE_SIZE layer by dynamically classloading the specified MESSAGE_SIZE class.
  */
 public final class MSFactory {
 
