@@ -39,7 +39,7 @@ public class Constants {
     public static final String WRITER_DOC = "Indicate this process is writer.";
     public static final String WRITER_NUM = "w";
     public static final String WRITER_NUM_DOC = "The number of writer.";
-    public static final String SYNC = "";
+    public static final String SYNC = "sync";
     public static final String SYNC_DOC = "The write mode: 0: Async; 1 Sync";
     public static final String MESSAGE_SIZE = "ms";
     public static final String MESSAGE_SIZE_DOC = "Message Size (Byte).";

@@ -36,20 +36,32 @@ import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
  */
 public class MSClient {
 
-    public static boolean checkRequiredProperties(Properties props) {
-      return false;
+    private String[] args = null;
+    private ArgumentParser parser = null;
+    private Communication com = null;
+    private Worker worker = null;
+
+    // For global variables
+    private String systemClass = null;
+
+    public MSClient(String[] args) {
+        this.args = args;
+        parser = argParser();
     }
 
-    public static void main(String[] args) {
-        ArgumentParser parser = argParser();
+    private void initArguments() {
         try {
             Namespace res = parser.parseArgs(args);
+
+            systemClass = res.getString(SYSTEM);
+
+            Boolean isMaster = res.getBoolean(MASTER);
+
 
             // Check is it master
 
 
-            //TODO 检查若w和r都没有则抛异常
-            //TODO 解析Hosts
+            //TODO 解析参数
 
 
         } catch (ArgumentParserException e) {
@@ -63,12 +75,23 @@ public class MSClient {
         }
     }
 
+    public static boolean checkRequiredProperties(Properties props) {
+      return false;
+    }
+
+    public static void main(String[] args) {
+
+        MSClient client = new MSClient(args);
+
+
+    }
+
 
     //TODO 后期需要一个自定义场景类
 
     /** Get the command-line argument parser. */
     //TODO 把参数改成静态变量
-    private static ArgumentParser argParser() {
+    private ArgumentParser argParser() {
         ArgumentParser parser = ArgumentParsers
             .newArgumentParser("MSBench")
             .defaultHelp(true)
