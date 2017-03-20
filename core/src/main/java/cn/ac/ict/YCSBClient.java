@@ -552,7 +552,7 @@ public final class Client {
 
   public static void usageMessage() {
 
-    System.out.println("Usage: java cn.ac.ict.MSClient [options]");
+    System.out.println("Usage: java cn.ac.ict.MSBClient [options]");
     System.out.println("Options:");
     System.out.println("  -threads n: execute using n threads (default: 1) - can also be specified as the \n" +
             "        \"threadcount\" property using -p");

@@ -26,7 +26,6 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import java.util.*;
 
 import static cn.ac.ict.constants.Constants.*;
-import static net.sourceforge.argparse4j.impl.Arguments.append;
 import static net.sourceforge.argparse4j.impl.Arguments.store;
 import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
 
@@ -34,17 +33,18 @@ import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
 /**
  * Main class for executing MSBench.
  */
-public class MSClient {
+public class MSBClient {
 
     private String[] args = null;
     private ArgumentParser parser = null;
     private Communication com = null;
     private Worker worker = null;
+    private MS ms = null;
 
     // For global variables
     private String systemClass = null;
 
-    public MSClient(String[] args) {
+    public MSBClient(String[] args) {
         this.args = args;
         parser = argParser();
     }
@@ -54,14 +54,15 @@ public class MSClient {
             Namespace res = parser.parseArgs(args);
 
             systemClass = res.getString(SYSTEM);
+            // TODO 加载用户指定的MS类
 
             Boolean isMaster = res.getBoolean(MASTER);
 
 
             // Check is it master
-
-
-            //TODO 解析参数
+            //TODO 判断是否为 master
+            // 如果为master，校验需要master的参数
+            // 如果为Writer 或 reader，校验相关参数
 
 
         } catch (ArgumentParserException e) {
@@ -81,9 +82,7 @@ public class MSClient {
 
     public static void main(String[] args) {
 
-        MSClient client = new MSClient(args);
-
-
+        MSBClient client = new MSBClient(args);
     }
 
 
