@@ -18,6 +18,7 @@
 package cn.ac.ict;
 
 
+import cn.ac.ict.communication.Communication;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
