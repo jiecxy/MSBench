@@ -1,9 +1,6 @@
 package cn.ac.ict.communication;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.actor.Terminated;
+import akka.actor.*;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -11,13 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.ac.ict.communication.Command.*;
-
 import static cn.ac.ict.communication.Command.*;
 
-
 /**
- * Created by jiecxu on 2017/3/17.
+ * Created by jiecxy on 2017/3/17.
  */
 public class MasterCom extends Communication {
 
@@ -64,6 +58,16 @@ public class MasterCom extends Communication {
                         }
                     } else {
                         unhandled(message);
+                    }
+                    break;
+                case METRICS_WINDOW:
+                    switch (msg.type) {
+                        case RESPONSE:
+                            System.out.println("METRICS_WINDOW = " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
                     }
                     break;
                 default:

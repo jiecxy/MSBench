@@ -1,13 +1,9 @@
 package cn.ac.ict.communication;
 
-import org.omg.CORBA.Object;
-
-import java.io.Serializable;
-
 import java.io.Serializable;
 
 /**
- * Created by apple on 2017/3/20.
+ * Created by jiecxy on 2017/3/20.
  */
 public class Command implements Serializable {
 
@@ -19,6 +15,7 @@ public class Command implements Serializable {
     public static final int METRICS_HEAD = 5;
     public static final int METRICS_WINDOW = 6;
     public static final int METRICS_TAIL = 7;
+    public static final int STOP_CLIENT = 8;
 
     public enum TYPE implements Serializable {
         REQUEST, RESPONSE, UNKNOWN;
@@ -28,10 +25,12 @@ public class Command implements Serializable {
         SUCCESS, FAIL, UNKNOWN, EXISTED;
     }
 
+
     public int api = -1;
     public TYPE type = TYPE.UNKNOWN;
     public STATUS status = STATUS.FAIL;
-    public java.lang.Object data = null;
+    public Object data = null;
+    public int version = -1;
 
     public Command(int api, TYPE type) {
         this.api = api;
@@ -40,6 +39,24 @@ public class Command implements Serializable {
 
     @Override
     public String toString() {
-        return "{ ackAPI = " + api + "; type = " + type + " }";
+        return "{ API = " + getAPIName(api)
+                + "; type = " + type
+                + "; status = " + status
+                + "; version = " + version
+                + "; data = " + data + " }";
+    }
+
+    private String getAPIName(int api) {
+        switch (api) {
+            case REGISTER_WORKER: return "REGISTER_WORKER";
+            case HEARTBEAT: return "HEARTBEAT";
+            case START_WORK: return "START_WORK";
+            case STOP_WORK: return "STOP_WORK";
+            case METRICS_HEAD: return "METRICS_HEAD";
+            case METRICS_WINDOW: return "METRICS_WINDOW";
+            case METRICS_TAIL: return "METRICS_TAIL";
+            case STOP_CLIENT: return "STOP_CLIENT";
+            default: return "UNKNOWN";
+        }
     }
 }

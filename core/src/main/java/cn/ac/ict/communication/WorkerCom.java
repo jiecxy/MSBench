@@ -1,7 +1,10 @@
 package cn.ac.ict.communication;
 
 import akka.actor.*;
-import cn.ac.ict.Worker;
+import cn.ac.ict.worker.Worker;
+import cn.ac.ict.stat.StatHeader;
+import cn.ac.ict.stat.StatTail;
+import cn.ac.ict.stat.StatWindow;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
@@ -13,9 +16,10 @@ import java.util.concurrent.TimeUnit;
 import static cn.ac.ict.communication.Command.*;
 
 /**
- * Created by apple on 2017/3/20.
+ * Created by jiecxy on 2017/3/20.
  */
-public class WorkerCom extends Communication {
+public class WorkerCom extends Communication implements CallBack {
+
 
     private String workerID = UUID.randomUUID().toString();
     private String hostURL;
@@ -27,6 +31,7 @@ public class WorkerCom extends Communication {
     private Cancellable registerScheduler;
     private Cancellable heartbeatScheduler;
     private Worker worker = null;
+    private Thread workerThread = null;
 
     public WorkerCom(String hostURL, int port, String masterHostURL, int masterPort) {
         this.hostURL = hostURL;
@@ -48,11 +53,6 @@ public class WorkerCom extends Communication {
         System.out.println("WorkerCom start " + args[0] + ":" + args[2]);
         ActorRef worker = system.actorOf(Props.create(WorkerCom.class, args[0], Integer.parseInt(args[2]), args[0], Integer.parseInt(args[1])), "worker");
         worker.tell("WorkerCom MESSAGES", worker);
-        try {
-            Thread.sleep((long)5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         //system.stop(worker);
         //system.terminate();
     }
@@ -62,6 +62,7 @@ public class WorkerCom extends Communication {
         super.preStart();
         Command registerCmd = new Command(REGISTER_WORKER, TYPE.REQUEST);
         registerCmd.data = workerID;
+        //TODO 改成尝试次数
         registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(2, TimeUnit.SECONDS),
                 getSelf(), registerCmd, getContext().dispatcher(), getSelf());
     }
@@ -92,6 +93,78 @@ public class WorkerCom extends Communication {
                             break;
                     }
                     break;
+                case START_WORK:
+                    switch (msg.type) {
+                        case REQUEST:
+                            startWorker();
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case STOP_WORK:
+                    switch (msg.type) {
+                        case REQUEST:
+                            stopWorker();
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case STOP_CLIENT:
+                    switch (msg.type) {
+                        case REQUEST:
+                            stopAll();
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                // Only from Worker
+                case METRICS_WINDOW:
+                    switch (msg.type) {
+                        case REQUEST:
+                            Command cmd = new Command(METRICS_WINDOW, TYPE.RESPONSE);
+                            cmd.data = msg.data;
+                            master.tell(cmd, getSelf());
+                            System.out.println("WorkerCom METRICS_WINDOW " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                // Only from Worker
+                case METRICS_HEAD:
+                    switch (msg.type) {
+                        case REQUEST:
+                            Command cmd = new Command(METRICS_HEAD, TYPE.RESPONSE);
+                            cmd.data = msg.data;
+                            master.tell(cmd, getSelf());
+                            System.out.println("WorkerCom METRICS_HEAD " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                // Only from Worker
+                case METRICS_TAIL:
+                    switch (msg.type) {
+                        case REQUEST:
+                            Command cmd = new Command(METRICS_TAIL, TYPE.RESPONSE);
+                            cmd.data = msg.data;
+                            master.tell(cmd, getSelf());
+                            System.out.println("WorkerCom METRICS_TAIL " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
                 default:
                     unhandled(message);
                     break;
@@ -101,7 +174,19 @@ public class WorkerCom extends Communication {
         }
     }
 
-    private void close() {
+    private void startWorker() {
+        worker = new Worker(this);
+        workerThread = new Thread(worker);
+        workerThread.start();
+    }
+
+    private void stopWorker() {
+        if (worker != null)
+            worker.stopWork();
+    }
+
+    private void stopAll() {
+        stopWorker();
         getContext().system().stop(getSelf());
         getContext().system().terminate();
     }
@@ -113,9 +198,28 @@ public class WorkerCom extends Communication {
         System.out.println("WorkerCom postStop ");
     }
 
+    public void onSendStatHeader(StatHeader header) {
+        System.out.println("WorkerCom onSendStatHeader " + header);
 
-    public void sendWindowMetrics(){
-        //worker = new Worker(this);
+        Command cmd = new Command(METRICS_HEAD, TYPE.REQUEST);
+        cmd.data = header;
+        getSelf().tell(cmd, getSelf());
     }
 
+
+    public void onSendStatWindow(StatWindow window) {
+        System.out.println("WorkerCom onSendWindowMetrics " + window);
+
+        Command cmd = new Command(METRICS_WINDOW, TYPE.REQUEST);
+        cmd.data = window;
+        getSelf().tell(cmd, getSelf());
+    }
+
+    public void onSendStatTail(StatTail tail) {
+        System.out.println("WorkerCom onSendStatTail " + tail);
+
+        Command cmd = new Command(METRICS_TAIL, TYPE.REQUEST);
+        cmd.data = tail;
+        getSelf().tell(cmd, getSelf());
+    }
 }
