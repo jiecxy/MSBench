@@ -15,9 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 import static cn.ac.ict.communication.Command.*;
 
-/**
- * Created by jiecxy on 2017/3/20.
- */
 public class WorkerCom extends Communication implements CallBack {
 
 
@@ -81,12 +78,24 @@ public class WorkerCom extends Communication implements CallBack {
                         case RESPONSE:
                             if (msg.status == Command.STATUS.SUCCESS) {
                                 registerScheduler.cancel();
+                                startHeartBeatScheduler();
                             } else if (msg.status == Command.STATUS.EXISTED) {
                                 registerScheduler.cancel();
                                 System.out.println("WorkerCom already registered");
                             } else if (msg.status == Command.STATUS.FAIL) {
                                 System.out.println("WorkerCom register fail");
                             }
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case HEARTBEAT:
+                    switch (msg.type) {
+                        case REQUEST:
+                            msg.data = workerID;
+                            master.tell(msg, getSelf());
                             break;
                         default:
                             unhandled(message);
@@ -174,6 +183,11 @@ public class WorkerCom extends Communication implements CallBack {
         }
     }
 
+    private void startHeartBeatScheduler() {
+        heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(CHECK_TIMEOUT_SEC / 4, TimeUnit.SECONDS),
+                getSelf(), new Command(HEARTBEAT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
+    }
+
     private void startWorker() {
         worker = new Worker(this);
         workerThread = new Thread(worker);
@@ -205,7 +219,6 @@ public class WorkerCom extends Communication implements CallBack {
         cmd.data = header;
         getSelf().tell(cmd, getSelf());
     }
-
 
     public void onSendStatWindow(StatWindow window) {
         System.out.println("WorkerCom onSendWindowMetrics " + window);

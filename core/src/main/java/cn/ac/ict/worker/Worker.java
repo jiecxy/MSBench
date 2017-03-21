@@ -5,9 +5,7 @@ import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
 
-/**
- * Created by jiecxy on 2017/3/15.
- */
+
 public class Worker implements Runnable {
 
 

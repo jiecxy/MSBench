@@ -3,22 +3,22 @@ package cn.ac.ict.communication;
 import akka.actor.*;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import scala.concurrent.duration.Duration;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static cn.ac.ict.communication.Command.*;
 
-/**
- * Created by jiecxy on 2017/3/17.
- */
 public class MasterCom extends Communication {
 
-    private Map<String, ActorRef> workers = new HashMap<String, ActorRef>();
+    private Map<String, WorkerComINfo> workers = new HashMap<String, WorkerComINfo>();
     private String hostURL;
     private int port;
-    private int WORKER_NUM = 1;
+    private final int REQUIRED_WORKER_NUM = 2;
+    private Cancellable checkTimeoutScheduler = null;
 
     public MasterCom(String hostURL, int port) {
         this.hostURL = hostURL;
@@ -42,6 +42,19 @@ public class MasterCom extends Communication {
         system.awaitTermination();
     }
 
+    @Override
+    public void preStart() throws Exception {
+        super.preStart();
+        checkTimeoutScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.SECONDS), Duration.create(CHECK_TIMEOUT_SEC, TimeUnit.SECONDS),
+                getSelf(), new Command(CHECK_TIMEOUT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
+    }
+
+    @Override
+    public void postStop() throws Exception {
+        super.postStop();
+        checkTimeoutScheduler.cancel();
+    }
+
     public void onReceive(Object message) throws Throwable {
         System.out.println("MasterCom receive " + message + " from sender: " + getSender());
         if (message instanceof Command) {
@@ -60,10 +73,50 @@ public class MasterCom extends Communication {
                         unhandled(message);
                     }
                     break;
+                case METRICS_HEAD:
+                    switch (msg.type) {
+                        case RESPONSE:
+                            System.out.println("METRICS_HEAD = " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case METRICS_TAIL:
+                    switch (msg.type) {
+                        case RESPONSE:
+                            System.out.println("METRICS_TAIL = " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
                 case METRICS_WINDOW:
                     switch (msg.type) {
                         case RESPONSE:
                             System.out.println("METRICS_WINDOW = " + msg.data);
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case CHECK_TIMEOUT:
+                    switch (msg.type) {
+                        case REQUEST:
+                            checkTimeoutWorker();
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case HEARTBEAT:
+                    switch (msg.type) {
+                        case RESPONSE:
+                            workers.get(msg.data).lastHeartbeat = System.currentTimeMillis();
                             break;
                         default:
                             unhandled(message);
@@ -76,29 +129,74 @@ public class MasterCom extends Communication {
             }
         } else if (message instanceof Terminated) {
             Terminated t = (Terminated)message;
-            // TODO 判断是否中途结束
             System.out.println("Terminated " + t.actor());
+            for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+                if (entry.getValue().ref.equals(t.getActor())) {
+                    entry.getValue().status = WorkerComINfo.STATUS.TERMINATED;
+                }
+            }
+//            if (checkIfAllDead()) {
+//                stopMaster();
+//            }
         } else {
             System.out.println("MasterCom onReceive " + message);
         }
     }
 
+    private void stopMaster() {
+        getContext().system().stop(getSelf());
+        getContext().system().terminate();
+    }
+
+    private boolean checkIfAllDead() {
+        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+            if (entry.getValue().status != WorkerComINfo.STATUS.TERMINATED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void checkTimeoutWorker() {
+        long now = System.currentTimeMillis();
+        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+            if (now - entry.getValue().lastHeartbeat > CHECK_TIMEOUT_SEC) {
+                entry.getValue().ref.isTerminated();
+                //TODO 有worker超时，目前先关闭所有
+                System.out.println("Some Worker Timeout");
+                stopAllClients();
+            }
+        }
+    }
+
+    private void stopAllClients() {
+        sendToAllLiveWorkers(new Command(STOP_CLIENT, TYPE.REQUEST));
+    }
+
     private void sendStartWorkerRequest() {
-        for (Map.Entry<String, ActorRef> entry : workers.entrySet()) {
-            entry.getValue().tell(new Command(START_WORK, TYPE.REQUEST), getSelf());
+        sendToAllLiveWorkers(new Command(START_WORK, TYPE.REQUEST));
+    }
+
+    private void sendToAllLiveWorkers(Object object) {
+        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+            if (entry.getValue().status == WorkerComINfo.STATUS.RUNNING) {
+                entry.getValue().ref.tell(object, getSelf());
+            }
         }
     }
 
     private boolean registerWorker(Command request) {
-        if (workers.containsKey((String)request.data)) {
+        if (workers.containsKey(request.data)) {
             Command cmd = new Command(REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.EXISTED;
             getSender().tell(cmd, getSelf());
             return false;
         } else {
-            workers.put((String)request.data, getSender());
+            workers.put((String)request.data, new WorkerComINfo(getSender(), System.currentTimeMillis()));
             getContext().watch(getSender());
+
             System.out.println("register " + request.data);
+
             Command cmd = new Command(REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.SUCCESS;
             getSender().tell(cmd, getSelf());
@@ -107,6 +205,12 @@ public class MasterCom extends Communication {
     }
 
     private boolean checkWorkersReady() {
-        return workers.size() == WORKER_NUM;
+        int count = 0;
+        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+            if (entry.getValue().status == WorkerComINfo.STATUS.RUNNING) {
+                count++;
+            }
+        }
+        return count == REQUIRED_WORKER_NUM;
     }
 }
