@@ -1,14 +1,7 @@
 package cn.ac.ict.communication;
 
-import org.omg.CORBA.Object;
-
 import java.io.Serializable;
 
-import java.io.Serializable;
-
-/**
- * Created by apple on 2017/3/20.
- */
 public class Command implements Serializable {
 
     // REQUEST/RESPONSE API
@@ -19,27 +12,54 @@ public class Command implements Serializable {
     public static final int METRICS_HEAD = 5;
     public static final int METRICS_WINDOW = 6;
     public static final int METRICS_TAIL = 7;
+    public static final int STOP_CLIENT = 8;
+    public static final int CHECK_TIMEOUT = 9;
 
     public enum TYPE implements Serializable {
         REQUEST, RESPONSE, UNKNOWN;
     }
 
     public enum STATUS implements Serializable {
-        SUCCESS, FAIL, UNKNOWN, EXISTED;
+        SUCCESS, FAIL, REQUESTING, EXISTED;
     }
+
 
     public int api = -1;
     public TYPE type = TYPE.UNKNOWN;
     public STATUS status = STATUS.FAIL;
-    public java.lang.Object data = null;
+    public Object data = null;
+    public int version = -1;
 
     public Command(int api, TYPE type) {
         this.api = api;
         this.type = type;
+        if (this.type == TYPE.REQUEST) {
+            status = STATUS.REQUESTING;
+        } else if (this.type == TYPE.RESPONSE) {
+            status = STATUS.SUCCESS;
+        }
     }
 
     @Override
     public String toString() {
-        return "{ ackAPI = " + api + "; type = " + type + " }";
+        return "{ API = " + getAPIName(api)
+                + "; type = " + type
+                + "; status = " + status
+                + "; version = " + version
+                + "; data = " + data + " }";
+    }
+
+    private String getAPIName(int api) {
+        switch (api) {
+            case REGISTER_WORKER: return "REGISTER_WORKER";
+            case HEARTBEAT: return "HEARTBEAT";
+            case START_WORK: return "START_WORK";
+            case STOP_WORK: return "STOP_WORK";
+            case METRICS_HEAD: return "METRICS_HEAD";
+            case METRICS_WINDOW: return "METRICS_WINDOW";
+            case METRICS_TAIL: return "METRICS_TAIL";
+            case STOP_CLIENT: return "STOP_CLIENT";
+            default: return "UNKNOWN";
+        }
     }
 }
