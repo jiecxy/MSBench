@@ -33,7 +33,7 @@
       <module name="distributedlog" target="1.5" />
       <module name="kafka" target="1.5" />
       <module name="MSBench" target="1.5" />
-      <module name="pulsar" target="1.5" />
+      <module name="pulsar" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

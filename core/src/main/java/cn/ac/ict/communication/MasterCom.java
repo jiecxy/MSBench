@@ -1,10 +1,12 @@
 package cn.ac.ict.communication;
 
 import akka.actor.*;
+import cn.ac.ict.MS;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -15,14 +17,19 @@ import static cn.ac.ict.communication.Command.*;
 public class MasterCom extends Communication {
 
     private Map<String, WorkerComINfo> workers = new HashMap<String, WorkerComINfo>();
-    private String hostURL;
-    private int port;
-    private final int REQUIRED_WORKER_NUM = 2;
+    private int REQUIRED_WORKER_NUM;
     private Cancellable checkTimeoutScheduler = null;
 
-    public MasterCom(String hostURL, int port) {
-        this.hostURL = hostURL;
-        this.port = port;
+    private ArrayList<String> streams;
+    private int writerNum;
+    private int readerNum;
+
+    public MasterCom(String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
+        super(masterIP, masterPort, runTime);
+        this.streams = streams;
+        this.writerNum = writerNum;
+        this.readerNum = readerNum;
+        REQUIRED_WORKER_NUM = writerNum + readerNum;
     }
 
     public static void main(String[] args) {
@@ -36,7 +43,8 @@ public class MasterCom extends Communication {
         Config akkaConf = ConfigFactory.parseProperties(props);
         ActorSystem system = ActorSystem.create("MSBenchMaster", akkaConf);
         System.out.println("MasterCom start " + args[0] + ":" + args[1]);
-        ActorRef master = system.actorOf(Props.create(MasterCom.class, args[0], Integer.parseInt(args[1])), "master");
+        //ActorRef master = system.actorOf(Props.create(MasterCom.class, args[0], Integer.parseInt(args[1])), "master");
+        ActorRef master = system.actorOf(Props.create(MasterCom.class), "master");
         System.out.println("MasterCom tell ");
         master.tell("MasterCom MESSAGES", master);
         system.awaitTermination();

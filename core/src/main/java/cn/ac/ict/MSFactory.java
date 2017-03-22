@@ -30,7 +30,7 @@ public final class MSFactory {
         // not used
     }
 
-    public static MS newDB(String dbname, Properties properties) throws UnknownMSException {
+    public static MS newMS(String dbname, Properties properties) throws UnknownMSException {
         ClassLoader classLoader = MSFactory.class.getClassLoader();
 
         MS ret;

@@ -1,10 +1,12 @@
 package cn.ac.ict.communication;
 
 import akka.actor.*;
+import cn.ac.ict.MS;
 import cn.ac.ict.worker.Worker;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
+import cn.ac.ict.worker.throughput.ThroughputStrategy;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
@@ -19,24 +21,46 @@ public class WorkerCom extends Communication implements CallBack {
 
 
     private String workerID = UUID.randomUUID().toString();
-    private String hostURL;
-    private int port;
-    private String masterHostURL;
-    private int masterPort;
-    private String path;
     private ActorSelection master;
     private Cancellable registerScheduler;
     private Cancellable heartbeatScheduler;
     private Worker worker = null;
     private Thread workerThread = null;
 
-    public WorkerCom(String hostURL, int port, String masterHostURL, int masterPort) {
-        this.hostURL = hostURL;
-        this.port = port;
-        this.masterHostURL = masterHostURL;
-        this.masterPort = masterPort;
-        path = "akka.tcp://MSBenchMaster@" + masterHostURL +  ":" + masterPort + "/user/master";
+    private Boolean isWriter;
+    private MS ms = null;
+    private String stream;
+    private String workerIP;
+
+    // Writer
+    private int messageSize;
+    private boolean isSync;
+    private ThroughputStrategy strategy;
+
+    // Reader
+    private int from;
+
+    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms) {
+        super(masterIP, masterPort, runTime);
+        String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
         master = getContext().actorSelection(path);
+        this.ms = ms;
+        this.stream = stream;
+        isWriter = false;
+        this.from = from;
+        this.workerIP = workerIP;
+    }
+
+    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+        super(masterIP, masterPort, runTime);
+        String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
+        master = getContext().actorSelection(path);
+        isWriter = true;
+        this.ms = ms;
+        this.stream = stream;
+        this.messageSize = messageSize;
+        this.isSync = isSync;
+        this.strategy = strategy;
     }
 
     public static void main(String[] args) {

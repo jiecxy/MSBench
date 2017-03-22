@@ -11,16 +11,13 @@ import java.util.Properties;
 public abstract class Communication extends UntypedActor {
 
     protected int CHECK_TIMEOUT_SEC = 8;
-    protected MS ms = null;
-    protected ArrayList<String> streams = null;
     protected int runTime = 0;
-    protected Properties props = null;
-    protected int heartbeat = 0;
+    protected String masterIP;
+    protected int masterPort;
 
-//    public Communication(MS ms, ArrayList<String> streams, int runTime, Properties props) {
-//        this.ms = ms;
-//        this.streams = streams;
-//        this.runTime = runTime;
-//        this.props = props;
-//    }
+    public Communication(String masterIP, int masterPort, int runTime) {
+        this.runTime = runTime;
+        this.masterIP = masterIP;
+        this.masterPort = masterPort;
+    }
 }
