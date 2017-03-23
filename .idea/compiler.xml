@@ -25,14 +25,21 @@
         <module name="core" />
         <module name="distributedlog" />
         <module name="kafka" />
+        <module name="ms-specific-descriptor" />
+        <module name="ms-specific-descriptor (1)" />
         <module name="pulsar" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="core" target="1.5" />
-      <module name="distributedlog" target="1.5" />
-      <module name="kafka" target="1.5" />
-      <module name="MSBench" target="1.5" />
+      <module name="binding-parent" target="1.5" />
+      <module name="core" target="1.7" />
+      <module name="datastore-specific-descriptor" target="1.5" />
+      <module name="distributedlog" target="1.7" />
+      <module name="distribution" target="1.7" />
+      <module name="kafka" target="1.7" />
+      <module name="ms-specific-descriptor" target="1.7" />
+      <module name="ms-specific-descriptor (1)" target="1.5" />
+      <module name="MSBench" target="1.7" />
       <module name="pulsar" target="1.8" />
     </bytecodeTargetLevel>
   </component>

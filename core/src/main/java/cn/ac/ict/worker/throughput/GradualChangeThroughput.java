@@ -14,4 +14,13 @@ public class GradualChangeThroughput extends ThroughputStrategy {
         this.ctp = ctp;
         this.ctps = ctps;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "; "
+                + "  tp=" + tp
+                + "  ftp=" + ftp
+                + "  ctp=" + ctp
+                + "  ctps=" + ctps;
+    }
 }

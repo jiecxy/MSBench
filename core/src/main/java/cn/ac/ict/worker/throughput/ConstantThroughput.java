@@ -8,4 +8,10 @@ public class ConstantThroughput extends ThroughputStrategy {
         super(TPMODE.Constant);
         this.tp = tp;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "; "
+                + "  tp=" + tp;
+    }
 }

@@ -11,4 +11,16 @@ public class GivenRandomChangeThroughputList extends ThroughputStrategy {
         this.rtpl = rtpl;
         this.ctps = ctps;
     }
+
+    @Override
+    public String toString() {
+        String list = "[";
+        for (int t : rtpl) {
+            list += " " + t;
+        }
+        list += " ]";
+        return super.toString() + "; "
+                + "  rtpl=" + list
+                + "  ctps=" + ctps;
+    }
 }

@@ -75,6 +75,32 @@ public class MSBClient {
         return o;
     }
 
+    /**
+     *
+     * 1. Start Master
+     * Arguments: -tr 1000 -M 1.1.1.1:9999 -P master -w 1 -r 1 -sn 1 -name topic
+     *
+     * 2. Start Worker
+     * 2.1 Start Writer
+     *   Arguments:
+     *    ThroughputStrategy: NoLimitThroughput
+     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10  -tp -1
+     *
+     *    ThroughputStrategy: ConstantThroughput
+     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -tp 1000
+     *
+     *    ThroughputStrategy: GradualChangeThroughput
+     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -tp 1000 -ftp 2000 -ctp 100 -ctps 5
+     *
+     *    ThroughputStrategy: GivenRandomChangeThroughputList
+     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -rtpl 100,200,300,400 -ctps 5
+     *
+     *    Note: If you want the write mode to be sync(default is Async), then add -sync
+     *
+     * 2.2 Start Reader
+     *   Arguments:
+     *      -tr 1000 -M 1.1.1.1:9999 -P reader -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -from 0
+     */
     private void initArguments(String[] args) {
         try {
             Namespace res = parser.parseArgs(args);
@@ -105,7 +131,7 @@ public class MSBClient {
             } else {
 
                 // Get the workerIP
-                String workerIP = getStringArgOrException(res, STREAM_NAME_PREFIX);
+                String workerIP = getStringArgOrException(res, WORKER_ADDRESS);
 
                 // Get the ms class
                 try {
@@ -122,7 +148,7 @@ public class MSBClient {
                 String streamName = getStringArgOrException(res, STREAM_NAME);
                 if (process.equals(READER)) {
 
-                    int from = getIntArgOrException(res, READER_NUM);
+                    int from = getIntArgOrException(res, READ_FROM);
                     startReader(workerIP, masterIP, masterPort, runTime, streamName, from, ms);
                 } else if (process.equals(WRITER)) {
 
@@ -188,6 +214,16 @@ public class MSBClient {
     }
 
     private void startMaster(String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
+
+        System.out.println("startMaster:" + "\n"
+                + "\t" + "masterIP" + " = " + masterIP + "\n"
+                + "\t" + "masterPort" + " = " + masterPort + "\n"
+                + "\t" + "runTime" + " = " + runTime + "\n"
+                + "\t" + "streams" + " = " + streams + "\n"
+                + "\t" + "writerNum" + " = " + writerNum + "\n"
+                + "\t" + "readerNum" + " = " + readerNum);
+        //System.exit(1);
+
         Properties props = new Properties();
         props.setProperty("akka.remote.netty.tcp.hostname", masterIP);
         props.setProperty("akka.remote.netty.tcp.port", masterPort + "");
@@ -207,6 +243,16 @@ public class MSBClient {
     }
 
     private void startReader(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms) {
+        System.out.println("startReader:" + "\n"
+                + "\t" + "workerIP" + " = " + workerIP + "\n"
+                + "\t" + "masterIP" + " = " + masterIP + "\n"
+                + "\t" + "masterPort" + " = " + masterPort + "\n"
+                + "\t" + "runTime" + " = " + runTime + "\n"
+                + "\t" + "stream" + " = " + stream + "\n"
+                + "\t" + "from" + " = " + from + "\n"
+                + "\t" + "ms" + " = " + ms);
+        //System.exit(1);
+
         int workerPort = 0;
         Properties props = new Properties();
         props.setProperty("akka.actor.provider", "remote");
@@ -222,6 +268,18 @@ public class MSBClient {
     }
 
     private void startWriter(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+        System.out.println("startWriter:" + "\n"
+                + "\t" + "workerIP" + " = " + workerIP + "\n"
+                + "\t" + "masterIP" + " = " + masterIP + "\n"
+                + "\t" + "masterPort" + " = " + masterPort + "\n"
+                + "\t" + "runTime" + " = " + runTime + "\n"
+                + "\t" + "stream" + " = " + stream + "\n"
+                + "\t" + "ms" + " = " + ms + "\n"
+                + "\t" + "messageSize" + " = " + messageSize + "\n"
+                + "\t" + "isSync" + " = " + isSync + "\n"
+                + "\t" + "strategy" + " = " + strategy);
+        //System.exit(1);
+
         int workerPort = 0;
         Properties props = new Properties();
         props.setProperty("akka.actor.provider", "remote");
@@ -255,46 +313,46 @@ public class MSBClient {
     //TODO 把参数改成静态变量
     private ArgumentParser argParser() {
         parser = ArgumentParsers
-            .newArgumentParser("MSBench")
-            .defaultHelp(true)
-            .description(SYSTEM_DESCRPTION);
+                .newArgumentParser("MSBench")
+                .defaultHelp(true)
+                .description(SYSTEM_DESCRPTION);
 
         // For global variables
-        parser.addArgument(CONFIG_PRE + RUN_TIME).action(store()).required(true).type(Integer.class).metavar(RUN_TIME).help(RUN_TIME_DOC);
+        parser.addArgument(CONFIG_PRE + RUN_TIME).action(store()).required(true).type(Integer.class).metavar(RUN_TIME.toUpperCase()).help(RUN_TIME_DOC);
         //parser.addArgument(CONFIG_PRE + HOSTS).action(store()).required(true).type(String.class).metavar(HOSTS).help(HOSTS_DOC);
-        parser.addArgument(CONFIG_PRE + MASTER_ADDRESS).action(store()).required(true).type(String.class).metavar(MASTER_ADDRESS).dest(MASTER_ADDRESS).help(MASTER_ADDRESS_DOC);
+        parser.addArgument(CONFIG_PRE + MASTER_ADDRESS).action(store()).required(true).type(String.class).metavar(MASTER_ADDRESS.toUpperCase()).help(MASTER_ADDRESS_DOC);
         ArrayList<String> processes = new ArrayList<String>();
         processes.add(MASTER);
         processes.add(READER);
         processes.add(WRITER);
-        parser.addArgument(CONFIG_PRE + PROCESS).action(store()).required(true).type(String.class).metavar(PROCESS).dest(PROCESS).help(PROCESS_DOC).choices(processes);
+        parser.addArgument(CONFIG_PRE + PROCESS).action(store()).required(true).type(String.class).metavar(PROCESS.toUpperCase()).help(PROCESS_DOC).choices(processes);
 
         // For Stream
-        parser.addArgument(CONFIG_PRE + STREAM_NUM).action(store()).required(false).type(Integer.class).metavar(STREAM_NUM).dest(STREAM_NUM).help(STREAM_NUM_DOC);
-        parser.addArgument(CONFIG_PRE + STREAM_NAME_PREFIX).action(store()).required(false).type(String.class).metavar(STREAM_NAME_PREFIX).dest(STREAM_NAME_PREFIX).help(STREAM_NAME_PREFIX_DOC);
-        parser.addArgument(CONFIG_PRE + STREAM_NAME).action(store()).required(false).type(String.class).metavar(STREAM_NAME).dest(STREAM_NAME).help(STREAM_NAME_DOC);
+        parser.addArgument(CONFIG_PRE + STREAM_NUM).action(store()).required(false).type(Integer.class).metavar(STREAM_NUM.toUpperCase()).help(STREAM_NUM_DOC);
+        parser.addArgument(CONFIG_PRE + STREAM_NAME_PREFIX).action(store()).required(false).type(String.class).metavar(STREAM_NAME_PREFIX.toUpperCase()).help(STREAM_NAME_PREFIX_DOC);
+        parser.addArgument(CONFIG_PRE + STREAM_NAME).action(store()).required(false).type(String.class).metavar(STREAM_NAME.toUpperCase()).help(STREAM_NAME_DOC);
 
         // For master process
         //parser.addArgument(CONFIG_PRE + WRITER_LIST).action(store()).required(false).type(String.class).metavar(WRITER_LIST).dest(WRITER_LIST).help(WRITER_LIST_DOC);
         //parser.addArgument(CONFIG_PRE + READER_LIST).action(store()).required(false).type(String.class).metavar(READER_LIST).dest(READER_LIST).help(READER_LIST_DOC);
 
         // For worker process
-        parser.addArgument(CONFIG_PRE + WORKER_ADDRESS).action(store()).required(false).type(String.class).metavar(WORKER_ADDRESS).dest(WORKER_ADDRESS).help(WORKER_ADDRESS_DOC);
-        parser.addArgument(CONFIG_PRE + SYSTEM).action(store()).required(false).type(String.class).metavar(SYSTEM).dest(SYSTEM).help(SYSTEM_DOC);
-        parser.addArgument(CONFIG_PRE + CONFIG_FILE).action(store()).required(false).type(String.class).metavar(CONFIG_FILE).dest(CONFIG_FILE).help(CONFIG_FILE_DOC);
+        parser.addArgument(CONFIG_PRE + WORKER_ADDRESS).action(store()).required(false).type(String.class).metavar(WORKER_ADDRESS.toUpperCase()).help(WORKER_ADDRESS_DOC);
+        parser.addArgument(CONFIG_PRE + SYSTEM).action(store()).required(false).type(String.class).metavar(SYSTEM.toUpperCase()).help(SYSTEM_DOC);
+        parser.addArgument(CONFIG_PRE + CONFIG_FILE).action(store()).required(false).type(String.class).metavar(CONFIG_FILE.toUpperCase()).help(CONFIG_FILE_DOC);
         //    For Writer
-        parser.addArgument(CONFIG_PRE + WRITER_NUM).action(store()).required(false).type(Integer.class).metavar(WRITER_NUM).dest(WRITER_NUM).help(WRITER_NUM_DOC);
-        parser.addArgument(CONFIG_PRE + SYNC).action(storeTrue()).required(false).type(Boolean.class).metavar(SYNC).dest(SYNC).help(SYNC_DOC);
-        parser.addArgument(CONFIG_PRE + MESSAGE_SIZE).action(store()).required(true).type(Integer.class).metavar(MESSAGE_SIZE).help(MESSAGE_SIZE_DOC);
+        parser.addArgument(CONFIG_PRE + WRITER_NUM).action(store()).required(false).type(Integer.class).metavar(WRITER_NUM.toUpperCase()).help(WRITER_NUM_DOC);
+        parser.addArgument(CONFIG_PRE + SYNC).action(storeTrue()).required(false).type(Boolean.class).metavar(SYNC.toUpperCase()).help(SYNC_DOC);
+        parser.addArgument(CONFIG_PRE + MESSAGE_SIZE).action(store()).required(false).type(Integer.class).metavar(MESSAGE_SIZE.toUpperCase()).help(MESSAGE_SIZE_DOC);
         //        For Writer Throughput
-        parser.addArgument(CONFIG_PRE + THROUGHPUT).action(store()).required(false).type(Integer.class).metavar(THROUGHPUT).dest(THROUGHPUT).help(THROUGHPUT_DOC);
-        parser.addArgument(CONFIG_PRE + FINAL_THROUGHPUT).action(store()).required(false).type(Integer.class).metavar(FINAL_THROUGHPUT).dest(FINAL_THROUGHPUT).help(FINAL_THROUGHPUT_DOC);
-        parser.addArgument(CONFIG_PRE + CHANGE_THROUGHPUT).action(store()).required(false).type(Integer.class).metavar(CHANGE_THROUGHPUT).dest(CHANGE_THROUGHPUT).help(CHANGE_THROUGHPUT_DOC);
-        parser.addArgument(CONFIG_PRE + CHANGE_THROUGHPUT_SECONDS).action(store()).required(false).type(Integer.class).metavar(CHANGE_THROUGHPUT_SECONDS).dest(CHANGE_THROUGHPUT_SECONDS).help(CHANGE_THROUGHPUT_SECONDS_DOC);
-        parser.addArgument(CONFIG_PRE + RANDOM_THROUGHPUT_LIST).action(store()).required(false).type(String.class).metavar(RANDOM_THROUGHPUT_LIST).dest(RANDOM_THROUGHPUT_LIST).help(RANDOM_THROUGHPUT_LIST_DOC);
+        parser.addArgument(CONFIG_PRE + THROUGHPUT).action(store()).required(false).type(Integer.class).metavar(THROUGHPUT.toUpperCase()).help(THROUGHPUT_DOC);
+        parser.addArgument(CONFIG_PRE + FINAL_THROUGHPUT).action(store()).required(false).type(Integer.class).metavar(FINAL_THROUGHPUT.toUpperCase()).help(FINAL_THROUGHPUT_DOC);
+        parser.addArgument(CONFIG_PRE + CHANGE_THROUGHPUT).action(store()).required(false).type(Integer.class).metavar(CHANGE_THROUGHPUT.toUpperCase()).help(CHANGE_THROUGHPUT_DOC);
+        parser.addArgument(CONFIG_PRE + CHANGE_THROUGHPUT_SECONDS).action(store()).required(false).type(Integer.class).metavar(CHANGE_THROUGHPUT_SECONDS.toUpperCase()).help(CHANGE_THROUGHPUT_SECONDS_DOC);
+        parser.addArgument(CONFIG_PRE + RANDOM_THROUGHPUT_LIST).action(store()).required(false).type(String.class).metavar(RANDOM_THROUGHPUT_LIST.toUpperCase()).help(RANDOM_THROUGHPUT_LIST_DOC);
         //    For Reader
-        parser.addArgument(CONFIG_PRE + READER_NUM).action(store()).required(false).type(Integer.class).metavar(READER_NUM).dest(READER_NUM).help(READER_NUM_DOC);
-        parser.addArgument(CONFIG_PRE + READ_FROM).action(store()).required(false).type(Integer.class).metavar(READ_FROM).dest(READ_FROM).help(READ_FROM_DOC);
+        parser.addArgument(CONFIG_PRE + READER_NUM).action(store()).required(false).type(Integer.class).metavar(READER_NUM.toUpperCase()).help(READER_NUM_DOC);
+        parser.addArgument(CONFIG_PRE + READ_FROM).action(store()).required(false).type(Integer.class).metavar(READ_FROM.toUpperCase()).help(READ_FROM_DOC);
 
         return parser;
     }
