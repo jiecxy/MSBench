@@ -1,5 +1,6 @@
 package cn.ac.ict.worker;
 
+import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
@@ -9,8 +10,10 @@ import cn.ac.ict.stat.StatWindow;
 public class Worker implements Runnable {
 
 
-    private CallBack cb;
-    private boolean isGO = true;
+    CallBack cb;
+    boolean isGO = true;
+    int statInterval=0;
+    MS msClient=null;
 
     public Worker(CallBack cb) {
         this.cb = cb;
