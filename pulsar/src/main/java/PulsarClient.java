@@ -17,17 +17,21 @@ public class PulsarClient extends MS {
     ProducerConfiguration producerConf=null;
     ConsumerConfiguration consumerConf=null;
     boolean IsProducer=false;
-    public void init() throws MSException, PulsarClientException {
+    public void init() throws MSException {
+        try {
+            client = com.yahoo.pulsar.client.api.PulsarClient.create(URL,clientConf);
+            if(IsProducer)
+            {
+                producer = client.createProducer(topic);
+            }
+            else
+            {
+                consumer = client.subscribe(topic,subscription_name,consumerConf);
+            }
+        } catch (Exception e) {
+            throw new MSException(e);
+        }
 
-        client = com.yahoo.pulsar.client.api.PulsarClient.create(URL,clientConf);
-        if(IsProducer)
-        {
-            producer = client.createProducer(topic);
-        }
-        else
-        {
-            consumer = client.subscribe(topic,subscription_name,consumerConf);
-        }
     }
     public Status send(String msg) {
 
@@ -39,8 +43,12 @@ public class PulsarClient extends MS {
         return null;
     }
 
-    public Status close() throws PulsarClientException {
-        client.close();
+    public Status close() {
+        try {
+            client.close();
+        } catch (PulsarClientException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
