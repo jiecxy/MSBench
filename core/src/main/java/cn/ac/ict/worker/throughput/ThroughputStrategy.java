@@ -23,4 +23,9 @@ public class ThroughputStrategy {
     public ThroughputStrategy(TPMODE mode) {
         this.mode = mode;
     }
+
+    @Override
+    public String toString() {
+        return "ThroughputStrategy: " + mode;
+    }
 }
