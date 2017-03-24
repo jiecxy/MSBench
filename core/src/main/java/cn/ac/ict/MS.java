@@ -42,7 +42,7 @@ public abstract class MS {
      * @param msg The message to be sent
      * @return
      */
-    public abstract Status send(String msg);
+    public abstract Status send(byte[] msg,String stream);
 
     /**
      * read messages from the Message System.
@@ -50,7 +50,7 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract Status read();
+    public abstract Status read(String stream);
 
     /**
      * close the Message System.
