@@ -2,6 +2,7 @@ package cn.ac.ict.worker;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
+import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.generator.Generator;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
@@ -19,6 +20,7 @@ public class WriteWorker extends Worker {
     int msgSize=1024;
     ThroughputStrategy writeStrategy;
     boolean IsSync;
+
     public WriteWorker(CallBack cb,int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         super(cb);
         generator=new SimpleGenerator(messageSize);
@@ -47,6 +49,7 @@ public class WriteWorker extends Worker {
         {
             //Ratelimiter=new RateLimiter(writeStrategy.rtpl,writeStrategy.ctps);
         }
+        return;
     }
     public void run()
     {
@@ -55,13 +58,16 @@ public class WriteWorker extends Worker {
         statTime=startTime;
         while (isGO) {
             if((System.nanoTime()-startTime)/1e9>RunTime)
+            {
+                isGO=false;
                 break;
+            }
             if((System.nanoTime()-statTime)/1e9>statInterval)
             {
                 cb.onSendStatWindow(new StatWindow());
                 statTime=System.nanoTime();
             }
-            msClient.send((byte[])generator.nextValue(),streamName);
+            msClient.send((byte[])generator.nextValue(),streamName,this);
         }
         cb.onSendStatTail(new StatTail());
     }
@@ -72,4 +78,5 @@ public class WriteWorker extends Worker {
             msClient.close();
         return;
     }
+
 }

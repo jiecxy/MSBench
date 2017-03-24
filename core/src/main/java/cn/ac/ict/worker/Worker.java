@@ -2,12 +2,13 @@ package cn.ac.ict.worker;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
+import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
 
 
-public class Worker implements Runnable {
+public class Worker implements Runnable,WorkerCallBack {
 
 
     CallBack cb;
@@ -16,8 +17,14 @@ public class Worker implements Runnable {
     MS msClient=null;
     String streamName=null;
     int RunTime=0;
+
+    //stat variables
     long startTime;
     long statTime;
+    int numMsg;
+    int numSize;
+    long totalNumMsg;
+    long totalNumSize;
 
     public Worker(CallBack cb) {
         this.cb = cb;
@@ -53,5 +60,16 @@ public class Worker implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    @Override
+    public void handleSentMessage(byte[] msg) {
+        System.out.println("received sned ack for msg "+new String(msg));
+    }
+
+    @Override
+    public void handleReceivedMessage(byte[] msg) {
+        System.out.println("received msg "+new String(msg));
     }
 }

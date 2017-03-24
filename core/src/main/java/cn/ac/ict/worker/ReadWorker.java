@@ -23,13 +23,16 @@ public class ReadWorker extends Worker {
         startTime=System.nanoTime();
         while (isGO) {
             if((System.nanoTime()-startTime)/1e9>RunTime)
+            {
+                isGO=false;
                 break;
+            }
             if((System.nanoTime()-statTime)/1e9>statInterval)
             {
                 cb.onSendStatWindow(new StatWindow());
                 statTime=System.nanoTime();
             }
-            msClient.read(streamName);
+            msClient.read(streamName,this);
         }
         cb.onSendStatTail(new StatTail());
     }
