@@ -12,8 +12,12 @@ public class Worker implements Runnable {
 
     CallBack cb;
     boolean isGO = true;
-    int statInterval=0;
+    int statInterval=5;
     MS msClient=null;
+    String streamName=null;
+    int RunTime=0;
+    long startTime;
+    long statTime;
 
     public Worker(CallBack cb) {
         this.cb = cb;

@@ -1,5 +1,6 @@
 package cn.ac.ict.worker;
 
+import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
 import cn.ac.ict.generator.Generator;
 import cn.ac.ict.stat.StatHeader;
@@ -7,29 +8,60 @@ import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
 import cn.ac.ict.utils.SimpleGenerator;
 import cn.ac.ict.utils.SimpleMS;
+import cn.ac.ict.worker.throughput.ThroughputStrategy;
+
+import static cn.ac.ict.worker.throughput.ThroughputStrategy.TPMODE.*;
 
 
 public class WriteWorker extends Worker {
-    long startTime;
+
     Generator generator=null;
-    public WriteWorker(CallBack cb,int statTime) {
+    int msgSize=1024;
+    ThroughputStrategy writeStrategy;
+    boolean IsSync;
+    public WriteWorker(CallBack cb,int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         super(cb);
-        startTime=System.nanoTime();
-        statInterval=statTime;
-        msClient=new SimpleMS();
-        generator=new SimpleGenerator();
+        generator=new SimpleGenerator(messageSize);
+        RunTime=runTime;
+        streamName=stream;
+        msClient=ms;
+        IsSync=isSync;
+        writeStrategy=strategy;
+        init();
+    }
+    private void init()
+    {
+        if(writeStrategy.mode==NoLimit)
+        {
+            //Ratelimiter=null;
+        }
+        else if(writeStrategy.mode==Constant)
+        {
+            //Ratelimiter=new RateLimiter(writeStrategy.tp);
+        }
+        else if(writeStrategy.mode==GradualChange)
+        {
+            //Ratelimiter=new RateLimiter(writeStrategy.tp,writeStrategy.ftp,writeStrategy.ctp,writeStrategy.ctps);
+        }
+        else if(writeStrategy.mode==GivenRandomChangeList)
+        {
+            //Ratelimiter=new RateLimiter(writeStrategy.rtpl,writeStrategy.ctps);
+        }
     }
     public void run()
     {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
+        statTime=startTime;
         while (isGO) {
-            if((System.nanoTime()-startTime)/1e9>statInterval)
+            if((System.nanoTime()-startTime)/1e9>RunTime)
+                break;
+            if((System.nanoTime()-statTime)/1e9>statInterval)
             {
                 cb.onSendStatWindow(new StatWindow());
-                startTime=System.nanoTime();
+                statTime=System.nanoTime();
             }
-            msClient.send(generator.nextString());
+            msClient.send((byte[])generator.nextValue(),streamName);
         }
         cb.onSendStatTail(new StatTail());
     }
