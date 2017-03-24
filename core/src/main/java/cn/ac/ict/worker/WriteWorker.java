@@ -7,8 +7,10 @@ import cn.ac.ict.generator.Generator;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
+import cn.ac.ict.utils.SimpleCallBack;
 import cn.ac.ict.utils.SimpleGenerator;
 import cn.ac.ict.utils.SimpleMS;
+import cn.ac.ict.worker.throughput.NoLimitThroughput;
 import cn.ac.ict.worker.throughput.ThroughputStrategy;
 
 import static cn.ac.ict.worker.throughput.ThroughputStrategy.TPMODE.*;
@@ -78,9 +80,10 @@ public class WriteWorker extends Worker {
             msClient.close();
         return;
     }
-    public void main()
+    public static void main(String[] args)
     {
-
+        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,new NoLimitThroughput());
+        wk.run();
     }
 
 }

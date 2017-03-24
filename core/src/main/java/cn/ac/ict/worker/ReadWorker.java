@@ -5,6 +5,9 @@ import cn.ac.ict.communication.CallBack;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
+import cn.ac.ict.utils.SimpleCallBack;
+import cn.ac.ict.utils.SimpleMS;
+import cn.ac.ict.worker.throughput.NoLimitThroughput;
 
 
 public class ReadWorker extends Worker {
@@ -21,6 +24,7 @@ public class ReadWorker extends Worker {
     public void run() {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
+        statTime=startTime; 
         //todo set MS's read mode
         while (isGO) {
             if((System.nanoTime()-startTime)/1e9>RunTime)
@@ -43,5 +47,10 @@ public class ReadWorker extends Worker {
         if(msClient!=null)
             msClient.close();
         return;
+    }
+    public static void main(String[] args)
+    {
+        ReadWorker wk=new ReadWorker(new SimpleCallBack(),10,"stream-1",0,new SimpleMS());
+        wk.run();
     }
 }
