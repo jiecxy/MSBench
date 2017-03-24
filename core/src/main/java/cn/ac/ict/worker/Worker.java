@@ -66,10 +66,18 @@ public class Worker implements Runnable,WorkerCallBack {
     @Override
     public void handleSentMessage(byte[] msg) {
         System.out.println("received sned ack for msg "+new String(msg));
+        numMsg++;
+        numSize+=msg.length;
+        totalNumMsg++;
+        totalNumSize+=msg.length;
     }
 
     @Override
     public void handleReceivedMessage(byte[] msg) {
         System.out.println("received msg "+new String(msg));
+        numMsg++;
+        numSize+=msg.length;
+        totalNumMsg++;
+        totalNumSize+=msg.length;
     }
 }

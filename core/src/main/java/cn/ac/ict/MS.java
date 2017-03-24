@@ -44,7 +44,7 @@ public abstract class MS {
      * @param msg The message to be sent
      * @return
      */
-    public abstract Status send(byte[] msg,String stream,WorkerCallBack sentCallBack);
+    public abstract Status send(boolean isSync,byte[] msg,String stream,WorkerCallBack sentCallBack);
 
     /**
      * read messages from the Message System.

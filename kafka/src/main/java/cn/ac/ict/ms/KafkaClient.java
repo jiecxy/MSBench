@@ -2,17 +2,19 @@ package cn.ac.ict.ms;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.Status;
+import cn.ac.ict.communication.WorkerCallBack;
 
 /**
  * Created by jiecxy on 2017/3/15.
  */
 public class KafkaClient extends MS {
-
-    public Status send(String msg) {
+    @Override
+    public Status send(boolean isSync, byte[] msg, String stream, WorkerCallBack sentCallBack) {
         return null;
     }
 
-    public Status read() {
+    @Override
+    public Status read(String stream, WorkerCallBack readCallBack) {
         return null;
     }
 

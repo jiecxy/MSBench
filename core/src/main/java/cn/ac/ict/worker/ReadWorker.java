@@ -21,6 +21,7 @@ public class ReadWorker extends Worker {
     public void run() {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
+        //todo set MS's read mode
         while (isGO) {
             if((System.nanoTime()-startTime)/1e9>RunTime)
             {

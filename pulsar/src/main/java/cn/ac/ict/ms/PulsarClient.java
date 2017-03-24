@@ -8,7 +8,7 @@ import cn.ac.ict.exception.MSException;
  * Created by jiecxy on 2017/3/15.
  */
 public class PulsarClient extends MS {
-//    com.yahoo.pulsar.client.api.PulsarClient client=null;
+    //    com.yahoo.pulsar.client.api.PulsarClient client=null;
 //    Producer producer=null;
 //    Consumer consumer=null;
 //    String URL;
@@ -30,19 +30,18 @@ public class PulsarClient extends MS {
 //            consumer = client.subscribe(topic,subscription_name,consumerConf);
 //        }
     }
-    public Status send(String msg) {
-
+    @Override
+    public Status send(boolean isSync, byte[] msg, String stream, WorkerCallBack sentCallBack) {
         return null;
     }
 
-    public Status read() {
-
+    @Override
+    public Status read(String stream, WorkerCallBack readCallBack) {
         return null;
     }
 
-//    public Status close() throws PulsarClientException {
     public Status close() {
-//        client.close();
         return null;
     }
+
 }

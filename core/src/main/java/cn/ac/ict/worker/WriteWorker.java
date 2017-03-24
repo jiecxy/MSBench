@@ -67,7 +67,7 @@ public class WriteWorker extends Worker {
                 cb.onSendStatWindow(new StatWindow());
                 statTime=System.nanoTime();
             }
-            msClient.send((byte[])generator.nextValue(),streamName,this);
+            msClient.send(IsSync,(byte[])generator.nextValue(),streamName,this);
         }
         cb.onSendStatTail(new StatTail());
     }
@@ -77,6 +77,10 @@ public class WriteWorker extends Worker {
         if(msClient!=null)
             msClient.close();
         return;
+    }
+    public void main()
+    {
+
     }
 
 }

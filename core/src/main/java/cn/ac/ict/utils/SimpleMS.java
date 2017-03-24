@@ -23,15 +23,28 @@ public class SimpleMS extends MS {
     }
 
     @Override
-    public Status send(byte[] msg, String stream, WorkerCallBack sentCallBack) {
-        System.out.println("sending message "+new String(msg)+" to "+stream);
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public Status send(boolean isSync,byte[] msg, String stream, WorkerCallBack sentCallBack) {
+        if(isSync)
+        {
+            System.out.println("Sync sending message " + new String(msg) + " to " + stream);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Sync received SEND ack");
+            sentCallBack.handleSentMessage(msg);
         }
-        System.out.println("received SEND ack");
-        sentCallBack.handleSentMessage(msg);
+        else {
+            System.out.println("Async sending message " + new String(msg) + " to " + stream);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Async received SEND ack");
+            sentCallBack.handleSentMessage(msg);
+        }
         return null;
     }
 
