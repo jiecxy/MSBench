@@ -15,8 +15,8 @@ public class Worker implements Runnable,WorkerCallBack {
     boolean isGO = true;
     int statInterval=5;
     MS msClient=null;
-    String stream=null;
-    int runTime=0;
+    String streamName=null;
+    int RunTime=0;
 
     //stat variables
     long startTime;

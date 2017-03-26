@@ -11,11 +11,11 @@ import cn.ac.ict.worker.throughput.NoLimitThroughput;
 
 
 public class ReadWorker extends Worker {
-    private int StartPoint;
+    int StartPoint;
     public ReadWorker(CallBack cb,int runTime, String stream, int from, MS ms) {
         super(cb);
-        this.runTime=runTime;
-        this.stream=stream;
+        RunTime=runTime;
+        streamName=stream;
         StartPoint=from;
         msClient=ms;
     }
@@ -24,10 +24,10 @@ public class ReadWorker extends Worker {
     public void run() {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
-        statTime=startTime;
+        statTime=startTime; 
         //todo set MS's read mode
         while (isGO) {
-            if((System.nanoTime()-startTime)/1e9>runTime)
+            if((System.nanoTime()-startTime)/1e9>RunTime)
             {
                 isGO=false;
                 break;
@@ -37,14 +37,13 @@ public class ReadWorker extends Worker {
                 cb.onSendStatWindow(new StatWindow());
                 statTime=System.nanoTime();
             }
-            msClient.read(stream,this);
+            msClient.read(streamName,this);
         }
         cb.onSendStatTail(new StatTail());
     }
 
     @Override
     public void stopWork() {
-        isGO=false;
         if(msClient!=null)
             msClient.close();
         return;

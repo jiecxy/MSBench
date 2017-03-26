@@ -2,16 +2,14 @@ package cn.ac.ict.worker;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
+import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.generator.Generator;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
-import cn.ac.ict.utils.ShiftableRateLimiter;
 import cn.ac.ict.utils.SimpleCallBack;
 import cn.ac.ict.utils.SimpleGenerator;
 import cn.ac.ict.utils.SimpleMS;
-import cn.ac.ict.worker.throughput.GivenRandomChangeThroughputList;
-import cn.ac.ict.worker.throughput.GradualChangeThroughput;
 import cn.ac.ict.worker.throughput.NoLimitThroughput;
 import cn.ac.ict.worker.throughput.ThroughputStrategy;
 
@@ -20,21 +18,40 @@ import static cn.ac.ict.worker.throughput.ThroughputStrategy.TPMODE.*;
 
 public class WriteWorker extends Worker {
 
-    private Generator generator=null;
-    private int msgSize=1024;
-    private ThroughputStrategy writeStrategy;
-    private boolean isSync;
-    private ShiftableRateLimiter rateLimiter;
+    Generator generator=null;
+    int msgSize=1024;
+    ThroughputStrategy writeStrategy;
+    boolean IsSync;
 
     public WriteWorker(CallBack cb,int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         super(cb);
         generator=new SimpleGenerator(messageSize);
-        this.runTime=runTime;
-        this.stream=stream;
+        RunTime=runTime;
+        streamName=stream;
         msClient=ms;
-        this.isSync=isSync;
+        IsSync=isSync;
         writeStrategy=strategy;
-        rateLimiter=new ShiftableRateLimiter(writeStrategy);
+        init();
+    }
+    private void init()
+    {
+        if(writeStrategy.mode==NoLimit)
+        {
+            //Ratelimiter=null;
+        }
+        else if(writeStrategy.mode==Constant)
+        {
+            //Ratelimiter=new RateLimiter(writeStrategy.tp);
+        }
+        else if(writeStrategy.mode==GradualChange)
+        {
+            //Ratelimiter=new RateLimiter(writeStrategy.tp,writeStrategy.ftp,writeStrategy.ctp,writeStrategy.ctps);
+        }
+        else if(writeStrategy.mode==GivenRandomChangeList)
+        {
+            //Ratelimiter=new RateLimiter(writeStrategy.rtpl,writeStrategy.ctps);
+        }
+        return;
     }
     public void run()
     {
@@ -42,7 +59,7 @@ public class WriteWorker extends Worker {
         startTime=System.nanoTime();
         statTime=startTime;
         while (isGO) {
-            if((System.nanoTime()-startTime)/1e9>runTime)
+            if((System.nanoTime()-startTime)/1e9>RunTime)
             {
                 isGO=false;
                 break;
@@ -52,12 +69,9 @@ public class WriteWorker extends Worker {
                 cb.onSendStatWindow(new StatWindow());
                 statTime=System.nanoTime();
             }
-            if(rateLimiter.getLimiter()!=null)
-                rateLimiter.getLimiter().acquire();
-            msClient.send(isSync,(byte[])generator.nextValue(),stream,this);
+            msClient.send(IsSync,(byte[])generator.nextValue(),streamName,this);
         }
         cb.onSendStatTail(new StatTail());
-        rateLimiter.close();
     }
     public void stopWork()
     {
@@ -68,7 +82,7 @@ public class WriteWorker extends Worker {
     }
     public static void main(String[] args)
     {
-        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,new GivenRandomChangeThroughputList(new int[]{10,11,12,13,14,15,16,17,18,19,20,21,22},1));
+        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,new NoLimitThroughput());
         wk.run();
     }
 
