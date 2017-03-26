@@ -7,9 +7,11 @@ import cn.ac.ict.generator.Generator;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
+import cn.ac.ict.utils.ShiftableRateLimiter;
 import cn.ac.ict.utils.SimpleCallBack;
 import cn.ac.ict.utils.SimpleGenerator;
 import cn.ac.ict.utils.SimpleMS;
+import cn.ac.ict.worker.throughput.GivenRandomChangeThroughputList;
 import cn.ac.ict.worker.throughput.NoLimitThroughput;
 import cn.ac.ict.worker.throughput.ThroughputStrategy;
 
@@ -21,45 +23,27 @@ public class WriteWorker extends Worker {
     Generator generator=null;
     int msgSize=1024;
     ThroughputStrategy writeStrategy;
-    boolean IsSync;
+    boolean isSync;
+    ShiftableRateLimiter rateLimiter;
 
     public WriteWorker(CallBack cb,int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         super(cb);
         generator=new SimpleGenerator(messageSize);
-        RunTime=runTime;
-        streamName=stream;
+        this.runTime=runTime;
+        this.stream=stream;
         msClient=ms;
-        IsSync=isSync;
+        this.isSync=isSync;
         writeStrategy=strategy;
-        init();
+        rateLimiter=new ShiftableRateLimiter(writeStrategy);
     }
-    private void init()
-    {
-        if(writeStrategy.mode==NoLimit)
-        {
-            //Ratelimiter=null;
-        }
-        else if(writeStrategy.mode==Constant)
-        {
-            //Ratelimiter=new RateLimiter(writeStrategy.tp);
-        }
-        else if(writeStrategy.mode==GradualChange)
-        {
-            //Ratelimiter=new RateLimiter(writeStrategy.tp,writeStrategy.ftp,writeStrategy.ctp,writeStrategy.ctps);
-        }
-        else if(writeStrategy.mode==GivenRandomChangeList)
-        {
-            //Ratelimiter=new RateLimiter(writeStrategy.rtpl,writeStrategy.ctps);
-        }
-        return;
-    }
+
     public void run()
     {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
         statTime=startTime;
         while (isGO) {
-            if((System.nanoTime()-startTime)/1e9>RunTime)
+            if((System.nanoTime()-startTime)/1e9>runTime)
             {
                 isGO=false;
                 break;
@@ -69,9 +53,12 @@ public class WriteWorker extends Worker {
                 cb.onSendStatWindow(new StatWindow());
                 statTime=System.nanoTime();
             }
-            msClient.send(IsSync,(byte[])generator.nextValue(),streamName,this);
+            if(rateLimiter.getLimiter()!=null)
+                rateLimiter.getLimiter().acquire();
+            msClient.send(isSync,(byte[])generator.nextValue(),stream,this);
         }
         cb.onSendStatTail(new StatTail());
+        rateLimiter.close();
     }
     public void stopWork()
     {
@@ -82,7 +69,7 @@ public class WriteWorker extends Worker {
     }
     public static void main(String[] args)
     {
-        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,new NoLimitThroughput());
+        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,new GivenRandomChangeThroughputList(new int[]{1,2,3,4,5,6,7,8,9,10,11},1));
         wk.run();
     }
 
