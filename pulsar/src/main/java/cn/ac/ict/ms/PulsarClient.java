@@ -2,6 +2,7 @@ package cn.ac.ict.ms;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.Status;
+import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.exception.MSException;
 
 /**
@@ -18,7 +19,7 @@ public class PulsarClient extends MS {
 //    ProducerConfiguration producerConf=null;
 //    ConsumerConfiguration consumerConf=null;
 //    boolean IsProducer=false;
-//    public void init() throws MSException, PulsarClientException {
+//    public void init() throws MSException, PulsarClientException {git
     public void init() throws MSException {
 //        client = com.yahoo.pulsar.client.api.PulsarClient.create(URL,clientConf);
 //        if(IsProducer)
@@ -30,6 +31,7 @@ public class PulsarClient extends MS {
 //            consumer = client.subscribe(topic,subscription_name,consumerConf);
 //        }
     }
+
     @Override
     public Status send(boolean isSync, byte[] msg, String stream, WorkerCallBack sentCallBack) {
         return null;
