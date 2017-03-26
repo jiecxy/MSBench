@@ -2,6 +2,7 @@ package cn.ac.ict.worker;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
+import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;

@@ -2,7 +2,7 @@ package cn.ac.ict.utils;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.Status;
-import cn.ac.ict.worker.WorkerCallBack;
+import cn.ac.ict.communication.WorkerCallBack;
 
 public class SimpleMS extends MS {
 
