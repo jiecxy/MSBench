@@ -1,4 +1,4 @@
-package cn.ac.ict.communication;
+package cn.ac.ict.worker;
 
 /**
  * Created by krumo on 3/24/17.

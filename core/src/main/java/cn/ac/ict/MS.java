@@ -1,7 +1,6 @@
 package cn.ac.ict;
 
-import cn.ac.ict.communication.CallBack;
-import cn.ac.ict.communication.WorkerCallBack;
+import cn.ac.ict.worker.WorkerCallBack;
 import cn.ac.ict.exception.MSException;
 
 import java.util.Properties;
