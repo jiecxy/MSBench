@@ -9,7 +9,7 @@ public class Constants {
 
     // For global variables
     public static final String SYSTEM = "sys";
-    public static final String SYSTEM_DOC = "Indicate the message system class which extends the class MESSAGE_SIZE.";
+    public static final String SYSTEM_DOC = "Indicate the message system class which extends the class MS.";
     public static final String SYSTEM_DESCRPTION = "This tool is used to verify the message system performance." + "\n"
             + "Start Master: " + "\n"
             + "\t" + "-tr 1000 -M 1.1.1.1:9999 -P master -w 1 -r 1 -sn 1 -name topic" + "\n"
@@ -20,6 +20,7 @@ public class Constants {
             + "\t" + "ConstantThroughput: -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -tp 1000" + "\n"
             + "\t" + "GradualChangeThroughput: -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -tp 1000 -ftp 2000 -ctp 100 -ctps 5" + "\n"
             + "\t" + "GivenRandomChangeThroughputList: -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -rtpl 100,200,300,400 -ctps 5";
+
     public static final String RUN_TIME = "tr";
     public static final String RUN_TIME_DOC = "Test Time (seconds).";
     //public static final String HOSTS = "hosts";

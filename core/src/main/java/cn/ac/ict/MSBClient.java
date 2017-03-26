@@ -186,7 +186,7 @@ public class MSBClient {
                                 startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, messageSize, isSync,
                                         new GradualChangeThroughput(tp, ftp, ctp, ctps));
                             } else {
-                                throw new ArgumentParserException("GradualChangeThroughput Mode: Required tp ftp ctp ctps!", parser);
+                                throw new ArgumentParserException("GradualChangeThroughput Mode: Require tp ftp ctp ctps!", parser);
                             }
                         } else {
                             if (tp == -1) { // NoLimitThroughput
