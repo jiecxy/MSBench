@@ -29,7 +29,7 @@ public class SimpleMS extends MS {
         {
             System.out.println("Sync sending message " + new String(msg) + " to " + stream);
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -39,7 +39,7 @@ public class SimpleMS extends MS {
         else {
             System.out.println("Async sending message " + new String(msg) + " to " + stream);
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

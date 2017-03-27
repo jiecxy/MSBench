@@ -12,19 +12,19 @@ public class SimpleCallBack implements CallBack {
 
     @Override
     public void onSendStatHeader(StatHeader header) {
-        System.out.println("onSendStatHeader");
+        System.out.println("onSendStatHeader "+header);
         return;
     }
 
     @Override
     public void onSendStatWindow(StatWindow window) {
-        System.out.println("onSendStatWindow");
+        System.out.println("onSendStatWindow "+window);
         return;
     }
 
     @Override
     public void onSendStatTail(StatTail tail) {
-        System.out.println("onSendStatTail");
+        System.out.println("onSendStatTail "+tail);
         return;
     }
 }
