@@ -91,7 +91,6 @@ public class WriteWorker extends Worker implements WriteCallBack {
             rateLimiter.close();
         if(msClient!=null)
             msClient.close();
-
         return;
     }
     public static void main(String[] args)

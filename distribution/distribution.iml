@@ -12,7 +12,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="pulsar" />
-    <orderEntry type="library" name="Maven: org.hdrhistogram:HdrHistogram:2.1.9" level="project" />
     <orderEntry type="module" module-name="core" />
     <orderEntry type="library" name="Maven: net.sourceforge.argparse4j:argparse4j:0.5.0" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-actor_2.11:2.4.14" level="project" />
@@ -35,5 +34,25 @@
     <orderEntry type="module" module-name="kafka" />
     <orderEntry type="module" module-name="distributedlog" />
     <orderEntry type="module" module-name="pulsar-binding" />
+    <orderEntry type="library" name="Maven: com.yahoo.pulsar:pulsar-client:1.16" level="project" />
+    <orderEntry type="library" name="Maven: com.yahoo.pulsar:pulsar-common:1.16" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.4.3" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.4.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.4.3" level="project" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.4.1" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-all:4.0.40.Final" level="project" />
+    <orderEntry type="library" name="Maven: net.jpountz.lz4:lz4:1.3.0" level="project" />
+    <orderEntry type="library" name="Maven: com.yahoo.pulsar:pulsar-checksum:1.16" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.4" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:async-http-client:2.0.19" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:async-http-client-netty-utils:2.0.19" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver-dns:2.0.19" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver:2.0.19" level="project" />
+    <orderEntry type="library" name="Maven: org.asynchttpclient:netty-codec-dns:2.0.19" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.netty:netty-reactive-streams:1.0.8" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.20.0-GA" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
+    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
+    <orderEntry type="library" name="Maven: com.yahoo.datasketches:sketches-core:0.6.0" level="project" />
   </component>
 </module>
