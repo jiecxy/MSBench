@@ -2,7 +2,8 @@ package cn.ac.ict.utils;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.Status;
-import cn.ac.ict.communication.WorkerCallBack;
+import cn.ac.ict.worker.callback.ReadCallBack;
+import cn.ac.ict.worker.callback.WriteCallBack;
 
 public class SimpleMS extends MS {
 
@@ -23,7 +24,7 @@ public class SimpleMS extends MS {
     }
 
     @Override
-    public Status send(boolean isSync,byte[] msg, String stream, WorkerCallBack sentCallBack) {
+    public Status send(boolean isSync,byte[] msg, String stream, WriteCallBack sentCallBack) {
         if(isSync)
         {
             System.out.println("Sync sending message " + new String(msg) + " to " + stream);
@@ -48,8 +49,9 @@ public class SimpleMS extends MS {
         return null;
     }
 
+
     @Override
-    public Status read(String stream, WorkerCallBack readCallBack) {
+    public Status read(String stream, ReadCallBack readCallBack) {
         System.out.println("receiving message from "+stream);
         try {
             Thread.sleep(100);
