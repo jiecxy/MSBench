@@ -50,7 +50,9 @@ public class PulsarClient extends MS {
             }
             else
             {
-                producer.sendAsync(msg).thenRun(()->{sentCallBack.handleSentMessage(msg);}
+                producer.sendAsync(msg).thenRun(()->{
+                    sentCallBack.handleSentMessage(msg);
+                }
                 ).exceptionally(ex->{
                     return null;
                 });

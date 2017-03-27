@@ -2,23 +2,18 @@ package cn.ac.ict.worker;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
-import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
 
 import org.HdrHistogram.Recorder;
 
-import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
 
 public class Worker implements Runnable {
 
 
     CallBack cb;
-    boolean isGO = true;
+    boolean isRunning = true;
     int statInterval=5;
     MS msClient=null;
     String system;
@@ -41,7 +36,7 @@ public class Worker implements Runnable {
     }
 
     public void stopWork() {
-        isGO = false;
+        isRunning = false;
     }
 
     //TODO 这个为demo， 在worker父类中不具体实现
@@ -52,7 +47,7 @@ public class Worker implements Runnable {
 
             // TODO 在测试时间内运行
             // TODO 需要记录时间来发送 window
-            while (isGO) {
+            while (isRunning) {
                 System.out.println("Worker run - 1");
                 Thread.sleep(1000);
                 System.out.println("Worker run - 2");

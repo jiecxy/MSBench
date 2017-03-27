@@ -17,49 +17,46 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 
 public class ReadWorker extends Worker implements ReadCallBack {
-    int StartPoint;
 
-    public ReadWorker(CallBack cb,int runTime, String stream, int from, MS ms) {
+    private ReadJob job;
+
+    public ReadWorker(CallBack cb, MS ms, ReadJob job) {
         super(cb);
-        this.runTime=runTime;
-        this.stream=stream;
-        StartPoint=from;
+        this.job = job;
         msClient=ms;
 
-        numMsg=0;
-        numByte =0;
-        totalNumMsg=0;
-        totalNumByte =0;
-        recorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
-        cumulativeRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        numMsg = 0;
+        numByte = 0;
+        totalNumMsg = 0;
+        totalNumByte = 0;
+        recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
 
     @Override
     public void run() {
         cb.onSendStatHeader(new StatHeader());
-        startTime=System.nanoTime();
-        lastStatTime =startTime;
+        startTime = System.nanoTime();
+        lastStatTime = startTime;
         //todo set MS's read mode
-        while (isGO) {
-            if((System.nanoTime()-startTime)/1e9>runTime)
-            {
-                isGO=false;
+        while (isRunning) {
+            if ((System.nanoTime()-startTime)/1e9 > runTime) {
+                isRunning = false;
                 break;
             }
-            if((System.nanoTime()- lastStatTime)/1e9>statInterval)
-            {
-                Histogram reportHist=null;
-                double elapsed=(System.nanoTime()-startTime)/1e9;
-                reportHist=recorder.getIntervalHistogram(reportHist);
-                cb.onSendStatWindow(new StatWindow(numMsg/elapsed,numMsg,numByte/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0));
+            if ((System.nanoTime()- lastStatTime)/1e9 > statInterval) {
+                Histogram reportHist = null;
+                double elapsed = (System.nanoTime() - startTime)/1e9;
+                reportHist = recorder.getIntervalHistogram(reportHist);
+                cb.onSendStatWindow(new StatWindow(numMsg/elapsed, numMsg, numByte/elapsed, reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
                 reportHist.reset();
-                lastStatTime =System.nanoTime();
+                lastStatTime = System.nanoTime();
             }
-            requestTime=System.nanoTime();
+            requestTime = System.nanoTime();
             msClient.read(stream,this);
         }
-        Histogram reportHist=cumulativeRecorder.getIntervalHistogram();
-        double elapsed=(System.nanoTime()-startTime)/1e9;
+        Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
+        double elapsed = (System.nanoTime()-startTime)/1e9;
         cb.onSendStatTail(
                 new StatTail(0,0,totalNumMsg/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
                         reportHist.getValueAtPercentile(50)/1000.0,reportHist.getValueAtPercentile(95)/1000.0,
@@ -70,14 +67,14 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void stopWork() {
-        isGO=false;
+        isRunning =false;
         if(msClient!=null)
             msClient.close();
         return;
     }
-    public static void main(String[] args)
-    {
-        ReadWorker wk=new ReadWorker(new SimpleCallBack(),10,"stream-1",0,new SimpleMS());
+
+    public static void main(String[] args) {
+        ReadWorker wk = new ReadWorker(new SimpleCallBack(), new SimpleMS(), new ReadJob(10, "stream-1", 0));
         wk.run();
     }
 
@@ -88,8 +85,8 @@ public class ReadWorker extends Worker implements ReadCallBack {
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);
         numMsg++;
-        numByte +=msg.length;
+        numByte += msg.length;
         totalNumMsg++;
-        totalNumByte +=msg.length;
+        totalNumByte += msg.length;
     }
 }

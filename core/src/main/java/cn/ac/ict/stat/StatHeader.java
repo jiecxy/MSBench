@@ -1,79 +1,94 @@
 package cn.ac.ict.stat;
 
+import cn.ac.ict.worker.throughput.ThroughputStrategy;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
 public class StatHeader implements Serializable {
+
     public String system;
     public String streamName;
-    public int messageSize;
     public int runTime;
-    public String startTime;
+    public long startTime;   // milliseconds
     public int reportingInterval;
-    public String hostAndPort;
-    public String writeMode;
-    public int rate;
-    public int initialRate;
-    public int targetRate;
-    public int changeRateperInterval;
-    public int changeInterval;
-    public String readFrom;
+    public String host;
 
-    public StatHeader() {
-        system="None";
-        streamName="None";
-        messageSize=0;
-        runTime=0;
-        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss,S");//设置日期格式
-        startTime=df.format(new Date());// new Date()为获取当前系统时间
-        reportingInterval=0;
-        hostAndPort="None";
-        writeMode="None";
-        rate=0;
-        initialRate=0;
-        targetRate=0;
-        changeInterval=0;
-        readFrom="None";
-    }
+    // writer
+    public int messageSize;
+    public ThroughputStrategy strategy;
+    public boolean writeMode;  // sync - true; async - false
 
-    public StatHeader(String system, String streamName, int messageSize, int runTime, int reportingInterval, String hostAndPort, String writeMode, int rate, int initialRate, int targetRate, int changeRateperInterval, int changeInterval, String readFrom) {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss,S");//设置日期格式
-        startTime=df.format(new Date());// new Date()为获取当前系统时间
+    // reader
+    public int readFrom;
+
+    public boolean isWriter;
+
+    public StatHeader(String system, String streamName, int runTime, long startTime, int reportingInterval, String host, int messageSize, ThroughputStrategy strategy, Boolean writeMode) {
         this.system = system;
         this.streamName = streamName;
-        this.messageSize = messageSize;
         this.runTime = runTime;
+        this.startTime = startTime;
         this.reportingInterval = reportingInterval;
-        this.hostAndPort = hostAndPort;
+        this.host = host;
+        this.messageSize = messageSize;
+        this.strategy = strategy;
         this.writeMode = writeMode;
-        this.rate = rate;
-        this.initialRate = initialRate;
-        this.targetRate = targetRate;
-        this.changeRateperInterval = changeRateperInterval;
-        this.changeInterval = changeInterval;
+        isWriter = true;
+    }
+
+    public StatHeader(String system, String streamName, int runTime, long startTime, int reportingInterval, String host, int readFrom) {
+        this.system = system;
+        this.streamName = streamName;
+        this.runTime = runTime;
+        this.startTime = startTime;
+        this.reportingInterval = reportingInterval;
+        this.host = host;
         this.readFrom = readFrom;
+        isWriter = false;
+    }
+
+    public String getReadFrom() {
+        if (-1 == readFrom)
+            return "lateset";
+        else if (0 == readFrom)
+            return "oldest";
+        else
+            return "UNKNOWN";
+    }
+
+    public String getStartTime() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss,S");
+        return df.format(new Date(startTime));
+    }
+
+    public String getWriteMode() {
+        if (writeMode)
+            return "Sync";
+        else
+            return "Async";
     }
 
     @Override
     public String toString() {
-        return "StatHeader{" +
-                "system='" + system + '\'' +
-                ", streamName='" + streamName + '\'' +
-                ", messageSize=" + messageSize +
-                ", runTime=" + runTime +
-                ", startTime='" + startTime + '\'' +
-                ", reportingInterval=" + reportingInterval +
-                ", hostAndPort='" + hostAndPort + '\'' +
-                ", writeMode='" + writeMode + '\'' +
-                ", rate=" + rate +
-                ", initialRate=" + initialRate +
-                ", targetRate=" + targetRate +
-                ", changeRateperInterval=" + changeRateperInterval +
-                ", changeInterval=" + changeInterval +
-                ", readFrom='" + readFrom + '\'' +
-                '}';
+        String str = "\t" + "System: '" + system + "\n" +
+                "\t" + "Stream Name: " + streamName + "\n" +
+                "\t" + "Run Time: " + runTime + "s" + "\n" +
+                "\t\t" + "Start Time: " + getStartTime() + "\n" +
+                "\t" + "Reporting Interval: " + reportingInterval + "s" + "\n" +
+                "\t" + "Host: " + host;
+        if (isWriter)
+            return "Writer Stats:" + "\n" +
+                    str + "\n" +
+                    "\t" + ",Message Size: " + messageSize + "\n" +
+                    "\t" + "Rate: " + strategy + "\n" +
+                    "\t" + "Write Mode: " + getWriteMode() + "\n";
+        else
+            return "Reader Stats:" +
+                    str + "\n" +
+                    "\t" + ", readFrom: " + getReadFrom();
     }
 
 }
