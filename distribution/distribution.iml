@@ -11,6 +11,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="pulsar" />
     <orderEntry type="module" module-name="core" />
     <orderEntry type="library" name="Maven: net.sourceforge.argparse4j:argparse4j:0.5.0" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-actor_2.11:2.4.14" level="project" />
@@ -28,8 +29,10 @@
     <orderEntry type="library" name="Maven: io.aeron:aeron-driver:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: io.aeron:aeron-client:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.agrona:Agrona:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:15.0" level="project" />
+    <orderEntry type="library" name="Maven: org.hdrhistogram:HdrHistogram:2.1.9" level="project" />
     <orderEntry type="module" module-name="kafka" />
     <orderEntry type="module" module-name="distributedlog" />
-    <orderEntry type="module" module-name="pulsar" />
+    <orderEntry type="module" module-name="pulsar-binding" />
   </component>
 </module>

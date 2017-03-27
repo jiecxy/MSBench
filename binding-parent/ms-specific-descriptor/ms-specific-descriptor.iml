@@ -26,5 +26,7 @@
     <orderEntry type="library" name="Maven: io.aeron:aeron-driver:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: io.aeron:aeron-client:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.agrona:Agrona:0.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:15.0" level="project" />
+    <orderEntry type="library" name="Maven: org.hdrhistogram:HdrHistogram:2.1.9" level="project" />
   </component>
 </module>
