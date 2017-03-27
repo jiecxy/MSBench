@@ -4,12 +4,15 @@ import cn.ac.ict.exception.MSException;
 import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 /**
  * Created by jiecxy on 2017/3/1.
  */
 public abstract class MS {
+
+    protected boolean isProducer = false;
 
     /**
      * Properties for configuring this MSCLient.
@@ -24,6 +27,10 @@ public abstract class MS {
 
     }
 
+    public void setProducer(boolean producer) {
+        isProducer = producer;
+    }
+
     /**
      * Get the set of properties for this MSCLient.
      */
@@ -35,7 +42,7 @@ public abstract class MS {
      * Initialize any state for this MSCLient.
      * Called once per MSCLient instance; there is one MSCLient instance per client thread.
      */
-    public void init() throws MSException {
+    public void init(ArrayList<String> streams) throws MSException {
     }
 
     /**
@@ -44,7 +51,7 @@ public abstract class MS {
      * @param msg The message to be sent
      * @return
      */
-    public abstract Status send(boolean isSync,byte[] msg,String stream,WriteCallBack sentCallBack);
+    public abstract void send(boolean isSync,byte[] msg,String stream,WriteCallBack sentCallBack);
 
     /**
      * read messages from the Message System.
@@ -52,7 +59,7 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract Status read(String stream, ReadCallBack readCallBack);
+    public abstract void read(String stream, ReadCallBack readCallBack);
 
     /**
      * close the Message System.
@@ -60,5 +67,5 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract Status close();
+    public abstract void close();
 }

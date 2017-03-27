@@ -1,7 +1,6 @@
 package cn.ac.ict.ms;
 
 import cn.ac.ict.MS;
-import cn.ac.ict.Status;
 import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
 
@@ -10,15 +9,15 @@ import cn.ac.ict.worker.callback.WriteCallBack;
  */
 public class DLClient extends MS {
 
-    public Status send(boolean isSync, byte[] msg, String stream, WriteCallBack sentCallBack) {
-        return null;
+    public void send(boolean isSync, byte[] msg, String stream, WriteCallBack sentCallBack) {
+
     }
 
-    public Status read(String stream, ReadCallBack readCallBack) {
-        return null;
+    public void read(String stream, ReadCallBack readCallBack) {
+
     }
 
-    public Status close() {
-        return null;
+    public void close() {
+
     }
 }

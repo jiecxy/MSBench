@@ -147,10 +147,12 @@ public class MSBClient {
 
                 String streamName = getStringArgOrException(res, STREAM_NAME);
                 if (process.equals(READER)) {
+                    ms.setProducer(false);
 
                     int from = getIntArgOrException(res, READ_FROM);
                     startReader(workerIP, masterIP, masterPort, runTime, streamName, from, ms);
                 } else if (process.equals(WRITER)) {
+                    ms.setProducer(true);
 
                     int messageSize = getIntArgOrException(res, MESSAGE_SIZE);
                     Boolean isSync = res.getBoolean(SYNC);

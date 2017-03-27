@@ -1,7 +1,6 @@
 package cn.ac.ict.ms;
 
 import cn.ac.ict.MS;
-import cn.ac.ict.Status;
 import cn.ac.ict.exception.MSException;
 import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
@@ -20,8 +19,9 @@ public class PulsarClient extends MS {
     ClientConfiguration clientConf=null;
     ProducerConfiguration producerConf=null;
     ConsumerConfiguration consumerConf=null;
-    boolean isProducer=false;
 
+
+    //TODO 把初始化的放在 constructor 里，init用于创建topic等
     public void init() throws MSException {
         try {
             client = com.yahoo.pulsar.client.api.PulsarClient.create(URL,clientConf);
@@ -40,7 +40,7 @@ public class PulsarClient extends MS {
     }
 
     @Override
-    public Status send(boolean isSync, byte[] msg, String stream, WriteCallBack sentCallBack)
+    public void send(boolean isSync, byte[] msg, String stream, WriteCallBack sentCallBack)
     {
         try{
             if(isSync)
@@ -62,11 +62,10 @@ public class PulsarClient extends MS {
         {
             System.out.println("hello");
         }
-        return null;
     }
 
     @Override
-    public Status read(String stream, ReadCallBack readCallBack) {
+    public void read(String stream, ReadCallBack readCallBack) {
         consumer.receiveAsync().thenAccept((msg)->{
             try {
                 consumer.acknowledge(msg);
@@ -75,11 +74,10 @@ public class PulsarClient extends MS {
                 e.printStackTrace();
             }
         });
-        return null;
     }
 
 
-    public Status close() {
+    public void close() {
             try {
                 if(producer!=null)
                 producer.close();
@@ -89,8 +87,6 @@ public class PulsarClient extends MS {
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }
-
-        return null;
     }
 
 }

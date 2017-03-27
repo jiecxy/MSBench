@@ -1,7 +1,6 @@
 package cn.ac.ict.utils;
 
 import cn.ac.ict.MS;
-import cn.ac.ict.Status;
 import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
 
