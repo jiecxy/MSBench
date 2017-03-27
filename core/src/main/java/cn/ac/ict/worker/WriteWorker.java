@@ -23,13 +23,14 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class WriteWorker extends Worker implements WriteCallBack {
 
-    Generator generator=null;
-    int msgSize=1024;
-    ThroughputStrategy writeStrategy;
-    boolean isSync;
-    ShiftableRateLimiter rateLimiter;
+    private Generator generator = null;
+    private int msgSize = 1024;
+    private ThroughputStrategy writeStrategy;
+    private boolean isSync;
+    private ShiftableRateLimiter rateLimiter;
 
-    public WriteWorker(CallBack cb,int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+    //TODO 抽象数据参数类
+    public WriteWorker(CallBack cb, int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         super(cb);
         generator=new SimpleGenerator(messageSize);
         this.runTime=runTime;
@@ -47,25 +48,26 @@ public class WriteWorker extends Worker implements WriteCallBack {
         cumulativeRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
 
+    @Override
     public void run()
     {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
-        statTime=startTime;
+        lastStatTime =startTime;
         while (isGO) {
             if((System.nanoTime()-startTime)/1e9>runTime)
             {
                 isGO=false;
                 break;
             }
-            if((System.nanoTime()-statTime)/1e9>statInterval)
+            if((System.nanoTime()- lastStatTime)/1e9>statInterval)
             {
-                Histogram reportHist=null;
+                Histogram reportHist = null;
                 double elapsed=(System.nanoTime()-startTime)/1e9;
                 reportHist=recorder.getIntervalHistogram(reportHist);
                 cb.onSendStatWindow(new StatWindow(numMsg/elapsed,numMsg,numByte/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0));
                 reportHist.reset();
-                statTime=System.nanoTime();
+                lastStatTime =System.nanoTime();
             }
             if(rateLimiter.getLimiter()!=null)
                 rateLimiter.getLimiter().acquire();

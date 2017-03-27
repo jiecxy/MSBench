@@ -27,7 +27,7 @@ public class Worker implements Runnable {
 
     //stat variables
     long startTime;
-    long statTime;
+    long lastStatTime;
     long numMsg;
     long numByte;
     long totalNumMsg;

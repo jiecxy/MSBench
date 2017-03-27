@@ -38,7 +38,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     public void run() {
         cb.onSendStatHeader(new StatHeader());
         startTime=System.nanoTime();
-        statTime=startTime; 
+        lastStatTime =startTime;
         //todo set MS's read mode
         while (isGO) {
             if((System.nanoTime()-startTime)/1e9>runTime)
@@ -46,14 +46,14 @@ public class ReadWorker extends Worker implements ReadCallBack {
                 isGO=false;
                 break;
             }
-            if((System.nanoTime()-statTime)/1e9>statInterval)
+            if((System.nanoTime()- lastStatTime)/1e9>statInterval)
             {
                 Histogram reportHist=null;
                 double elapsed=(System.nanoTime()-startTime)/1e9;
                 reportHist=recorder.getIntervalHistogram(reportHist);
                 cb.onSendStatWindow(new StatWindow(numMsg/elapsed,numMsg,numByte/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0));
                 reportHist.reset();
-                statTime=System.nanoTime();
+                lastStatTime =System.nanoTime();
             }
             requestTime=System.nanoTime();
             msClient.read(stream,this);

@@ -1,7 +1,6 @@
 package cn.ac.ict.communication;
 
 import akka.actor.*;
-import cn.ac.ict.MS;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
@@ -16,7 +15,7 @@ import static cn.ac.ict.communication.Command.*;
 
 public class MasterCom extends Communication {
 
-    private Map<String, WorkerComINfo> workers = new HashMap<String, WorkerComINfo>();
+    private Map<String, WorkerComInfo> workers = new HashMap<String, WorkerComInfo>();
     private int REQUIRED_WORKER_NUM;
     private Cancellable checkTimeoutScheduler = null;
 
@@ -138,9 +137,9 @@ public class MasterCom extends Communication {
         } else if (message instanceof Terminated) {
             Terminated t = (Terminated)message;
             System.out.println("Terminated " + t.actor());
-            for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+            for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
                 if (entry.getValue().ref.equals(t.getActor())) {
-                    entry.getValue().status = WorkerComINfo.STATUS.TERMINATED;
+                    entry.getValue().status = WorkerComInfo.STATUS.TERMINATED;
                 }
             }
 //            if (checkIfAllDead()) {
@@ -157,8 +156,8 @@ public class MasterCom extends Communication {
     }
 
     private boolean checkIfAllDead() {
-        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
-            if (entry.getValue().status != WorkerComINfo.STATUS.TERMINATED) {
+        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
+            if (entry.getValue().status != WorkerComInfo.STATUS.TERMINATED) {
                 return false;
             }
         }
@@ -167,7 +166,7 @@ public class MasterCom extends Communication {
 
     private void checkTimeoutWorker() {
         long now = System.currentTimeMillis();
-        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
+        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
             if (now - entry.getValue().lastHeartbeat > CHECK_TIMEOUT_SEC) {
                 entry.getValue().ref.isTerminated();
                 //TODO 有worker超时，目前先关闭所有
@@ -186,8 +185,8 @@ public class MasterCom extends Communication {
     }
 
     private void sendToAllLiveWorkers(Object object) {
-        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
-            if (entry.getValue().status == WorkerComINfo.STATUS.RUNNING) {
+        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
+            if (entry.getValue().status == WorkerComInfo.STATUS.RUNNING) {
                 entry.getValue().ref.tell(object, getSelf());
             }
         }
@@ -200,7 +199,7 @@ public class MasterCom extends Communication {
             getSender().tell(cmd, getSelf());
             return false;
         } else {
-            workers.put((String)request.data, new WorkerComINfo(getSender(), System.currentTimeMillis()));
+            workers.put((String)request.data, new WorkerComInfo(getSender(), System.currentTimeMillis()));
             getContext().watch(getSender());
 
             System.out.println("register " + request.data);
@@ -214,8 +213,8 @@ public class MasterCom extends Communication {
 
     private boolean checkWorkersReady() {
         int count = 0;
-        for (Map.Entry<String, WorkerComINfo> entry : workers.entrySet()) {
-            if (entry.getValue().status == WorkerComINfo.STATUS.RUNNING) {
+        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
+            if (entry.getValue().status == WorkerComInfo.STATUS.RUNNING) {
                 count++;
             }
         }

@@ -237,8 +237,8 @@ public class MSBClient {
         System.out.println("MasterCom start " + masterIP + ":" + masterPort);
         ActorRef master = system.actorOf(Props.create(MasterCom.class, masterIP, masterPort, runTime, streams, writerNum, readerNum), "master");
 
-        System.out.println("MasterCom tell ");
-        master.tell("MasterCom MESSAGES", master);
+//        System.out.println("MasterCom tell ");
+//        master.tell("MasterCom MESSAGES", master);
         system.awaitTermination();
     }
 
@@ -264,7 +264,7 @@ public class MSBClient {
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
         ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, from, ms), "worker");
-        worker.tell("WorkerCom MESSAGES", worker);
+//        worker.tell("WorkerCom MESSAGES", worker);
     }
 
     private void startWriter(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
@@ -291,7 +291,7 @@ public class MSBClient {
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
         ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, ms, messageSize, isSync, strategy), "worker");
-        worker.tell("WorkerCom MESSAGES", worker);
+//        worker.tell("WorkerCom MESSAGES", worker);
     }
 
     private ArrayList<String> getStreamNames(int streamNum, String StreamPrefix) {
@@ -306,8 +306,6 @@ public class MSBClient {
         MSBClient client = new MSBClient(args);
     }
 
-
-    //TODO 后期需要一个自定义场景类
 
     /** Get the command-line argument parser. */
     //TODO 把参数改成静态变量
