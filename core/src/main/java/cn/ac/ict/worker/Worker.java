@@ -7,8 +7,14 @@ import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
 
+import org.HdrHistogram.Recorder;
 
-public class Worker implements Runnable,WorkerCallBack {
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
+
+public class Worker implements Runnable {
 
 
     CallBack cb;
@@ -21,10 +27,13 @@ public class Worker implements Runnable,WorkerCallBack {
     //stat variables
     long startTime;
     long statTime;
-    int numMsg;
-    int numSize;
+    long numMsg;
+    long numSize;
     long totalNumMsg;
     long totalNumSize;
+    static long requestTime;
+    static Recorder recorder = null;
+    static Recorder cumulativeRecorder = null;
 
     public Worker(CallBack cb) {
         this.cb = cb;
@@ -63,21 +72,5 @@ public class Worker implements Runnable,WorkerCallBack {
     }
 
 
-    @Override
-    public void handleSentMessage(byte[] msg) {
-        System.out.println("received sned ack for msg "+new String(msg));
-        numMsg++;
-        numSize+=msg.length;
-        totalNumMsg++;
-        totalNumSize+=msg.length;
-    }
 
-    @Override
-    public void handleReceivedMessage(byte[] msg) {
-        System.out.println("received msg "+new String(msg));
-        numMsg++;
-        numSize+=msg.length;
-        totalNumMsg++;
-        totalNumSize+=msg.length;
-    }
 }

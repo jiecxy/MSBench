@@ -1,4 +1,4 @@
-package cn.ac.ict.worker;
+package cn.ac.ict.worker.callback;
 
 /**
  * Created by krumo on 3/26/17.

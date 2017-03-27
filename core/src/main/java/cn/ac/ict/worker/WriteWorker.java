@@ -2,7 +2,6 @@ package cn.ac.ict.worker;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.communication.CallBack;
-import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.generator.Generator;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
@@ -11,14 +10,17 @@ import cn.ac.ict.utils.ShiftableRateLimiter;
 import cn.ac.ict.utils.SimpleCallBack;
 import cn.ac.ict.utils.SimpleGenerator;
 import cn.ac.ict.utils.SimpleMS;
+import cn.ac.ict.worker.callback.WriteCallBack;
 import cn.ac.ict.worker.throughput.GivenRandomChangeThroughputList;
-import cn.ac.ict.worker.throughput.NoLimitThroughput;
 import cn.ac.ict.worker.throughput.ThroughputStrategy;
+import org.HdrHistogram.Recorder;
 
-import static cn.ac.ict.worker.throughput.ThroughputStrategy.TPMODE.*;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 
-public class WriteWorker extends Worker {
+public class WriteWorker extends Worker implements WriteCallBack {
 
     Generator generator=null;
     int msgSize=1024;
@@ -35,6 +37,13 @@ public class WriteWorker extends Worker {
         this.isSync=isSync;
         writeStrategy=strategy;
         rateLimiter=new ShiftableRateLimiter(writeStrategy);
+
+        numMsg=0;
+        numSize=0;
+        totalNumMsg=0;
+        totalNumSize=0;
+        recorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        cumulativeRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
 
     public void run()
@@ -55,7 +64,9 @@ public class WriteWorker extends Worker {
             }
             if(rateLimiter.getLimiter()!=null)
                 rateLimiter.getLimiter().acquire();
+            requestTime=System.nanoTime();
             msClient.send(isSync,(byte[])generator.nextValue(),stream,this);
+
         }
         cb.onSendStatTail(new StatTail());
         rateLimiter.close();
@@ -69,8 +80,20 @@ public class WriteWorker extends Worker {
     }
     public static void main(String[] args)
     {
-        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,new GivenRandomChangeThroughputList(new int[]{1,2,3,4,5,6,7,8,9,10,11},1));
+        WriteWorker wk=new WriteWorker(new SimpleCallBack(),10,"stream-1",new SimpleMS(),10,true,
+                new GivenRandomChangeThroughputList(new int[]{1,2,3,4,5,6,7,8,9,10,11},1));
         wk.run();
     }
 
+    @Override
+    public void handleSentMessage(byte[] msg) {
+        long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
+        recorder.recordValue(latencyMicros);
+        cumulativeRecorder.recordValue(latencyMicros);
+        System.out.println("received sned ack for msg "+new String(msg));
+        numMsg++;
+        numSize+=msg.length;
+        totalNumMsg++;
+        totalNumSize+=msg.length;
+    }
 }
