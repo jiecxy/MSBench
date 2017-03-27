@@ -1,8 +1,8 @@
 package cn.ac.ict;
 
-import cn.ac.ict.communication.CallBack;
-import cn.ac.ict.communication.WorkerCallBack;
 import cn.ac.ict.exception.MSException;
+import cn.ac.ict.worker.callback.ReadCallBack;
+import cn.ac.ict.worker.callback.WriteCallBack;
 
 import java.util.Properties;
 
@@ -44,7 +44,7 @@ public abstract class MS {
      * @param msg The message to be sent
      * @return
      */
-    public abstract Status send(boolean isSync,byte[] msg,String stream,WorkerCallBack sentCallBack);
+    public abstract Status send(boolean isSync,byte[] msg,String stream,WriteCallBack sentCallBack);
 
     /**
      * read messages from the Message System.
@@ -52,7 +52,7 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract Status read(String stream, WorkerCallBack readCallBack);
+    public abstract Status read(String stream, ReadCallBack readCallBack);
 
     /**
      * close the Message System.
