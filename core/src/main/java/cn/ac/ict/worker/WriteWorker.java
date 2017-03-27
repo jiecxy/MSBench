@@ -13,6 +13,7 @@ import cn.ac.ict.utils.SimpleMS;
 import cn.ac.ict.worker.callback.WriteCallBack;
 import cn.ac.ict.worker.throughput.GivenRandomChangeThroughputList;
 import cn.ac.ict.worker.throughput.ThroughputStrategy;
+import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
 import java.util.concurrent.TimeUnit;
@@ -39,9 +40,9 @@ public class WriteWorker extends Worker implements WriteCallBack {
         rateLimiter=new ShiftableRateLimiter(writeStrategy);
 
         numMsg=0;
-        numSize=0;
+        numByte =0;
         totalNumMsg=0;
-        totalNumSize=0;
+        totalNumByte =0;
         recorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
         cumulativeRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
@@ -59,7 +60,11 @@ public class WriteWorker extends Worker implements WriteCallBack {
             }
             if((System.nanoTime()-statTime)/1e9>statInterval)
             {
-                cb.onSendStatWindow(new StatWindow());
+                Histogram reportHist=null;
+                double elapsed=(System.nanoTime()-startTime)/1e9;
+                reportHist=recorder.getIntervalHistogram(reportHist);
+                cb.onSendStatWindow(new StatWindow(numMsg/elapsed,numMsg,numByte/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0));
+                reportHist.reset();
                 statTime=System.nanoTime();
             }
             if(rateLimiter.getLimiter()!=null)
@@ -68,7 +73,14 @@ public class WriteWorker extends Worker implements WriteCallBack {
             msClient.send(isSync,(byte[])generator.nextValue(),stream,this);
 
         }
-        cb.onSendStatTail(new StatTail());
+        Histogram reportHist=cumulativeRecorder.getIntervalHistogram();
+        double elapsed=(System.nanoTime()-startTime)/1e9;
+        cb.onSendStatTail(
+                new StatTail(totalNumMsg, totalNumByte,totalNumMsg/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
+                        reportHist.getValueAtPercentile(50)/1000.0,reportHist.getValueAtPercentile(95)/1000.0,
+                        reportHist.getValueAtPercentile(99)/1000.0,reportHist.getValueAtPercentile(99.9)/1000.0,
+                        0,0)
+        );
         rateLimiter.close();
     }
     public void stopWork()
@@ -92,8 +104,8 @@ public class WriteWorker extends Worker implements WriteCallBack {
         cumulativeRecorder.recordValue(latencyMicros);
         System.out.println("received sned ack for msg "+new String(msg));
         numMsg++;
-        numSize+=msg.length;
+        numByte +=msg.length;
         totalNumMsg++;
-        totalNumSize+=msg.length;
+        totalNumByte +=msg.length;
     }
 }

@@ -21,6 +21,7 @@ public class Worker implements Runnable {
     boolean isGO = true;
     int statInterval=5;
     MS msClient=null;
+    String system;
     String stream=null;
     int runTime=0;
 
@@ -28,9 +29,9 @@ public class Worker implements Runnable {
     long startTime;
     long statTime;
     long numMsg;
-    long numSize;
+    long numByte;
     long totalNumMsg;
-    long totalNumSize;
+    long totalNumByte;
     static long requestTime;
     static Recorder recorder = null;
     static Recorder cumulativeRecorder = null;
