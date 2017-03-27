@@ -2,12 +2,9 @@ package cn.ac.ict.ms;
 
 import cn.ac.ict.MS;
 import cn.ac.ict.Status;
-<<<<<<< HEAD
-import cn.ac.ict.worker.WorkerCallBack;
-=======
-import cn.ac.ict.communication.WorkerCallBack;
->>>>>>> 8ba886c9d5476be4b7635ab10742ff5039f3be94
 import cn.ac.ict.exception.MSException;
+import cn.ac.ict.worker.callback.ReadCallBack;
+import cn.ac.ict.worker.callback.WriteCallBack;
 
 /**
  * Created by jiecxy on 2017/3/15.
@@ -37,14 +34,15 @@ public class PulsarClient extends MS {
     }
 
     @Override
-    public Status send(boolean isSync, byte[] msg, String stream, WorkerCallBack sentCallBack) {
+    public Status send(boolean isSync, byte[] msg, String stream, WriteCallBack sentCallBack) {
         return null;
     }
 
     @Override
-    public Status read(String stream, WorkerCallBack readCallBack) {
+    public Status read(String stream, ReadCallBack readCallBack) {
         return null;
     }
+
 
     public Status close() {
         return null;
