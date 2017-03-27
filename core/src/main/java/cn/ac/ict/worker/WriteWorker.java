@@ -81,13 +81,17 @@ public class WriteWorker extends Worker implements WriteCallBack {
                         reportHist.getValueAtPercentile(99)/1000.0,reportHist.getValueAtPercentile(99.9)/1000.0,
                         0,0)
         );
-        rateLimiter.close();
+        if(rateLimiter!=null)
+            rateLimiter.close();
     }
     public void stopWork()
     {
         isGO=false;
+        if(rateLimiter!=null)
+            rateLimiter.close();
         if(msClient!=null)
             msClient.close();
+
         return;
     }
     public static void main(String[] args)

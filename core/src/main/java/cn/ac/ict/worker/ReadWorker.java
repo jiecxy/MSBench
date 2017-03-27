@@ -70,6 +70,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void stopWork() {
+        isGO=false;
         if(msClient!=null)
             msClient.close();
         return;
