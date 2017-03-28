@@ -11,6 +11,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.apache.kafka:kafka-clients:0.10.2.0" level="project" />
+    <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.1.2.6" level="project" />
     <orderEntry type="module" module-name="core" scope="PROVIDED" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.sourceforge.argparse4j:argparse4j:0.5.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.typesafe.akka:akka-actor_2.11:2.4.14" level="project" />
