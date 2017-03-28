@@ -242,7 +242,7 @@ public class MasterCom extends Communication {
             System.out.println(workers.get(request.from).job);
             getContext().watch(getSender());
 
-            System.out.println("Worker registered with ID: " + request.data);
+            System.out.println("Worker registered with ID: " + request.from + " and  " + request.data);
 
             Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.SUCCESS;
