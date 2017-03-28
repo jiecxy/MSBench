@@ -52,9 +52,9 @@ public class StatHeader implements Serializable {
 
     public String getReadFrom() {
         if (-1 == readFrom)
-            return "lateset";
+            return "Latest";
         else if (0 == readFrom)
-            return "oldest";
+            return "Oldest";
         else
             return "UNKNOWN";
     }
@@ -75,20 +75,20 @@ public class StatHeader implements Serializable {
     public String toString() {
         String str = "\t" + "System: " + system + "\n" +
                 "\t" + "Stream Name: " + streamName + "\n" +
-                "\t" + "Run Time: " + runTime + "s" + "\n" +
+                "\t" + "Run Time: " + runTime + " s" + "\n" +
                 "\t\t" + "Start Time: " + getStartTime() + "\n" +
-                "\t" + "Reporting Interval: " + reportingInterval + "s" + "\n" +
+                "\t" + "Reporting Interval: " + reportingInterval + " s" + "\n" +
                 "\t" + "Host: " + host;
         if (isWriter)
             return "Writer Stats:" + "\n" +
                     str + "\n" +
-                    "\t" + "Message Size: " + messageSize + "\n" +
+                    "\t" + "Message Size: " + messageSize + " Byte" + "\n" +
                     "\t" + "Rate: " + strategy + "\n" +
                     "\t" + "Write Mode: " + getWriteMode() + "\n";
         else
-            return "Reader Stats:" +
+            return "Reader Stats:" + "\n" +
                     str + "\n" +
-                    "\t" + ", readFrom: " + getReadFrom();
+                    "\t" + "Read From: " + getReadFrom();
     }
 
 }

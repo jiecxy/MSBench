@@ -48,10 +48,10 @@ public class StatTail implements Serializable {
                 "\t" + "FinishTime: " + getFinishTime() + "\n";
         if (isWriter) {
             str += "\t" + "Messages Sent: " + messagesSentOrReceived + "\n" +
-                    "\t" + "Data Sent: " + dataSentOrReceived + "MB" + "\n";
+                    "\t" + "Data Sent: " + dataSentOrReceived + " MB" + "\n";
         } else {
             str += "\t" + "Messages Received: " + messagesSentOrReceived + "\n" +
-                    "\t" + "Data Received: " + dataSentOrReceived + "MB" + "\n";
+                    "\t" + "Data Received: " + dataSentOrReceived + " MB" + "\n";
         }
 
         return str + "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +

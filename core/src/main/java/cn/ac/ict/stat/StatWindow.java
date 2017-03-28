@@ -10,8 +10,8 @@ public class StatWindow implements Serializable {
 
     public long time;  // ms
     public double rate; // msg/s
-    public long records;  // number of msg
-    public double tps; // mb/s
+    public long records;  // msgs
+    public double tps; // Byte/s
     public double avgLatency;
     public double maxLatency;
 
