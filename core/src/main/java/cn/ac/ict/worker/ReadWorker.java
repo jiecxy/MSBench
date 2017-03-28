@@ -35,10 +35,12 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void run() {
-        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),job.statInterval,job.host,job.from));
 
         startTime = System.nanoTime();
         lastStatTime = startTime;
+
+        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),job.statInterval,job.host,job.from));
+
         //todo set MS's read mode
 
         while (isRunning) {

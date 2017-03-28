@@ -20,8 +20,11 @@ public class WriteJob {
     public ThroughputStrategy strategy;
     public Generator generator;
 
-    public WriteJob(int runTime, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+    public WriteJob(String system, String host, int runTime, int statInterval, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+        this.system = system;
+        this.host = host;
         this.runTime = runTime;
+        this.statInterval = statInterval;
         this.streamName = streamName;
         this.messageSize = messageSize;
         this.isSync = isSync;

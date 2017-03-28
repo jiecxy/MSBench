@@ -53,10 +53,11 @@ public class WriteWorker extends Worker implements WriteCallBack {
 
     @Override
     public void run() {
-        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
 
         startTime = System.nanoTime();
         lastStatTime = startTime;
+
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
 
         while (isRunning) {
             if ((System.nanoTime() - startTime) / 1e9 > job.runTime) {
