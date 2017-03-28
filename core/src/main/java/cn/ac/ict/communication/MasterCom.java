@@ -86,7 +86,8 @@ public class MasterCom extends Communication {
                 case METRICS_HEAD:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("METRICS_HEAD = " + msg.data);
+                            System.out.println("METRICS_HEAD = \n" + msg.data + "\n");
+                            StatWindow.printHead();
                             workers.get(msg.from).stat.head = (StatHeader) msg.data;
                             break;
                         default:
@@ -97,7 +98,7 @@ public class MasterCom extends Communication {
                 case METRICS_TAIL:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("METRICS_TAIL = " + msg.data);
+                            System.out.println("METRICS_TAIL = \n" + msg.data + "\n");
                             workers.get(msg.from).stat.tail = (StatTail) msg.data;
                             workers.get(msg.from).status = WorkerComInfo.STATUS.DONE;
                             if (checkIfAllDone()) {
@@ -112,7 +113,7 @@ public class MasterCom extends Communication {
                 case METRICS_WINDOW:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("METRICS_WINDOW = " + msg.data);
+                            System.out.println("METRICS_WINDOW = \n\t" + msg.data);
                             workers.get(msg.from).stat.statWindow.add((StatWindow) msg.data);
                             break;
                         default:
@@ -238,7 +239,7 @@ public class MasterCom extends Communication {
             workers.put((String)request.data, new WorkerComInfo(getSender(), System.currentTimeMillis()));
             getContext().watch(getSender());
 
-            System.out.println("register " + request.data);
+            System.out.println("Worker registered with ID: " + request.data);
 
             Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.SUCCESS;

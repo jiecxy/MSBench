@@ -25,7 +25,7 @@ public class StatWindow implements Serializable {
         this.maxLatency = maxLatency;
     }
 
-    public String printHead() {
+    public static String printHead() {
         return "Reporting Window:\n" +
                 String.format("%-24s  %-12s  %-12s  %-12s  %-14s  %-14s", "Time", "Rate(msg/s)", "Records", "Tps(MB/s)", "AvgLatency(ms)", "MaxLatency(ms)") + "\n";
     }
