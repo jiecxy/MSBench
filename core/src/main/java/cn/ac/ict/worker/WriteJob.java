@@ -20,19 +20,7 @@ public class WriteJob {
     public ThroughputStrategy strategy;
     public Generator generator;
 
-    public WriteJob(int runTime, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
-        this.runTime = runTime;
-        this.streamName = streamName;
-        this.messageSize = messageSize;
-        this.isSync = isSync;
-        this.strategy = strategy;
-
-        if (messageSize != -1) {
-            generator = new SimpleGenerator(messageSize);
-        }
-    }
-
-    public WriteJob(String system, String host, int runTime, int statInterval, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy, Generator generator) {
+    public WriteJob(String system, String host, int runTime, int statInterval, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         this.system = system;
         this.host = host;
         this.runTime = runTime;
@@ -41,6 +29,9 @@ public class WriteJob {
         this.messageSize = messageSize;
         this.isSync = isSync;
         this.strategy = strategy;
-        this.generator = generator;
+
+        if (messageSize != -1) {
+            generator = new SimpleGenerator(messageSize);
+        }
     }
 }

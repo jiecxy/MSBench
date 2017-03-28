@@ -133,9 +133,10 @@ public class MSBClient {
                 // Get the workerIP
                 String workerIP = getStringArgOrException(res, WORKER_ADDRESS);
 
+                String systemClass = "";
                 // Get the ms class
                 try {
-                    String systemClass = getStringArgOrException(res, SYSTEM);
+                    systemClass = getStringArgOrException(res, SYSTEM);
                     String configFilePath = getStringArgOrException(res, CONFIG_FILE);
                     InputStream propStream = new FileInputStream(configFilePath);
                     Properties msClientProps = new Properties();
@@ -150,7 +151,7 @@ public class MSBClient {
                     ms.setProducer(false);
 
                     int from = getIntArgOrException(res, READ_FROM);
-                    startReader(workerIP, masterIP, masterPort, runTime, streamName, from, ms);
+                    startReader(workerIP, masterIP, masterPort, runTime, streamName, from, ms, systemClass);
                 } else if (process.equals(WRITER)) {
                     ms.setProducer(true);
 
@@ -177,7 +178,7 @@ public class MSBClient {
                             throw new ArgumentParserException("GivenRandomChangeThroughputList Mode: Invalid argument rtpl!", parser);
                         }
                         int ctps = getIntArgOrException(res, CHANGE_THROUGHPUT_SECONDS);
-                        startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, messageSize, isSync,
+                        startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                 new GivenRandomChangeThroughputList(list, ctps));
                     } else {
                         Integer ftp = res.getInt(FINAL_THROUGHPUT);
@@ -185,17 +186,17 @@ public class MSBClient {
                         Integer ctps = res.getInt(CHANGE_THROUGHPUT_SECONDS);
                         if (ftp != null || ctp != null || ctps != null) {
                             if (ftp != null && ctp != null && ctps != null) { // GradualChangeThroughput
-                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, messageSize, isSync,
+                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                         new GradualChangeThroughput(tp, ftp, ctp, ctps));
                             } else {
                                 throw new ArgumentParserException("GradualChangeThroughput Mode: Require tp ftp ctp ctps!", parser);
                             }
                         } else {
                             if (tp == -1) { // NoLimitThroughput
-                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, messageSize, isSync,
+                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                         new NoLimitThroughput());
                             } else { // ConstantThroughput
-                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, messageSize, isSync,
+                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                         new ConstantThroughput(tp));
                             }
                         }
@@ -244,7 +245,7 @@ public class MSBClient {
         system.awaitTermination();
     }
 
-    private void startReader(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms) {
+    private void startReader(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
         System.out.println("startReader:" + "\n"
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
@@ -265,11 +266,11 @@ public class MSBClient {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, from, ms), "worker");
+        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, from, ms, systemName), "worker");
 //        worker.tell("WorkerCom MESSAGES", worker);
     }
 
-    private void startWriter(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+    private void startWriter(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         System.out.println("startWriter:" + "\n"
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
@@ -292,7 +293,7 @@ public class MSBClient {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, ms, messageSize, isSync, strategy), "worker");
+        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, ms, systemName, messageSize, isSync, strategy), "worker");
 //        worker.tell("WorkerCom MESSAGES", worker);
     }
 

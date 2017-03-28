@@ -2,7 +2,7 @@ package cn.ac.ict.communication;
 
 import akka.actor.*;
 import cn.ac.ict.MS;
-import cn.ac.ict.worker.Worker;
+import cn.ac.ict.worker.*;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
@@ -27,10 +27,12 @@ public class WorkerCom extends Communication implements CallBack {
     private Worker worker = null;
     private Thread workerThread = null;
 
-    private Boolean isWriter;
     private MS ms = null;
     private String stream;
     private String workerIP;
+
+    private boolean isWriter;
+    private String systemName;
 
     // Writer
     private int messageSize;
@@ -40,7 +42,7 @@ public class WorkerCom extends Communication implements CallBack {
     // Reader
     private int from;
 
-    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms) {
+    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
         super(masterIP, masterPort, runTime);
         String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
         master = getContext().actorSelection(path);
@@ -49,9 +51,11 @@ public class WorkerCom extends Communication implements CallBack {
         isWriter = false;
         this.from = from;
         this.workerIP = workerIP;
+        this.systemName = systemName;
+        isWriter = false;
     }
 
-    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         super(masterIP, masterPort, runTime);
         String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
         master = getContext().actorSelection(path);
@@ -61,6 +65,8 @@ public class WorkerCom extends Communication implements CallBack {
         this.messageSize = messageSize;
         this.isSync = isSync;
         this.strategy = strategy;
+        this.systemName = systemName;
+        isWriter = true;
     }
 
     public static void main(String[] args) {
@@ -213,7 +219,11 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     private void startWorker() {
-        worker = new Worker(this);
+        if (isWriter) {
+            worker = new WriteWorker(this, ms, new WriteJob(systemName, workerIP, runTime, STATS_INTERVAL, stream, messageSize, isSync, strategy));
+        } else {
+            worker = new ReadWorker(this, ms, new ReadJob(systemName, workerIP, runTime, STATS_INTERVAL, stream, from));
+        }
         workerThread = new Thread(worker);
         workerThread.start();
     }
@@ -225,6 +235,10 @@ public class WorkerCom extends Communication implements CallBack {
 
     private void stopAll() {
         stopWorker();
+        if (registerScheduler != null)
+            registerScheduler.cancel();
+        if (heartbeatScheduler != null)
+            heartbeatScheduler.cancel();
         getContext().system().stop(getSelf());
         getContext().system().terminate();
     }

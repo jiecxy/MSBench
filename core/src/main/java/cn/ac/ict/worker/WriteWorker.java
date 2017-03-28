@@ -47,7 +47,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 new SimpleCallBack(),
                 new SimpleMS(),
                 new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
-                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},1),new SimpleGenerator(10)));
+                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},1)));
         wk.run();
     }
 
