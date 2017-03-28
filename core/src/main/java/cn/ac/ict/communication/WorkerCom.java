@@ -65,6 +65,7 @@ public class WorkerCom extends Communication implements CallBack {
         this.messageSize = messageSize;
         this.isSync = isSync;
         this.strategy = strategy;
+        this.workerIP = workerIP;
         this.systemName = systemName;
         isWriter = true;
     }
