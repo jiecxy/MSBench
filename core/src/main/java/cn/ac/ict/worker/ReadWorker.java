@@ -35,29 +35,38 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void run() {
-        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),statInterval,job.host,job.from));
+        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),job.statInterval,job.host,job.from));
+
         startTime = System.nanoTime();
         lastStatTime = startTime;
         //todo set MS's read mode
+
         while (isRunning) {
+
             if ((System.nanoTime() - startTime) / 1e9 > job.runTime) {
                 isRunning = false;
                 break;
             }
-            if ((System.nanoTime() - lastStatTime) / 1e9 > statInterval) {
+
+            if ((System.nanoTime() - lastStatTime) / 1e9 > job.statInterval) {
                 Histogram reportHist = null;
                 double elapsed = (System.nanoTime() - startTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
+
                 cb.onSendStatWindow(new StatWindow((long)((System.nanoTime()-startTime)/1e6),numMsg/elapsed, numMsg, numByte/elapsed,
                         reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
+
                 reportHist.reset();
                 lastStatTime = System.nanoTime();
             }
+
             requestTime = System.nanoTime();
             msClient.read(job.streamName, this);
         }
+
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
         double elapsed = (System.nanoTime() - startTime) / 1e9;
+
         cb.onSendStatTail(
                 new StatTail((long)((System.nanoTime()-startTime)/1e6),totalNumMsg/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
                         reportHist.getValueAtPercentile(50)/1000.0,reportHist.getValueAtPercentile(95)/1000.0,
@@ -75,7 +84,10 @@ public class ReadWorker extends Worker implements ReadCallBack {
     }
 
     public static void main(String[] args) {
-        ReadWorker wk = new ReadWorker(new SimpleCallBack(), new SimpleMS(), new ReadJob(10, "stream-1", 0));
+        ReadWorker wk = new ReadWorker(
+                new SimpleCallBack(),
+                new SimpleMS(),
+                new ReadJob("SimpleMS","localhost",10, 5,"stream-1", 0));
         wk.run();
     }
 

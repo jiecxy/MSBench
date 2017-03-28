@@ -33,48 +33,68 @@ public class WriteWorker extends Worker implements WriteCallBack {
         msClient = ms;
         rateLimiter = new ShiftableRateLimiter(job.strategy);
 
-        // 这是啥
+        // stat parameters init
         numMsg = 0;
         numByte = 0;
         totalNumMsg = 0;
         totalNumByte = 0;
         recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
-        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);//man length is 120000*1000
+    }
+
+    public static void main(String[] args) {
+        WriteWorker wk = new WriteWorker(
+                new SimpleCallBack(),
+                new SimpleMS(),
+                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
+                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},1),new SimpleGenerator(10)));
+        wk.run();
     }
 
     @Override
     public void run() {
-        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),statInterval,job.host,job.messageSize,job.strategy,job.isSync));
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
+
         startTime = System.nanoTime();
         lastStatTime = startTime;
+
         while (isRunning) {
-            if ((System.nanoTime()-startTime)/1e9 > job.runTime) {
+            if ((System.nanoTime() - startTime) / 1e9 > job.runTime) {
                 isRunning = false;
                 break;
             }
-            if ((System.nanoTime()- lastStatTime)/1e9 > statInterval) {
+
+            if ((System.nanoTime() - lastStatTime) / 1e9 > job.statInterval) {
+
                 Histogram reportHist = null;
-                double elapsed = (System.nanoTime() - startTime)/1e9;
+                double elapsed = (System.nanoTime() - startTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
-                cb.onSendStatWindow(new StatWindow((long)((System.nanoTime()-startTime)/1e6),numMsg/elapsed, numMsg, numByte/elapsed,
-                        reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
+
+                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime() - startTime) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed,
+                        reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
+
                 reportHist.reset();
                 lastStatTime = System.nanoTime();
             }
+
             if (rateLimiter.getLimiter() != null)
                 rateLimiter.getLimiter().acquire();
+
             requestTime = System.nanoTime();
-            msClient.send(job.isSync, (byte[])generator.nextValue(), job.streamName, this);
+            msClient.send(job.isSync, (byte[]) generator.nextValue(), job.streamName, this);
 
         }
+
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
-        double elapsed = (System.nanoTime() - startTime)/1e9;
+        double elapsed = (System.nanoTime() - startTime) / 1e9;
+
         cb.onSendStatTail(
-                new StatTail((long)((System.nanoTime()-startTime)/1e6),totalNumMsg/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
-                        reportHist.getValueAtPercentile(50)/1000.0,reportHist.getValueAtPercentile(95)/1000.0,
-                        reportHist.getValueAtPercentile(99)/1000.0,reportHist.getValueAtPercentile(99.9)/1000.0,
-                        totalNumMsg, totalNumByte,job.isSync)
+                new StatTail((long) ((System.nanoTime() - startTime) / 1e6), totalNumMsg / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
+                        reportHist.getValueAtPercentile(50) / 1000.0, reportHist.getValueAtPercentile(95) / 1000.0,
+                        reportHist.getValueAtPercentile(99) / 1000.0, reportHist.getValueAtPercentile(99.9) / 1000.0,
+                        totalNumMsg, totalNumByte, job.isSync)
         );
+
         if (rateLimiter != null)
             rateLimiter.close();
     }
@@ -87,18 +107,12 @@ public class WriteWorker extends Worker implements WriteCallBack {
             msClient.close();
     }
 
-    public static void main(String[] args) {
-        WriteJob job = new WriteJob(10, "stream-1", 10, true, new GivenRandomChangeThroughputList(new int[]{1,2,3,4,5,6,7,8,9,10,11},1));
-        WriteWorker wk = new WriteWorker(new SimpleCallBack(), new SimpleMS(), job);
-        wk.run();
-    }
-
     @Override
     public void handleSentMessage(byte[] msg) {
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);
-        System.out.println("received sned ack for msg "+new String(msg));
+        System.out.println("received sned ack for msg " + new String(msg));
         numMsg++;
         numByte += msg.length;
         totalNumMsg++;

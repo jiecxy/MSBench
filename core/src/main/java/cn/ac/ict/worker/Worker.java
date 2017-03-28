@@ -14,11 +14,7 @@ public class Worker implements Runnable {
 
     CallBack cb;
     boolean isRunning = true;
-    int statInterval = 5;
     MS msClient = null;
-    String system;
-    String stream = null;
-    int runTime = 0;
 
     //stat variables
     long startTime;
