@@ -58,6 +58,8 @@ public class ReadWorker extends Worker implements ReadCallBack {
                 cb.onSendStatWindow(new StatWindow((long)((System.nanoTime())/1e6),numMsg/elapsed, numMsg, numByte/elapsed,
                         reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
 
+                numMsg=0;
+                numByte=0;
                 reportHist.reset();
                 lastStatTime = System.nanoTime();
             }
