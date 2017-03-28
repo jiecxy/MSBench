@@ -8,6 +8,8 @@ import cn.ac.ict.stat.StatWindow;
 import cn.ac.ict.utils.SimpleCallBack;
 import cn.ac.ict.utils.SimpleMS;
 import cn.ac.ict.worker.callback.ReadCallBack;
+import cn.ac.ict.worker.job.Job;
+import cn.ac.ict.worker.job.ReadJob;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
@@ -20,9 +22,9 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     private ReadJob job;
 
-    public ReadWorker(CallBack cb, MS ms, ReadJob job) {
+    public ReadWorker(CallBack cb, MS ms, Job job) {
         super(cb);
-        this.job = job;
+        this.job = (ReadJob)job;
         msClient = ms;
 
         numMsg = 0;

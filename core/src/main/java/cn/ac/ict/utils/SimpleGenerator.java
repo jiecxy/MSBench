@@ -6,7 +6,7 @@ import javafx.beans.binding.ObjectExpression;
 /**
  * Created by krumo on 3/23/17.
  */
-public class SimpleGenerator extends Generator{
+public class SimpleGenerator extends Generator {
     int MsgSize = -1;
 
     public SimpleGenerator(int messageSize)

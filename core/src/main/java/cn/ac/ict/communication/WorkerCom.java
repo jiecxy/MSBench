@@ -6,7 +6,9 @@ import cn.ac.ict.worker.*;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
-import cn.ac.ict.worker.throughput.ThroughputStrategy;
+import cn.ac.ict.worker.job.Job;
+import cn.ac.ict.worker.job.ReadJob;
+import cn.ac.ict.worker.job.WriteJob;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
@@ -19,7 +21,6 @@ import static cn.ac.ict.communication.Command.*;
 
 public class WorkerCom extends Communication implements CallBack {
 
-
     private String workerID = UUID.randomUUID().toString();
     private ActorSelection master;
     private Cancellable registerScheduler;
@@ -28,46 +29,17 @@ public class WorkerCom extends Communication implements CallBack {
     private Thread workerThread = null;
 
     private MS ms = null;
-    private String stream;
-    private String workerIP;
-
     private boolean isWriter;
-    private String systemName;
+    private Job job;
 
-    // Writer
-    private int messageSize;
-    private boolean isSync;
-    private ThroughputStrategy strategy;
-
-    // Reader
-    private int from;
-
-    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
-        super(masterIP, masterPort, runTime);
+    public WorkerCom(String masterIP, int masterPort, MS ms, Job job) {
+        super(masterIP, masterPort);
         String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
         master = getContext().actorSelection(path);
         this.ms = ms;
-        this.stream = stream;
-        isWriter = false;
-        this.from = from;
-        this.workerIP = workerIP;
-        this.systemName = systemName;
-        isWriter = false;
-    }
-
-    public WorkerCom(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
-        super(masterIP, masterPort, runTime);
-        String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
-        master = getContext().actorSelection(path);
-        isWriter = true;
-        this.ms = ms;
-        this.stream = stream;
-        this.messageSize = messageSize;
-        this.isSync = isSync;
-        this.strategy = strategy;
-        this.workerIP = workerIP;
-        this.systemName = systemName;
-        isWriter = true;
+        this.job = job;
+        this.job.statInterval = STATS_INTERVAL;
+        isWriter = job.isWriter;
     }
 
     public static void main(String[] args) {
@@ -80,7 +52,7 @@ public class WorkerCom extends Communication implements CallBack {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
         System.out.println("WorkerCom start " + args[0] + ":" + args[2]);
         ActorRef worker = system.actorOf(Props.create(WorkerCom.class, args[0], Integer.parseInt(args[2]), args[0], Integer.parseInt(args[1])), "worker");
-        worker.tell("WorkerCom MESSAGES", worker);
+//        worker.tell("WorkerCom MESSAGES", worker);
         //system.stop(worker);
         //system.terminate();
     }
@@ -89,7 +61,7 @@ public class WorkerCom extends Communication implements CallBack {
     public void preStart() throws Exception {
         super.preStart();
         Command registerCmd = new Command(workerID, REGISTER_WORKER, TYPE.REQUEST);
-        registerCmd.data = workerID;
+        registerCmd.data = job;
         //TODO 改成尝试次数
         registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(2, TimeUnit.SECONDS),
                 getSelf(), registerCmd, getContext().dispatcher(), getSelf());
@@ -97,12 +69,13 @@ public class WorkerCom extends Communication implements CallBack {
 
     @Override
     public void onReceive(Object message) throws Throwable {
-        System.out.println("WorkerCom receive " + message);
+//        System.out.println("WorkerCom receive " + message);
         if (message instanceof Command) {
             Command msg = (Command)message;
             switch (msg.api) {
                 case REGISTER_WORKER:
                     switch (msg.type) {
+                        // only from worker
                         case REQUEST:
                             master.tell(msg, getSelf());
                             break;
@@ -170,7 +143,7 @@ public class WorkerCom extends Communication implements CallBack {
                             Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
                             cmd.data = msg.data;
                             master.tell(cmd, getSelf());
-                            System.out.println("WorkerCom METRICS_WINDOW " + msg.data);
+                            System.out.println("METRICS_WINDOW " + msg.data);
                             break;
                         default:
                             unhandled(message);
@@ -184,7 +157,7 @@ public class WorkerCom extends Communication implements CallBack {
                             Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
                             cmd.data = msg.data;
                             master.tell(cmd, getSelf());
-                            System.out.println("WorkerCom METRICS_HEAD " + msg.data);
+                            System.out.println("METRICS_HEAD " + msg.data);
                             break;
                         default:
                             unhandled(message);
@@ -198,7 +171,7 @@ public class WorkerCom extends Communication implements CallBack {
                             Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
                             cmd.data = msg.data;
                             master.tell(cmd, getSelf());
-                            System.out.println("WorkerCom METRICS_TAIL " + msg.data);
+                            System.out.println("METRICS_TAIL " + msg.data);
                             break;
                         default:
                             unhandled(message);
@@ -221,9 +194,9 @@ public class WorkerCom extends Communication implements CallBack {
 
     private void startWorker() {
         if (isWriter) {
-            worker = new WriteWorker(this, ms, new WriteJob(systemName, workerIP, runTime, STATS_INTERVAL, stream, messageSize, isSync, strategy));
+            worker = new WriteWorker(this, ms, job);
         } else {
-            worker = new ReadWorker(this, ms, new ReadJob(systemName, workerIP, runTime, STATS_INTERVAL, stream, from));
+            worker = new ReadWorker(this, ms, job);
         }
         workerThread = new Thread(worker);
         workerThread.start();
@@ -248,11 +221,11 @@ public class WorkerCom extends Communication implements CallBack {
     public void postStop() throws Exception {
         super.postStop();
         //getContext().stop(getSelf());
-        System.out.println("WorkerCom postStop ");
+//        System.out.println("WorkerCom postStop ");
     }
 
     public void onSendStatHeader(StatHeader header) {
-        System.out.println("WorkerCom onSendStatHeader " + header);
+//        System.out.println("WorkerCom onSendStatHeader " + header);
 
         Command cmd = new Command(workerID, METRICS_HEAD, TYPE.REQUEST);
         cmd.data = header;
@@ -260,7 +233,7 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     public void onSendStatWindow(StatWindow window) {
-        System.out.println("WorkerCom onSendWindowMetrics " + window);
+//        System.out.println("WorkerCom onSendWindowMetrics " + window);
 
         Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.REQUEST);
         cmd.data = window;
@@ -268,7 +241,7 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     public void onSendStatTail(StatTail tail) {
-        System.out.println("WorkerCom onSendStatTail " + tail);
+//        System.out.println("WorkerCom onSendStatTail " + tail);
 
         Command cmd = new Command(workerID, METRICS_TAIL, TYPE.REQUEST);
         cmd.data = tail;

@@ -2,6 +2,7 @@ package cn.ac.ict.communication;
 
 import akka.actor.ActorRef;
 import cn.ac.ict.stat.MSBWorkerStat;
+import cn.ac.ict.worker.job.Job;
 
 /**
  * Created by jiecxy on 2017/3/21.
@@ -15,11 +16,13 @@ public class WorkerComInfo {
     public ActorRef ref = null;
     public long lastHeartbeat = 0;
     public STATUS status = STATUS.RUNNING;
+    public Job job;
 
     public MSBWorkerStat stat = new MSBWorkerStat();
 
-    public WorkerComInfo(ActorRef ref, long lastHeartbeat) {
+    public WorkerComInfo(ActorRef ref, Job job, long lastHeartbeat) {
         this.ref = ref;
+        this.job = job;
         this.lastHeartbeat = lastHeartbeat;
         status = STATUS.RUNNING;
     }

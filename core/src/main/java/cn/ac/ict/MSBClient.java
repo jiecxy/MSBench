@@ -21,11 +21,10 @@ package cn.ac.ict;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import cn.ac.ict.communication.Communication;
 import cn.ac.ict.communication.MasterCom;
 import cn.ac.ict.communication.WorkerCom;
-import cn.ac.ict.exception.UnknownMSException;
-import cn.ac.ict.worker.Worker;
+import cn.ac.ict.worker.job.ReadJob;
+import cn.ac.ict.worker.job.WriteJob;
 import cn.ac.ict.worker.throughput.*;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -35,8 +34,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -271,7 +268,7 @@ public class MSBClient {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, from, ms, systemName), "worker");
+        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from)), "worker");
 //        worker.tell("WorkerCom MESSAGES", worker);
     }
 
@@ -298,7 +295,7 @@ public class MSBClient {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, workerIP, masterIP, masterPort, runTime, stream, ms, systemName, messageSize, isSync, strategy), "worker");
+        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy)), "worker");
 //        worker.tell("WorkerCom MESSAGES", worker);
     }
 

@@ -8,9 +8,10 @@ import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
 import cn.ac.ict.utils.ShiftableRateLimiter;
 import cn.ac.ict.utils.SimpleCallBack;
-import cn.ac.ict.utils.SimpleGenerator;
 import cn.ac.ict.utils.SimpleMS;
 import cn.ac.ict.worker.callback.WriteCallBack;
+import cn.ac.ict.worker.job.Job;
+import cn.ac.ict.worker.job.WriteJob;
 import cn.ac.ict.worker.throughput.GivenRandomChangeThroughputList;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
@@ -26,12 +27,12 @@ public class WriteWorker extends Worker implements WriteCallBack {
     private ShiftableRateLimiter rateLimiter;
     private WriteJob job;
 
-    public WriteWorker(CallBack cb, MS ms, WriteJob job) {
+    public WriteWorker(CallBack cb, MS ms, Job job) {
         super(cb);
-        this.job = job;
-        this.generator = job.generator;//new SimpleGenerator(messageSize);
+        this.job = (WriteJob) job;
+        this.generator = this.job.generator;//new SimpleGenerator(messageSize);
         msClient = ms;
-        rateLimiter = new ShiftableRateLimiter(job.strategy);
+        rateLimiter = new ShiftableRateLimiter(this.job.strategy);
 
         // stat parameters init
         numMsg = 0;

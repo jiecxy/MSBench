@@ -23,7 +23,7 @@ public class Command implements Serializable {
         SUCCESS, FAIL, REQUESTING, EXISTED;
     }
 
-    public String from;
+    public String from;  // workerId or master
     public int api = -1;
     public TYPE type = TYPE.UNKNOWN;
     public STATUS status = STATUS.FAIL;

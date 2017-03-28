@@ -4,6 +4,7 @@ import akka.actor.*;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
 import cn.ac.ict.stat.StatWindow;
+import cn.ac.ict.worker.job.Job;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
@@ -20,19 +21,19 @@ public class MasterCom extends Communication {
 
     private final String masterID = "master";
     private Map<String, WorkerComInfo> workers = new HashMap<String, WorkerComInfo>();
-    private int REQUIRED_WORKER_NUM;
     private Cancellable checkTimeoutScheduler = null;
 
     private ArrayList<String> streams;
     private int writerNum;
     private int readerNum;
+    private int runTime;
 
     public MasterCom(String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
-        super(masterIP, masterPort, runTime);
+        super(masterIP, masterPort);
         this.streams = streams;
+        this.runTime = runTime;
         this.writerNum = writerNum;
         this.readerNum = readerNum;
-        REQUIRED_WORKER_NUM = writerNum + readerNum;
     }
 
     public static void main(String[] args) {
@@ -192,7 +193,7 @@ public class MasterCom extends Communication {
                 count++;
             }
         }
-        return count >= REQUIRED_WORKER_NUM;
+        return count >= readerNum + writerNum;
     }
 
     private void checkTimeoutWorker() {
@@ -230,13 +231,15 @@ public class MasterCom extends Communication {
 
     private boolean registerWorker(Command request) {
         //TODO 判断启动多了的情况
-        if (workers.containsKey(request.data)) {
+        if (workers.containsKey(request.from)) {
             Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.EXISTED;
             getSender().tell(cmd, getSelf());
             return false;
         } else {
-            workers.put((String)request.data, new WorkerComInfo(getSender(), System.currentTimeMillis()));
+            workers.put(request.from, new WorkerComInfo(getSender(), (Job) request.data, System.currentTimeMillis()));
+
+            System.out.println(workers.get(request.from).job);
             getContext().watch(getSender());
 
             System.out.println("Worker registered with ID: " + request.data);
@@ -249,12 +252,17 @@ public class MasterCom extends Communication {
     }
 
     private boolean checkWorkersReady() {
-        int count = 0;
+        int writerCount = 0, readerCount = 0;
         for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
             if (entry.getValue().status == WorkerComInfo.STATUS.RUNNING) {
-                count++;
+                if (entry.getValue().job.isWriter) {
+                    writerCount++;
+                } else {
+                    readerCount++;
+                }
             }
         }
-        return count == REQUIRED_WORKER_NUM;
+        //TODO 判断超过数量的情况
+        return writerCount == writerNum && readerCount == readerNum;
     }
 }
