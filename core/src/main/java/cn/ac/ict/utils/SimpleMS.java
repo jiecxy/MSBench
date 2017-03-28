@@ -6,24 +6,8 @@ import cn.ac.ict.worker.callback.WriteCallBack;
 
 public class SimpleMS extends MS {
 
-    public Status send(byte[] msg) {
-        System.out.println("sending message");
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("received SEND ack");
-        return null;
-    }
-
-    public Status read() {
-
-        return null;
-    }
-
     @Override
-    public Status send(boolean isSync,byte[] msg, String stream, WriteCallBack sentCallBack) {
+    public void send(boolean isSync,byte[] msg, String stream, WriteCallBack sentCallBack) {
         if(isSync)
         {
             System.out.println("Sync sending message " + new String(msg) + " to " + stream);
@@ -45,12 +29,12 @@ public class SimpleMS extends MS {
             System.out.println("Async received SEND ack");
             sentCallBack.handleSentMessage(msg);
         }
-        return null;
+        return;
     }
 
 
     @Override
-    public Status read(String stream, ReadCallBack readCallBack) {
+    public void read(String stream, ReadCallBack readCallBack) {
         System.out.println("receiving message from "+stream);
         try {
             Thread.sleep(100);
@@ -59,11 +43,11 @@ public class SimpleMS extends MS {
         }
         System.out.println("received SEND ack");
         readCallBack.handleReceivedMessage("my-message".getBytes());
-        return null;
+        return;
     }
 
-    public Status close() {
+    public void close() {
         System.out.println("close MSclient");
-        return null;
+        return;
     }
 }
