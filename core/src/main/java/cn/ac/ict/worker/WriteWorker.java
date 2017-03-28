@@ -71,7 +71,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 double elapsed = (System.nanoTime() - startTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
                 // TODO 需不需要将stats存在worker上
-                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime() - startTime) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed,
+                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed,
                         reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
 
                 reportHist.reset();
@@ -90,7 +90,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
         double elapsed = (System.nanoTime() - startTime) / 1e9;
 
         cb.onSendStatTail(
-                new StatTail((long) ((System.nanoTime() - startTime) / 1e6), totalNumMsg / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
+                new StatTail((long) ((System.nanoTime()) / 1e6), totalNumMsg / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
                         reportHist.getValueAtPercentile(50) / 1000.0, reportHist.getValueAtPercentile(95) / 1000.0,
                         reportHist.getValueAtPercentile(99) / 1000.0, reportHist.getValueAtPercentile(99.9) / 1000.0,
                         totalNumMsg, totalNumByte, job.isSync)
