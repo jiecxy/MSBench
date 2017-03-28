@@ -86,8 +86,8 @@ public class MasterCom extends Communication {
                 case METRICS_HEAD:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("METRICS_HEAD = \n" + msg.data + "\n");
-                            StatWindow.printHead();
+                            System.out.println("\nMETRICS_HEAD = \n" + msg.data + "\n");
+                            System.out.print(StatWindow.printHead());
                             workers.get(msg.from).stat.head = (StatHeader) msg.data;
                             break;
                         default:
@@ -98,7 +98,7 @@ public class MasterCom extends Communication {
                 case METRICS_TAIL:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("METRICS_TAIL = \n" + msg.data + "\n");
+                            System.out.println("\nMETRICS_TAIL = \n" + msg.data + "\n");
                             workers.get(msg.from).stat.tail = (StatTail) msg.data;
                             workers.get(msg.from).status = WorkerComInfo.STATUS.DONE;
                             if (checkIfAllDone()) {
@@ -113,7 +113,7 @@ public class MasterCom extends Communication {
                 case METRICS_WINDOW:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("METRICS_WINDOW = \n\t" + msg.data);
+                            System.out.println("" + msg.data);
                             workers.get(msg.from).stat.statWindow.add((StatWindow) msg.data);
                             break;
                         default:

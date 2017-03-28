@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b4f72c08-1160-42a7-a159-49bfdbbe950d" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatHeader.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatHeader.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatTail.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatTail.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatWindow.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/distribution/target/" />
@@ -34,8 +32,8 @@
       <file leaf-file-name="WriteWorker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="463">
-              <caret line="59" column="39" selection-start-line="59" selection-start-column="39" selection-end-line="59" selection-end-column="39" />
+            <state relative-caret-position="328">
+              <caret line="50" column="17" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -43,11 +41,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WorkerCom.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="WorkerCom.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerCom.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2848">
-              <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
+            <state relative-caret-position="284">
+              <caret line="233" column="5" selection-start-line="233" selection-start-column="5" selection-end-line="233" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -56,22 +54,12 @@
       <file leaf-file-name="MasterCom.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="150" column="61" selection-start-line="150" selection-start-column="61" selection-end-line="150" selection-end-column="61" />
+            <state relative-caret-position="75">
+              <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
               <folding>
-                <element signature="e#8765#8766#0" expanded="true" />
-                <element signature="e#8851#8852#0" expanded="true" />
+                <element signature="e#8766#8767#0" expanded="true" />
+                <element signature="e#8852#8853#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StatWindow.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatWindow.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -86,12 +74,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StatHeader.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="StatHeader.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatHeader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
+            <state relative-caret-position="-530">
               <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SimpleMS.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/utils/SimpleMS.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="235">
+              <caret line="28" column="58" selection-start-line="28" selection-start-column="58" selection-end-line="28" selection-end-column="58" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -159,7 +159,6 @@
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/Communication.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSBClient.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/Command.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerCom.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerComInfo.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/throughput/ThroughputStrategy.java" />
@@ -167,10 +166,11 @@
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/throughput/GradualChangeThroughput.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/throughput/GivenRandomChangeThroughputList.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/throughput/ConstantThroughput.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatTail.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatHeader.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatWindow.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerCom.java" />
       </list>
     </option>
   </component>
@@ -1171,7 +1171,7 @@
       <envs />
       <method />
     </configuration>
-    <configuration default="false" name="startWorker" type="Application" factoryName="Application">
+    <configuration default="false" name="startWriter" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="cn.ac.ict.MSBClient" />
       <option name="VM_PARAMETERS" value="" />
@@ -1205,7 +1205,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="cn.ac.ict.MSBClient" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="-tr 30 -M 127.0.0.1:9999 -P master -r 1 -sn 1 -name topic" />
+      <option name="PROGRAM_PARAMETERS" value="-tr 30 -M 127.0.0.1:9999 -P master -w 1 -sn 1 -name topic" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1217,7 +1217,7 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Application.startWorker" />
+      <item index="0" class="java.lang.String" itemvalue="Application.startWriter" />
       <item index="1" class="java.lang.String" itemvalue="Application.startReader" />
       <item index="2" class="java.lang.String" itemvalue="Application.startMaster" />
       <item index="3" class="java.lang.String" itemvalue="Application.WriteWorker" />
@@ -1278,12 +1278,12 @@
       <workItem from="1490603137812" duration="126000" />
       <workItem from="1490605561406" duration="7220000" />
       <workItem from="1490617714025" duration="3442000" />
-      <workItem from="1490664311260" duration="9000000" />
+      <workItem from="1490664311260" duration="9445000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27561000" />
+    <option name="totallyTimeSpent" value="28006000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1305,7 +1305,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33451328" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.59646016" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1593,16 +1593,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/utils/SimpleMS.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="512">
-          <caret line="46" column="5" selection-start-line="46" selection-start-column="5" selection-end-line="46" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/akka/akka-actor_2.11/2.4.14/akka-actor_2.11-2.4.14-sources.jar!/akka/actor/ActorRef.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-492">
@@ -1645,29 +1635,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerCom.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2848">
-          <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/CallBack.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="463">
-          <caret line="59" column="39" selection-start-line="59" selection-start-column="39" selection-end-line="59" selection-end-column="39" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1706,29 +1678,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="150" column="61" selection-start-line="150" selection-start-column="61" selection-end-line="150" selection-end-column="61" />
-          <folding>
-            <element signature="e#8765#8766#0" expanded="true" />
-            <element signature="e#8851#8852#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSBClient.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="101" column="132" selection-start-line="101" selection-start-column="12" selection-end-line="101" selection-end-column="132" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/throughput/ConstantThroughput.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1741,18 +1694,65 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatWindow.java">
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatHeader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+        <state relative-caret-position="-530">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatHeader.java">
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/stat/StatWindow.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        <state relative-caret-position="375">
+          <caret line="27" column="25" selection-start-line="27" selection-start-column="25" selection-end-line="27" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/utils/SimpleMS.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="28" column="58" selection-start-line="28" selection-start-column="58" selection-end-line="28" selection-end-column="58" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/throughput/ConstantThroughput.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
+          <folding>
+            <element signature="e#8766#8767#0" expanded="true" />
+            <element signature="e#8852#8853#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="50" column="17" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerCom.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="233" column="5" selection-start-line="233" selection-start-column="5" selection-end-line="233" selection-end-column="5" />
           <folding />
         </state>
       </provider>
