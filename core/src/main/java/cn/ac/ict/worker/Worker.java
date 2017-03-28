@@ -14,11 +14,11 @@ public class Worker implements Runnable {
 
     CallBack cb;
     boolean isRunning = true;
-    int statInterval=5;
-    MS msClient=null;
+    int statInterval = 5;
+    MS msClient = null;
     String system;
-    String stream=null;
-    int runTime=0;
+    String stream = null;
+    int runTime = 0;
 
     //stat variables
     long startTime;
@@ -27,9 +27,9 @@ public class Worker implements Runnable {
     long numByte;
     long totalNumMsg;
     long totalNumByte;
-    static long requestTime;
-    static Recorder recorder = null;
-    static Recorder cumulativeRecorder = null;
+    long requestTime;
+    Recorder recorder = null;
+    Recorder cumulativeRecorder = null;
 
     public Worker(CallBack cb) {
         this.cb = cb;
@@ -43,7 +43,7 @@ public class Worker implements Runnable {
     public void run() {
         try {
             //TODO 发送头部
-            cb.onSendStatHeader(new StatHeader());
+            //cb.onSendStatHeader(new StatHeader());
 
             // TODO 在测试时间内运行
             // TODO 需要记录时间来发送 window
@@ -53,7 +53,7 @@ public class Worker implements Runnable {
                 System.out.println("Worker run - 2");
 
                 // TODO 调用发消息
-                cb.onSendStatWindow(new StatWindow());
+                //cb.onSendStatWindow(new StatWindow());
 
                 System.out.println("Worker run - 3");
                 Thread.sleep(1000);
@@ -61,12 +61,11 @@ public class Worker implements Runnable {
             }
 
             //TODO 发送尾部
-            cb.onSendStatTail(new StatTail());
+            //cb.onSendStatTail(new StatTail());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
 
 
 }

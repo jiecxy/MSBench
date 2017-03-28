@@ -10,6 +10,8 @@ import cn.ac.ict.worker.throughput.ThroughputStrategy;
  */
 public class WriteJob {
 
+    public String system;
+    public String host;
     public int runTime;
     public String streamName;
     public int messageSize;
@@ -24,9 +26,19 @@ public class WriteJob {
         this.isSync = isSync;
         this.strategy = strategy;
 
-
         if (messageSize != -1) {
             generator = new SimpleGenerator(messageSize);
         }
+    }
+
+    public WriteJob(String system, String host, int runTime, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy, Generator generator) {
+        this.system = system;
+        this.host = host;
+        this.runTime = runTime;
+        this.streamName = streamName;
+        this.messageSize = messageSize;
+        this.isSync = isSync;
+        this.strategy = strategy;
+        this.generator = generator;
     }
 }

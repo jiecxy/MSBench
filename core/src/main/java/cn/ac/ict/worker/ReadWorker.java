@@ -23,7 +23,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     public ReadWorker(CallBack cb, MS ms, ReadJob job) {
         super(cb);
         this.job = job;
-        msClient=ms;
+        msClient = ms;
 
         numMsg = 0;
         numByte = 0;
@@ -35,40 +35,41 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void run() {
-        cb.onSendStatHeader(new StatHeader());
+        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),statInterval,job.host,job.from));
         startTime = System.nanoTime();
         lastStatTime = startTime;
         //todo set MS's read mode
         while (isRunning) {
-            if ((System.nanoTime()-startTime)/1e9 > runTime) {
+            if ((System.nanoTime() - startTime) / 1e9 > job.runTime) {
                 isRunning = false;
                 break;
             }
-            if ((System.nanoTime()- lastStatTime)/1e9 > statInterval) {
+            if ((System.nanoTime() - lastStatTime) / 1e9 > statInterval) {
                 Histogram reportHist = null;
-                double elapsed = (System.nanoTime() - startTime)/1e9;
+                double elapsed = (System.nanoTime() - startTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
-                cb.onSendStatWindow(new StatWindow(numMsg/elapsed, numMsg, numByte/elapsed, reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
+                cb.onSendStatWindow(new StatWindow((long)((System.nanoTime()-startTime)/1e6),numMsg/elapsed, numMsg, numByte/elapsed,
+                        reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
                 reportHist.reset();
                 lastStatTime = System.nanoTime();
             }
             requestTime = System.nanoTime();
-            msClient.read(stream,this);
+            msClient.read(job.streamName, this);
         }
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
-        double elapsed = (System.nanoTime()-startTime)/1e9;
+        double elapsed = (System.nanoTime() - startTime) / 1e9;
         cb.onSendStatTail(
-                new StatTail(0,0,totalNumMsg/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
+                new StatTail((long)((System.nanoTime()-startTime)/1e6),totalNumMsg/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
                         reportHist.getValueAtPercentile(50)/1000.0,reportHist.getValueAtPercentile(95)/1000.0,
                         reportHist.getValueAtPercentile(99)/1000.0,reportHist.getValueAtPercentile(99.9)/1000.0,
-                        totalNumMsg, totalNumByte)
+                        totalNumMsg, totalNumByte,false)
         );
     }
 
     @Override
     public void stopWork() {
-        isRunning =false;
-        if(msClient!=null)
+        isRunning = false;
+        if (msClient != null)
             msClient.close();
         return;
     }
@@ -80,7 +81,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void handleReceivedMessage(byte[] msg) {
-        System.out.println("received msg "+new String(msg));
+        System.out.println("received msg " + new String(msg));
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);

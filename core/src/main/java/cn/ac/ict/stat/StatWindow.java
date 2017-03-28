@@ -8,7 +8,7 @@ import java.util.Date;
 public class StatWindow implements Serializable {
 
 
-    public long time;
+    public long time;  // ms
     public double rate; // msg/s
     public long records;  // number of msg
     public double tps; // mb/s
