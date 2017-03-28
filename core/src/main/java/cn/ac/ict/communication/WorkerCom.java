@@ -87,7 +87,7 @@ public class WorkerCom extends Communication implements CallBack {
     @Override
     public void preStart() throws Exception {
         super.preStart();
-        Command registerCmd = new Command(REGISTER_WORKER, TYPE.REQUEST);
+        Command registerCmd = new Command(workerID, REGISTER_WORKER, TYPE.REQUEST);
         registerCmd.data = workerID;
         //TODO 改成尝试次数
         registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(2, TimeUnit.SECONDS),
@@ -166,7 +166,7 @@ public class WorkerCom extends Communication implements CallBack {
                 case METRICS_WINDOW:
                     switch (msg.type) {
                         case REQUEST:
-                            Command cmd = new Command(METRICS_WINDOW, TYPE.RESPONSE);
+                            Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
                             cmd.data = msg.data;
                             master.tell(cmd, getSelf());
                             System.out.println("WorkerCom METRICS_WINDOW " + msg.data);
@@ -180,7 +180,7 @@ public class WorkerCom extends Communication implements CallBack {
                 case METRICS_HEAD:
                     switch (msg.type) {
                         case REQUEST:
-                            Command cmd = new Command(METRICS_HEAD, TYPE.RESPONSE);
+                            Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
                             cmd.data = msg.data;
                             master.tell(cmd, getSelf());
                             System.out.println("WorkerCom METRICS_HEAD " + msg.data);
@@ -194,7 +194,7 @@ public class WorkerCom extends Communication implements CallBack {
                 case METRICS_TAIL:
                     switch (msg.type) {
                         case REQUEST:
-                            Command cmd = new Command(METRICS_TAIL, TYPE.RESPONSE);
+                            Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
                             cmd.data = msg.data;
                             master.tell(cmd, getSelf());
                             System.out.println("WorkerCom METRICS_TAIL " + msg.data);
@@ -215,7 +215,7 @@ public class WorkerCom extends Communication implements CallBack {
 
     private void startHeartBeatScheduler() {
         heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(CHECK_TIMEOUT_SEC / 4, TimeUnit.SECONDS),
-                getSelf(), new Command(HEARTBEAT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
+                getSelf(), new Command(workerID, HEARTBEAT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
     }
 
     private void startWorker() {
@@ -253,7 +253,7 @@ public class WorkerCom extends Communication implements CallBack {
     public void onSendStatHeader(StatHeader header) {
         System.out.println("WorkerCom onSendStatHeader " + header);
 
-        Command cmd = new Command(METRICS_HEAD, TYPE.REQUEST);
+        Command cmd = new Command(workerID, METRICS_HEAD, TYPE.REQUEST);
         cmd.data = header;
         getSelf().tell(cmd, getSelf());
     }
@@ -261,7 +261,7 @@ public class WorkerCom extends Communication implements CallBack {
     public void onSendStatWindow(StatWindow window) {
         System.out.println("WorkerCom onSendWindowMetrics " + window);
 
-        Command cmd = new Command(METRICS_WINDOW, TYPE.REQUEST);
+        Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.REQUEST);
         cmd.data = window;
         getSelf().tell(cmd, getSelf());
     }
@@ -269,7 +269,7 @@ public class WorkerCom extends Communication implements CallBack {
     public void onSendStatTail(StatTail tail) {
         System.out.println("WorkerCom onSendStatTail " + tail);
 
-        Command cmd = new Command(METRICS_TAIL, TYPE.REQUEST);
+        Command cmd = new Command(workerID, METRICS_TAIL, TYPE.REQUEST);
         cmd.data = tail;
         getSelf().tell(cmd, getSelf());
     }

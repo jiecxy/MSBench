@@ -54,13 +54,17 @@ public class StatTail implements Serializable {
                     "\t" + "Data Received: " + dataSentOrReceived + "MB" + "\n";
         }
 
-        return str + "\t" + "Avg Tps: " + avgTps + " MB/s" +  "\n" +
+        return str + "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +
                     "\t" + "Latency: " +  "\n" +
-                    "\t\t" + "Avg Latency: " + avgLatency + " ms" + "\n" +
-                    "\t\t" + "Max Latency: " + maxLatency + " ms"  + "\n" +
-                    "\t\t" + "50 percentile: " + percentile50 + " ms"  + "\n" +
-                    "\t\t" + "95 percentile: " + percentile95 + " ms"  + "\n" +
-                    "\t\t" + "99 percentile: " + percentile99 + " ms"  + "\n" +
-                    "\t\t" + "99.9 percentile: " + percentile999 + " ms"  + "\n";
+                    "\t\t" + "Avg Latency: " + formatFloat(avgLatency) + " ms" + "\n" +
+                    "\t\t" + "Max Latency: " + formatFloat(maxLatency) + " ms"  + "\n" +
+                    "\t\t" + "50 percentile: " + formatFloat(percentile50) + " ms"  + "\n" +
+                    "\t\t" + "95 percentile: " + formatFloat(percentile95) + " ms"  + "\n" +
+                    "\t\t" + "99 percentile: " + formatFloat(percentile99) + " ms"  + "\n" +
+                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms"  + "\n";
+    }
+
+    private String formatFloat(double d) {
+        return String.format("%.3f", d);
     }
 }

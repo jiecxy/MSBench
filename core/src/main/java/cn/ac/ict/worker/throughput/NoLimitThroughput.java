@@ -1,7 +1,9 @@
 package cn.ac.ict.worker.throughput;
 
 
-public class NoLimitThroughput extends ThroughputStrategy {
+import java.io.Serializable;
+
+public class NoLimitThroughput extends ThroughputStrategy implements Serializable {
 
     public NoLimitThroughput() {
         super(TPMODE.NoLimit);
@@ -9,6 +11,6 @@ public class NoLimitThroughput extends ThroughputStrategy {
 
     @Override
     public String toString() {
-        return super.toString() + "; ";
+        return super.toString();
     }
 }

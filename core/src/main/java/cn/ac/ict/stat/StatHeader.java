@@ -73,7 +73,7 @@ public class StatHeader implements Serializable {
 
     @Override
     public String toString() {
-        String str = "\t" + "System: '" + system + "\n" +
+        String str = "\t" + "System: " + system + "\n" +
                 "\t" + "Stream Name: " + streamName + "\n" +
                 "\t" + "Run Time: " + runTime + "s" + "\n" +
                 "\t\t" + "Start Time: " + getStartTime() + "\n" +
@@ -82,7 +82,7 @@ public class StatHeader implements Serializable {
         if (isWriter)
             return "Writer Stats:" + "\n" +
                     str + "\n" +
-                    "\t" + ",Message Size: " + messageSize + "\n" +
+                    "\t" + "Message Size: " + messageSize + "\n" +
                     "\t" + "Rate: " + strategy + "\n" +
                     "\t" + "Write Mode: " + getWriteMode() + "\n";
         else

@@ -125,8 +125,13 @@ public class MSBClient {
             if (process.equals(MASTER)) {
 
                 ArrayList<String> streams = getStreamNames(getIntArgOrException(res, STREAM_NUM), getStringArgOrException(res, STREAM_NAME_PREFIX));
-                int writerNum = getIntArgOrException(res, WRITER_NUM);
-                int readerNum = getIntArgOrException(res, READER_NUM);
+                Integer writerNum = res.getInt(WRITER_NUM);
+                Integer readerNum = res.getInt(READER_NUM);
+                if (writerNum == null && readerNum == null) {
+                    throw new ArgumentParserException("Argument -w or -r required!", parser);
+                }
+                writerNum = writerNum == null ? 0 : writerNum;
+                readerNum = readerNum == null ? 0 : readerNum;
                 startMaster(masterIP, masterPort, runTime, streams, writerNum, readerNum);
             } else {
 

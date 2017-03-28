@@ -3,7 +3,7 @@ package cn.ac.ict.worker.throughput;
 
 import java.io.Serializable;
 
-public class ThroughputStrategy {
+public class ThroughputStrategy implements Serializable {
 
     /**
      * Arguments required By different write mode
