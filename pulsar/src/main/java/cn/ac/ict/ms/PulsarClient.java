@@ -6,6 +6,9 @@ import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
 import com.yahoo.pulsar.client.api.*;
 
+import java.util.ArrayList;
+import java.util.Properties;
+
 /**
  * Created by jiecxy on 2017/3/15.
  */
@@ -14,13 +17,15 @@ public class PulsarClient extends MS {
     Producer producer = null;
     Consumer consumer = null;
     String URL;
-    String topic = null;
+//    String topic = null;
     String subscription_name = null;
     ClientConfiguration clientConf = null;
     ProducerConfiguration producerConf = null;
     ConsumerConfiguration consumerConf = null;
 
-    public PulsarClient() {
+
+    public PulsarClient(String streamName, boolean isProducer, Properties p) {
+        super(streamName, isProducer, p);
         try {
             client = com.yahoo.pulsar.client.api.PulsarClient.create(URL, clientConf);
         } catch (PulsarClientException e) {
@@ -28,8 +33,10 @@ public class PulsarClient extends MS {
         }
     }
 
+
     //TODO 把初始化的放在 constructor 里，init用于创建topic等
-    public void init() throws MSException {
+    @Override
+    public void initializeMS(ArrayList<String> streams) throws MSException {
         try {
             if (isProducer) {
                 producer = client.createProducer(topic, producerConf);
@@ -39,11 +46,11 @@ public class PulsarClient extends MS {
         } catch (PulsarClientException e) {
             throw new MSException(e);
         }
-
     }
 
+
     @Override
-    public void send(boolean isSync, byte[] msg, String stream, WriteCallBack sentCallBack) {
+    public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack) {
         try {
             if (isSync) {
                 producer.send(msg);
@@ -63,7 +70,7 @@ public class PulsarClient extends MS {
     }
 
     @Override
-    public void read(String stream, ReadCallBack readCallBack) {
+    public void read(ReadCallBack readCallBack) {
         consumer.receiveAsync().thenAccept((msg) -> {
             try {
                 consumer.acknowledge(msg);

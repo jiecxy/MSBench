@@ -135,27 +135,34 @@ public class MSBClient {
                 // Get the workerIP
                 String workerIP = getStringArgOrException(res, WORKER_ADDRESS);
 
-                String systemClass = "";
+                Boolean isProducer = null;
+                if (process.equals(READER)) {
+                    isProducer = false;
+                } else if (process.equals(WRITER)) {
+                    isProducer = true;
+                } else {
+                    throw new ArgumentParserException("Invalid process(P)!", parser);
+                }
+
+                String systemClass = getStringArgOrException(res, SYSTEM);
+                String streamName = getStringArgOrException(res, STREAM_NAME);
+
                 // Get the ms class
                 try {
-                    systemClass = getStringArgOrException(res, SYSTEM);
                     String configFilePath = getStringArgOrException(res, CONFIG_FILE);
                     InputStream propStream = new FileInputStream(configFilePath);
                     Properties msClientProps = new Properties();
                     msClientProps.load(propStream);
-                    ms = MSFactory.newMS(systemClass, msClientProps);
+                    ms = MSFactory.newMS(systemClass, isProducer, streamName, msClientProps);
                 } catch (Exception e) {
                     throw new ArgumentParserException("Load MS Class Error!", parser);
                 }
 
-                String streamName = getStringArgOrException(res, STREAM_NAME);
-                if (process.equals(READER)) {
-                    ms.setProducer(false);
+                if (!isProducer) {
 
                     int from = getIntArgOrException(res, READ_FROM);
                     startReader(workerIP, masterIP, masterPort, runTime, streamName, from, ms, systemClass);
-                } else if (process.equals(WRITER)) {
-                    ms.setProducer(true);
+                } else {
 
                     int messageSize = getIntArgOrException(res, MESSAGE_SIZE);
                     Boolean isSync = res.getBoolean(SYNC);
@@ -203,8 +210,6 @@ public class MSBClient {
                             }
                         }
                     }
-                } else {
-                    throw new ArgumentParserException("Invalid process(P)!", parser);
                 }
             }
         } catch (ArgumentParserException e) {

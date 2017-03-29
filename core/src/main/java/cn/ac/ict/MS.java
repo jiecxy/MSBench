@@ -13,19 +13,12 @@ import java.util.Properties;
 public abstract class MS {
 
     protected boolean isProducer = false;
+    protected String streamName = "";
 
     /**
      * Properties for configuring this MSCLient.
      */
-    private Properties properties = new Properties();
-
-    /**
-     * Set the properties for this MSCLient.
-     */
-    public void setProperties(Properties p) {
-        properties = p;
-
-    }
+    private Properties properties = null;
 
     public void setProducer(boolean producer) {
         isProducer = producer;
@@ -38,12 +31,22 @@ public abstract class MS {
         return properties;
     }
 
-    /**
-     * Initialize any state for this MSCLient.
-     * Called once per MSCLient instance; there is one MSCLient instance per client thread.
-     */
-    public void init(ArrayList<String> streams) throws MSException {
+    public MS(String streamName, boolean isProducer, Properties p) {
+        this.streamName = streamName;
+        this.isProducer = isProducer;
+        this.properties = p;
     }
+
+    /**
+     * Initialize any state for Message System. Like create topic in kafka, you can't create topic by every worker.
+     *
+     * !!!!!!!!!!!!!!!!!!!!
+     * Note:
+     *      This method will be called by master indirectly
+     *      It means that master will send a request, that asks worker to initialize the message system, to one worker, only one.
+     *      For this method, it will be called only one time, executed by worker by from master's command.
+     */
+    public abstract  void initializeMS(ArrayList<String> streams) throws MSException;
 
     /**
      * Send a record to the Message System.
@@ -51,7 +54,7 @@ public abstract class MS {
      * @param msg The message to be sent
      * @return
      */
-    public abstract void send(boolean isSync,byte[] msg,String stream,WriteCallBack sentCallBack);
+    public abstract void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack);
 
     /**
      * read messages from the Message System.
@@ -59,7 +62,14 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract void read(String stream, ReadCallBack readCallBack);
+    public abstract void read(ReadCallBack readCallBack);
+
+    //TODO 读操作怎么处理
+    public void doRead(ReadCallBack readCallBack) {
+        while (true) {
+
+        }
+    }
 
     /**
      * close the Message System.

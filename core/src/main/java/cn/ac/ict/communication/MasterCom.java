@@ -239,7 +239,6 @@ public class MasterCom extends Communication {
         } else {
             workers.put(request.from, new WorkerComInfo(getSender(), (Job) request.data, System.currentTimeMillis()));
 
-            System.out.println(workers.get(request.from).job);
             getContext().watch(getSender());
 
             System.out.println("Worker registered with ID: " + request.from + " and  " + request.data);
