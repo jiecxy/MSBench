@@ -12,7 +12,10 @@ import cn.ac.ict.utils.SimpleMS;
 import cn.ac.ict.worker.callback.WriteCallBack;
 import cn.ac.ict.worker.job.Job;
 import cn.ac.ict.worker.job.WriteJob;
+import cn.ac.ict.worker.throughput.ConstantThroughput;
 import cn.ac.ict.worker.throughput.GivenRandomChangeThroughputList;
+import cn.ac.ict.worker.throughput.GradualChangeThroughput;
+import cn.ac.ict.worker.throughput.NoLimitThroughput;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
@@ -44,12 +47,30 @@ public class WriteWorker extends Worker implements WriteCallBack {
     }
 
     public static void main(String[] args) {
-        WriteWorker wk = new WriteWorker(
+        WriteWorker randomWK = new WriteWorker(
                 new SimpleCallBack(),
                 new SimpleMS(),
                 new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
                         new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},1)));
-        wk.run();
+        randomWK.run();
+        WriteWorker noLimitWK = new WriteWorker(
+                new SimpleCallBack(),
+                new SimpleMS(),
+                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
+                        new NoLimitThroughput()));
+        noLimitWK.run();
+        WriteWorker constantWK = new WriteWorker(
+                new SimpleCallBack(),
+                new SimpleMS(),
+                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
+                        new ConstantThroughput(5)));
+        constantWK.run();
+        WriteWorker gradualWK = new WriteWorker(
+                new SimpleCallBack(),
+                new SimpleMS(),
+                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
+                        new GradualChangeThroughput(1,10,2,1)));
+        gradualWK.run();
     }
 
     @Override

@@ -12,7 +12,7 @@ public class SimpleMS extends MS {
         {
             System.out.println("Sync sending message " + new String(msg) + " to " + stream);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -22,7 +22,7 @@ public class SimpleMS extends MS {
         else {
             System.out.println("Async sending message " + new String(msg) + " to " + stream);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -35,13 +35,13 @@ public class SimpleMS extends MS {
 
     @Override
     public void read(String stream, ReadCallBack readCallBack) {
-        System.out.println("receiving message from "+stream);
+        //System.out.println("receiving message from "+stream);
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("received SEND ack");
+        //System.out.println("received SEND ack");
         readCallBack.handleReceivedMessage("my-message".getBytes());
         return;
     }

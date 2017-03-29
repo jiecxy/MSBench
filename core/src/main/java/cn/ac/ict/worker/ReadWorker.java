@@ -24,7 +24,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     public ReadWorker(CallBack cb, MS ms, Job job) {
         super(cb);
-        this.job = (ReadJob)job;
+        this.job = (ReadJob) job;
         msClient = ms;
 
         numMsg = 0;
@@ -35,13 +35,21 @@ public class ReadWorker extends Worker implements ReadCallBack {
         cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
 
+    public static void main(String[] args) {
+        ReadWorker wk = new ReadWorker(
+                new SimpleCallBack(),
+                new SimpleMS(),
+                new ReadJob("SimpleMS", "localhost", 10, 5, "stream-1", 0));
+        wk.run();
+    }
+
     @Override
     public void run() {
 
         startTime = System.nanoTime();
         lastStatTime = startTime;
 
-        cb.onSendStatHeader(new StatHeader(job.system,job.streamName,job.runTime,(long)(startTime/1e6),job.statInterval,job.host,job.from));
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.from));
 
         //todo set MS's read mode
 
@@ -57,11 +65,11 @@ public class ReadWorker extends Worker implements ReadCallBack {
                 double elapsed = (System.nanoTime() - lastStatTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
 
-                cb.onSendStatWindow(new StatWindow((long)((System.nanoTime())/1e6),numMsg/elapsed, numMsg, numByte/elapsed,
-                        reportHist.getMean()/1000.0, reportHist.getMaxValue()/1000.0));
+                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed,
+                        reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
 
-                numMsg=0;
-                numByte=0;
+                numMsg = 0;
+                numByte = 0;
                 reportHist.reset();
                 lastStatTime = System.nanoTime();
             }
@@ -74,10 +82,10 @@ public class ReadWorker extends Worker implements ReadCallBack {
         double elapsed = (System.nanoTime() - startTime) / 1e9;
 
         cb.onSendStatTail(
-                new StatTail((long)((System.nanoTime())/1e6),(totalNumByte/1024/1024)/elapsed,reportHist.getMean()/1000.0,reportHist.getMaxValue()/1000.0,
-                        reportHist.getValueAtPercentile(50)/1000.0,reportHist.getValueAtPercentile(95)/1000.0,
-                        reportHist.getValueAtPercentile(99)/1000.0,reportHist.getValueAtPercentile(99.9)/1000.0,
-                        totalNumMsg, (long)(totalNumByte/1024/1024),false)
+                new StatTail((long) ((System.nanoTime()) / 1e6), (totalNumByte / 1024 / 1024) / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
+                        reportHist.getValueAtPercentile(50) / 1000.0, reportHist.getValueAtPercentile(95) / 1000.0,
+                        reportHist.getValueAtPercentile(99) / 1000.0, reportHist.getValueAtPercentile(99.9) / 1000.0,
+                        totalNumMsg, (long) (totalNumByte / 1024 / 1024), false)
         );
     }
 
@@ -87,14 +95,6 @@ public class ReadWorker extends Worker implements ReadCallBack {
         if (msClient != null)
             msClient.close();
         return;
-    }
-
-    public static void main(String[] args) {
-        ReadWorker wk = new ReadWorker(
-                new SimpleCallBack(),
-                new SimpleMS(),
-                new ReadJob("SimpleMS","localhost",10, 5,"stream-1", 0));
-        wk.run();
     }
 
     @Override
