@@ -3,14 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b4f72c08-1160-42a7-a159-49bfdbbe950d" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml.orig" afterPath="$PROJECT_DIR$/.idea/workspace.xml.orig" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSBClient.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSBClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSFactory.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSFactory.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/MasterCom.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java" afterPath="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/TopicUtils.java" afterPath="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/TopicUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java" afterPath="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/distribution/target/" />
@@ -36,10 +29,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="KafkaClient.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="KafkaClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="538">
+            <state relative-caret-position="613">
               <caret line="90" column="69" selection-start-line="90" selection-start-column="69" selection-end-line="90" selection-end-column="69" />
               <folding>
                 <element signature="e#2702#3116#0" expanded="true" />
@@ -71,11 +64,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MS.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MS.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
+            <state relative-caret-position="315">
+              <caret line="48" column="28" selection-start-line="48" selection-start-column="28" selection-end-line="48" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -1272,12 +1265,12 @@
       <workItem from="1490605561406" duration="7220000" />
       <workItem from="1490617714025" duration="3442000" />
       <workItem from="1490664311260" duration="13597000" />
-      <workItem from="1490713784155" duration="7362000" />
+      <workItem from="1490713784155" duration="7466000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="39520000" />
+    <option name="totallyTimeSpent" value="39624000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1290,7 +1283,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1200" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32920355" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1304,7 +1297,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21299255" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21299255" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25221238" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1741,17 +1734,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="538">
+        <state relative-caret-position="613">
           <caret line="90" column="69" selection-start-line="90" selection-start-column="69" selection-end-line="90" selection-end-column="69" />
           <folding>
             <element signature="e#2702#3116#0" expanded="true" />
@@ -1759,6 +1744,14 @@
             <element signature="e#3198#3199#0" expanded="true" />
             <element signature="e#3274#3275#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="48" column="28" selection-start-line="48" selection-start-column="28" selection-end-line="48" selection-end-column="28" />
+          <folding />
         </state>
       </provider>
     </entry>

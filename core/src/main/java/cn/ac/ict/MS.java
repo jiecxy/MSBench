@@ -46,6 +46,7 @@ public abstract class MS {
      *      It means that master will send a request, that asks worker to initialize the message system, to one worker, only one.
      *      For this method, it will be called only one time, executed by worker by from master's command.
      */
+    // TODO 将其变成master调用一次命令
     public abstract  void initializeMS(ArrayList<String> streams) throws MSException;
 
     /**
