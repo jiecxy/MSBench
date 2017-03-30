@@ -2,13 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b4f72c08-1160-42a7-a159-49bfdbbe950d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/utils/SimpleMS.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/utils/SimpleMS.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/ReadWorker.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/ReadWorker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/distributedlog/src/main/java/cn/ac/ict/ms/DLClient.java" afterPath="$PROJECT_DIR$/distributedlog/src/main/java/cn/ac/ict/ms/DLClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/distribution/distribution.iml" afterPath="$PROJECT_DIR$/distribution/distribution.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pulsar/pom.xml" afterPath="$PROJECT_DIR$/pulsar/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java" afterPath="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -38,14 +31,14 @@
       <file leaf-file-name="WriteWorker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="52" column="61" lean-forward="false" selection-start-line="52" selection-start-column="61" selection-end-line="52" selection-end-column="61" />
+            <state relative-caret-position="405">
+              <caret line="49" column="4" lean-forward="true" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="42" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DLClient.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="DLClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/distributedlog/src/main/java/cn/ac/ict/ms/DLClient.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="270">
@@ -62,11 +55,9 @@
       <file leaf-file-name="KafkaClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1290">
-              <caret line="103" column="0" lean-forward="false" selection-start-line="103" selection-start-column="0" selection-end-line="103" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+            <state relative-caret-position="750">
+              <caret line="67" column="21" lean-forward="true" selection-start-line="67" selection-start-column="21" selection-end-line="67" selection-end-column="21" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -85,11 +76,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PulsarClient.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PulsarClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="73">
-              <caret line="6" column="49" lean-forward="false" selection-start-line="6" selection-start-column="49" selection-end-line="6" selection-end-column="49" />
+            <state relative-caret-position="360">
+              <caret line="40" column="13" lean-forward="true" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/Worker.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="225">
+              <caret line="21" column="16" lean-forward="true" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -118,7 +121,7 @@
       <file leaf-file-name="MS.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="729">
+            <state relative-caret-position="885">
               <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
               <folding />
             </state>
@@ -130,16 +133,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1785">
               <caret line="155" column="38" lean-forward="false" selection-start-line="155" selection-start-column="38" selection-end-line="155" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MSFactory.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MSFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="570">
-              <caret line="57" column="65" lean-forward="false" selection-start-line="57" selection-start-column="65" selection-end-line="57" selection-end-column="65" />
               <folding />
             </state>
           </provider>
@@ -202,10 +195,10 @@
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java" />
         <option value="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/utils/SimpleMS.java" />
-        <option value="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/ReadWorker.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java" />
         <option value="$PROJECT_DIR$/distributedlog/src/main/java/cn/ac/ict/ms/DLClient.java" />
+        <option value="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java" />
       </list>
     </option>
   </component>
@@ -1335,12 +1328,12 @@
       <workItem from="1490664311260" duration="13597000" />
       <workItem from="1490713784155" duration="7542000" />
       <workItem from="1490840630932" duration="3795000" />
-      <workItem from="1490844679502" duration="1542000" />
+      <workItem from="1490844679502" duration="5161000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="45037000" />
+    <option name="totallyTimeSpent" value="48656000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1418,14 +1411,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/communication/WorkerCallBack.java" />
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/Worker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/src.zip!/java/io/Serializable.java" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/akka/akka-actor_2.11/2.4.14/akka-actor_2.11-2.4.14-sources.jar!/akka/actor/Scheduler.scala" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/akka/akka-actor_2.11/2.4.14/akka-actor_2.11-2.4.14-sources.jar!/akka/actor/ActorRef.scala" />
@@ -1619,7 +1604,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
           <caret line="57" column="65" lean-forward="false" selection-start-line="57" selection-start-column="65" selection-end-line="57" selection-end-column="65" />
-          <folding />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1677,32 +1665,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1290">
-          <caret line="103" column="0" lean-forward="false" selection-start-line="103" selection-start-column="0" selection-end-line="103" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="729">
-          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="73">
-          <caret line="6" column="49" lean-forward="false" selection-start-line="6" selection-start-column="49" selection-end-line="6" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pulsar/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -1731,14 +1693,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="52" column="61" lean-forward="false" selection-start-line="52" selection-start-column="61" selection-end-line="52" selection-end-column="61" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/distributedlog/src/main/java/cn/ac/ict/ms/DLClient.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -1747,6 +1701,48 @@
             <element signature="imports" expanded="true" />
             <element signature="e#390#391#0" expanded="true" />
             <element signature="e#438#439#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/MS.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="885">
+          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/ms/KafkaClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="750">
+          <caret line="67" column="21" lean-forward="true" selection-start-line="67" selection-start-column="21" selection-end-line="67" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/Worker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="21" column="16" lean-forward="true" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/worker/WriteWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="49" column="4" lean-forward="true" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/ms/PulsarClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="40" column="13" lean-forward="true" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
