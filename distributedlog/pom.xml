@@ -20,6 +20,11 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>distributedlog-client_2.11</artifactId>
+            <version>0.3.51-RC1</version>
+        </dependency>
     </dependencies>
 
 </project>

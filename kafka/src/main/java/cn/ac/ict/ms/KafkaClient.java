@@ -1,6 +1,7 @@
 package cn.ac.ict.ms;
 
 import cn.ac.ict.MS;
+import cn.ac.ict.MSBClient;
 import cn.ac.ict.exception.MSException;
 import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
@@ -53,6 +54,9 @@ public class KafkaClient extends MS {
         }
     }
 
+    public static void main(String[] args) {
+
+    }
 
     @Override
     public void initializeMS(ArrayList<String> streams) throws MSException {
@@ -85,7 +89,7 @@ public class KafkaClient extends MS {
                     });
         }
     }
-
+    //TODO 配置读的位置，提交offset
     @Override
     public void read(ReadCallBack readCallBack, long requestTime) {
         ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
