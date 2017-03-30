@@ -28,36 +28,36 @@ public class PulsarClient extends MS {
         super(streamName, isProducer, p);
         try {
             client = com.yahoo.pulsar.client.api.PulsarClient.create(URL, clientConf);
+            if (isProducer) {
+                producer = client.createProducer(streamName, producerConf);
+            } else {
+                consumer = client.subscribe(streamName, subscription_name, consumerConf);
+            }
         } catch (PulsarClientException e) {
             e.printStackTrace();
         }
     }
 
 
-    //TODO 把初始化的放在 constructor 里，init用于创建topic等
     @Override
     public void initializeMS(ArrayList<String> streams) throws MSException {
-        try {
-            if (isProducer) {
-                producer = client.createProducer(topic, producerConf);
-            } else {
-                consumer = client.subscribe(topic, subscription_name, consumerConf);
-            }
-        } catch (PulsarClientException e) {
-            throw new MSException(e);
-        }
+    }
+
+    @Override
+    public void finalizeMS(ArrayList<String> streams) throws MSException {
+
     }
 
 
     @Override
-    public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack) {
+    public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime) {
         try {
             if (isSync) {
                 producer.send(msg);
-                sentCallBack.handleSentMessage(msg);
+                sentCallBack.handleSentMessage(msg, requestTime);
             } else {
                 producer.sendAsync(msg).thenRun(() -> {
-                            sentCallBack.handleSentMessage(msg);
+                            sentCallBack.handleSentMessage(msg, requestTime);
                         }
                 ).exceptionally(ex -> {
                     return null;
@@ -70,15 +70,22 @@ public class PulsarClient extends MS {
     }
 
     @Override
-    public void read(ReadCallBack readCallBack) {
+    public void read(ReadCallBack readCallBack, long requestTime) {
         consumer.receiveAsync().thenAccept((msg) -> {
             try {
                 consumer.acknowledge(msg);
-                readCallBack.handleReceivedMessage(msg.getData());
+                readCallBack.handleReceivedMessage(msg.getData(), requestTime);
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }
         });
+//        consumerConf.setMessageListener(new MessageListener() {
+//            @Override
+//                public void received(Consumer consumer, Message message) {
+//                consumer.acknowledge(msg);
+//                readCallBack.handleReceivedMessage(message.getData());
+//            }
+//        });
     }
 
 

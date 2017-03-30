@@ -49,13 +49,15 @@ public abstract class MS {
     // TODO 将其变成master调用一次命令
     public abstract  void initializeMS(ArrayList<String> streams) throws MSException;
 
+    public abstract void finalizeMS(ArrayList<String> streams) throws MSException;
+
     /**
      * Send a record to the Message System.
      *
      * @param msg The message to be sent
      * @return
      */
-    public abstract void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack);
+    public abstract void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime);
 
     /**
      * read messages from the Message System.
@@ -63,14 +65,7 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract void read(ReadCallBack readCallBack);
-
-    //TODO 读操作怎么处理
-    public void doRead(ReadCallBack readCallBack) {
-        while (true) {
-
-        }
-    }
+    public abstract void read(ReadCallBack readCallBack, long requestTime);
 
     /**
      * close the Message System.
