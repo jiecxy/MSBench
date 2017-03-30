@@ -13,6 +13,7 @@ import cn.ac.ict.worker.job.ReadJob;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -38,7 +39,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     public static void main(String[] args) {
         ReadWorker wk = new ReadWorker(
                 new SimpleCallBack(),
-                new SimpleMS(),
+                new SimpleMS("stream-1",false,new Properties()),
                 new ReadJob("SimpleMS", "localhost", 10, 5, "stream-1", 0));
         wk.run();
     }
@@ -75,7 +76,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             }
 
             requestTime = System.nanoTime();
-            msClient.read(job.streamName, this);
+            msClient.read( this, requestTime);
         }
 
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
@@ -98,7 +99,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     }
 
     @Override
-    public void handleReceivedMessage(byte[] msg) {
+    public void handleReceivedMessage(byte[] msg,long requestTime) {
         System.out.println("received msg " + new String(msg));
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);

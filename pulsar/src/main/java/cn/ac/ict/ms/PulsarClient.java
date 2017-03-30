@@ -4,6 +4,7 @@ import cn.ac.ict.MS;
 import cn.ac.ict.exception.MSException;
 import cn.ac.ict.worker.callback.ReadCallBack;
 import cn.ac.ict.worker.callback.WriteCallBack;
+import com.yahoo.pulsar.client.admin.PulsarAdmin;
 import com.yahoo.pulsar.client.api.*;
 
 import java.util.ArrayList;
@@ -14,15 +15,16 @@ import java.util.Properties;
  */
 public class PulsarClient extends MS {
     com.yahoo.pulsar.client.api.PulsarClient client = null;
+
     Producer producer = null;
     Consumer consumer = null;
     String URL;
-//    String topic = null;
+    //    String topic = null;
     String subscription_name = null;
     ClientConfiguration clientConf = null;
     ProducerConfiguration producerConf = null;
     ConsumerConfiguration consumerConf = null;
-
+    PulsarAdmin admin=null;
 
     public PulsarClient(String streamName, boolean isProducer, Properties p) {
         super(streamName, isProducer, p);
