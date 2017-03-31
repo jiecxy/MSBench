@@ -20,8 +20,8 @@ public class PulsarClient extends MS {
     com.yahoo.pulsar.client.api.PulsarClient client = null;
     Producer producer = null;
     Consumer consumer = null;
-    String URL="http://localhost:8080";
-    String prefix="persistent://sample/standalone/ns1/";
+    String URL = "http://localhost:8080";
+    String prefix = "persistent://sample/standalone/ns1/";
     //    String topic = null;
     String subscription_name = null;
     ClientConfiguration clientConf = null;
@@ -31,22 +31,31 @@ public class PulsarClient extends MS {
 
     public PulsarClient(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
+        try {
+            admin = new PulsarAdmin(new URL(URL), new ClientConfiguration());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         initConfig(p);
         try {
             client = com.yahoo.pulsar.client.api.PulsarClient.create(URL, clientConf);
             if (isProducer) {
-                producer = client.createProducer(prefix+streamName, producerConf);
+                producer = client.createProducer(prefix + streamName, producerConf);
             } else {
-                consumer = client.subscribe(prefix+streamName, subscription_name, consumerConf);
+                if (from == -1)
+                    admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
+                consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
             }
         } catch (PulsarClientException e) {
+            e.printStackTrace();
+        } catch (PulsarAdminException e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
 
-    }
+    }*/
 
     private void initConfig(Properties prop) {
         clientConf = new ClientConfiguration();
@@ -89,8 +98,8 @@ public class PulsarClient extends MS {
     @Override
     public void initializeMS(ArrayList<String> streams) throws MSException {
         try {
-            admin=new PulsarAdmin(new URL(URL),new ClientConfiguration());
-        }catch (Exception e) {
+            admin = new PulsarAdmin(new URL(URL), new ClientConfiguration());
+        } catch (Exception e) {
             throw new MSException(e);
         }
 
@@ -107,7 +116,6 @@ public class PulsarClient extends MS {
             throw new MSException(e);
         }
     }
-
 
     @Override
     public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime) {
@@ -155,7 +163,10 @@ public class PulsarClient extends MS {
                 producer.close();
             if (consumer != null)
                 consumer.close();
-            client.close();
+            if (client != null)
+                client.close();
+            if (admin != null)
+                admin.close();
         } catch (PulsarClientException e) {
             e.printStackTrace();
         }
