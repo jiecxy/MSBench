@@ -14,6 +14,8 @@ public class Command implements Serializable {
     public static final int METRICS_TAIL = 7;
     public static final int STOP_CLIENT = 8;
     public static final int CHECK_TIMEOUT = 9;
+    public static final int INITIALIZE_MS = 10;
+    public static final int FINALIZE_MS = 11;
 
     public enum TYPE implements Serializable {
         REQUEST, RESPONSE, UNKNOWN;
@@ -31,6 +33,11 @@ public class Command implements Serializable {
     public int version = -1;
 
     public Command(String from, int api, TYPE type) {
+        this(from, api, type, null);
+    }
+
+    public Command(String from, int api, TYPE type, Object data) {
+        this.data = data;
         this.from = from;
         this.api = api;
         this.type = type;
@@ -61,6 +68,8 @@ public class Command implements Serializable {
             case METRICS_TAIL: return "METRICS_TAIL";
             case STOP_CLIENT: return "STOP_CLIENT";
             case CHECK_TIMEOUT: return "CHECK_TIMEOUT";
+            case INITIALIZE_MS: return "INITIALIZE_MS";
+            case FINALIZE_MS: return "FINALIZE_MS";
             default: return "UNKNOWN";
         }
     }

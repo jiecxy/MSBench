@@ -39,7 +39,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     public static void main(String[] args) {
         ReadWorker wk = new ReadWorker(
                 new SimpleCallBack(),
-                new SimpleMS("stream-1",false,new Properties()),
+                new SimpleMS("stream-1",false,new Properties(), -1),
                 new ReadJob("SimpleMS", "localhost", 10, 5, "stream-1", 0));
         wk.run();
     }

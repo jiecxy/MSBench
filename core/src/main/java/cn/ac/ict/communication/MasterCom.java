@@ -75,13 +75,30 @@ public class MasterCom extends Communication {
                     if (msg.type == TYPE.REQUEST) {
                         if (registerWorker(msg)) {
                             if (checkWorkersReady()) {
-                                sendStartWorkerRequest();
+                                sendInitializeRequest();
                             }
                         } else {
                             System.out.println("register fail");
                         }
                     } else {
-                        unhandled(message);
+                        unhandled(msg);
+                    }
+                    break;
+                case INITIALIZE_MS:
+                    if (msg.type == TYPE.RESPONSE) {
+                        if (checkWorkersReady()) {
+                            sendStartWorkerRequest();
+                        }
+                    } else {
+                        unhandled(msg);
+                    }
+                    break;
+                case FINALIZE_MS:
+                    if (msg.type == TYPE.RESPONSE) {
+                        //TODO
+                        stopAllLiveClients();
+                    } else {
+                        unhandled(msg);
                     }
                     break;
                 case METRICS_HEAD:
@@ -92,7 +109,7 @@ public class MasterCom extends Communication {
                             workers.get(msg.from).stat.head = (StatHeader) msg.data;
                             break;
                         default:
-                            unhandled(message);
+                            unhandled(msg);
                             break;
                     }
                     break;
@@ -103,11 +120,11 @@ public class MasterCom extends Communication {
                             workers.get(msg.from).stat.tail = (StatTail) msg.data;
                             workers.get(msg.from).status = WorkerComInfo.STATUS.DONE;
                             if (checkIfAllDone()) {
-                                stopAllLiveClients();
+                                sendFinalizeRequest();
                             }
                             break;
                         default:
-                            unhandled(message);
+                            unhandled(msg);
                             break;
                     }
                     break;
@@ -118,7 +135,7 @@ public class MasterCom extends Communication {
                             workers.get(msg.from).stat.statWindow.add((StatWindow) msg.data);
                             break;
                         default:
-                            unhandled(message);
+                            unhandled(msg);
                             break;
                     }
                     break;
@@ -128,7 +145,7 @@ public class MasterCom extends Communication {
                             checkTimeoutWorker();
                             break;
                         default:
-                            unhandled(message);
+                            unhandled(msg);
                             break;
                     }
                     break;
@@ -138,12 +155,12 @@ public class MasterCom extends Communication {
                             workers.get(msg.data).lastHeartbeat = System.currentTimeMillis();
                             break;
                         default:
-                            unhandled(message);
+                            unhandled(msg);
                             break;
                     }
                     break;
                 default:
-                    unhandled(message);
+                    unhandled(msg);
                     break;
             }
         } else if (message instanceof Terminated) {
@@ -164,6 +181,24 @@ public class MasterCom extends Communication {
             }
         } else {
             System.out.println("MasterCom onReceive " + message);
+        }
+    }
+
+    private void sendFinalizeRequest() {
+        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
+            if (entry.getValue().status == WorkerComInfo.STATUS.DONE) {
+                entry.getValue().ref.tell(new Command(masterID, FINALIZE_MS, TYPE.REQUEST, streams), getSelf());
+                break;
+            }
+        }
+    }
+
+    private void sendInitializeRequest() {
+        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
+            if (entry.getValue().status == WorkerComInfo.STATUS.RUNNING) {
+                entry.getValue().ref.tell(new Command(masterID, INITIALIZE_MS, TYPE.REQUEST, streams), getSelf());
+                break;
+            }
         }
     }
 

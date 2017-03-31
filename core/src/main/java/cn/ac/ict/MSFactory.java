@@ -32,7 +32,7 @@ public final class MSFactory {
         // not used
     }
 
-    public static MS newMS(String msname, Boolean isProducer, String streamName, Properties properties, int from) throws UnknownMSException {
+    public static MS newMS(String msname, Boolean isProducer, String streamName, Properties properties, Integer from) throws UnknownMSException {
 //        ClassLoader classLoader = MSFactory.class.getClassLoader();
 //
 //        MS ret;
@@ -49,6 +49,8 @@ public final class MSFactory {
         //return new MSWrapper(ret);
 //        return ret;
 
+        if (from == null)
+            from = -2;
 
         MS ms;
         Class<?> special = null;
@@ -57,7 +59,7 @@ public final class MSFactory {
             Constructor<?> specialConstructor = special.getConstructor(String.class, boolean.class, Properties.class, int.class);
             ms = (MS) specialConstructor.newInstance(streamName, isProducer, properties, from);
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             throw new UnknownMSException("Load MS class error!");
         }
         return ms;

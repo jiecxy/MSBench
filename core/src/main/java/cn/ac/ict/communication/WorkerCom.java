@@ -2,6 +2,7 @@ package cn.ac.ict.communication;
 
 import akka.actor.*;
 import cn.ac.ict.MS;
+import cn.ac.ict.exception.MSException;
 import cn.ac.ict.worker.*;
 import cn.ac.ict.stat.StatHeader;
 import cn.ac.ict.stat.StatTail;
@@ -13,6 +14,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -95,6 +97,34 @@ public class WorkerCom extends Communication implements CallBack {
                             break;
                     }
                     break;
+                case INITIALIZE_MS:
+                    switch (msg.type) {
+                        case REQUEST:
+                            //TODO 检查是否成功
+                            ms.initializeMS((ArrayList<String>) msg.data);
+                            master.tell(new Command(workerID, INITIALIZE_MS, TYPE.RESPONSE), getSelf());
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
+                case FINALIZE_MS:
+                    switch (msg.type) {
+                        case REQUEST:
+                            //TODO 检查是否成功
+                            try {
+                                ms.finalizeMS((ArrayList<String>) msg.data);
+                            } catch (MSException e) {
+                                e.printStackTrace();
+                            }
+                            master.tell(new Command(workerID, FINALIZE_MS, TYPE.RESPONSE), getSelf());
+                            break;
+                        default:
+                            unhandled(message);
+                            break;
+                    }
+                    break;
                 case HEARTBEAT:
                     switch (msg.type) {
                         case REQUEST:
@@ -140,9 +170,9 @@ public class WorkerCom extends Communication implements CallBack {
                 case METRICS_WINDOW:
                     switch (msg.type) {
                         case REQUEST:
-                            Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
-                            cmd.data = msg.data;
-                            master.tell(cmd, getSelf());
+//                            Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
+//                            cmd.data = msg.data;
+                            master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, msg.data), getSelf());
                             System.out.println("METRICS_WINDOW " + msg.data);
                             break;
                         default:
@@ -154,9 +184,9 @@ public class WorkerCom extends Communication implements CallBack {
                 case METRICS_HEAD:
                     switch (msg.type) {
                         case REQUEST:
-                            Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
-                            cmd.data = msg.data;
-                            master.tell(cmd, getSelf());
+//                            Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
+//                            cmd.data = msg.data;
+                            master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, msg.data), getSelf());
                             System.out.println("METRICS_HEAD " + msg.data);
                             break;
                         default:
@@ -168,9 +198,9 @@ public class WorkerCom extends Communication implements CallBack {
                 case METRICS_TAIL:
                     switch (msg.type) {
                         case REQUEST:
-                            Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
-                            cmd.data = msg.data;
-                            master.tell(cmd, getSelf());
+//                            Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
+//                            cmd.data = msg.data;
+                            master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, msg.data), getSelf());
                             System.out.println("METRICS_TAIL " + msg.data);
                             break;
                         default:
@@ -227,24 +257,33 @@ public class WorkerCom extends Communication implements CallBack {
     public void onSendStatHeader(StatHeader header) {
 //        System.out.println("WorkerCom onSendStatHeader " + header);
 
-        Command cmd = new Command(workerID, METRICS_HEAD, TYPE.REQUEST);
-        cmd.data = header;
-        getSelf().tell(cmd, getSelf());
+//        Command cmd = new Command(workerID, METRICS_HEAD, TYPE.REQUEST);
+//        cmd.data = header;
+//        getSelf().tell(cmd, getSelf());
+
+        master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, header), getSelf());
+        System.out.println("METRICS_HEAD " + header);
     }
 
     public void onSendStatWindow(StatWindow window) {
 //        System.out.println("WorkerCom onSendWindowMetrics " + window);
 
-        Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.REQUEST);
-        cmd.data = window;
-        getSelf().tell(cmd, getSelf());
+//        Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.REQUEST);
+//        cmd.data = window;
+//        getSelf().tell(cmd, getSelf());
+
+        master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, window), getSelf());
+        System.out.println("METRICS_WINDOW " + window);
     }
 
     public void onSendStatTail(StatTail tail) {
 //        System.out.println("WorkerCom onSendStatTail " + tail);
 
-        Command cmd = new Command(workerID, METRICS_TAIL, TYPE.REQUEST);
-        cmd.data = tail;
-        getSelf().tell(cmd, getSelf());
+//        Command cmd = new Command(workerID, METRICS_TAIL, TYPE.REQUEST);
+//        cmd.data = tail;
+//        getSelf().tell(cmd, getSelf());
+
+        master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, tail), getSelf());
+        System.out.println("METRICS_TAIL " + tail);
     }
 }

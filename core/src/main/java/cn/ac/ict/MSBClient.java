@@ -155,7 +155,7 @@ public class MSBClient {
                     msClientProps.load(propStream);
                     ms = MSFactory.newMS(systemClass, isProducer, streamName, msClientProps, res.getInt(READ_FROM));
                 } catch (Exception e) {
-//                    e.printStackTrace();
+                    e.printStackTrace();
                     throw new ArgumentParserException("Load MS Class Error!", parser);
                 }
 

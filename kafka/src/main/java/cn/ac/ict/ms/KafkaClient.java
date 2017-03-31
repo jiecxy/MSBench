@@ -27,8 +27,13 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET
  */
 public class KafkaClient extends MS {
 
-    private String brokerIP = "";  // controller's ip
-    private int brokerPort = 9092;
+    private static final String CONTROLLER_IP = "controller.ip";
+    private static final String CONTROLLER_PORT = "controller.ip";
+    private static final String TOPIC_PARTITIONS = "partition.num";
+    private static final String REPLICATION_FACTOR = "replication.factor";
+
+    private String controllerIP = "";  // controller's ip
+    private int controllerPort = 9092;
     private int partitions = 12;
     private short replicationFactor = 3;
     private KafkaProducer<byte[], byte[]> producer = null;
@@ -36,6 +41,12 @@ public class KafkaClient extends MS {
 
     public KafkaClient(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
+
+        controllerIP = (String) p.remove(CONTROLLER_IP);
+        controllerPort = (int) p.remove(CONTROLLER_PORT);
+        partitions = (int) p.remove(TOPIC_PARTITIONS);
+        replicationFactor = (short) p.remove(REPLICATION_FACTOR);
+
         if (isProducer) {
             producer = new KafkaProducer<>(p);
         } else {
@@ -47,13 +58,13 @@ public class KafkaClient extends MS {
 
     private void createTopics(ArrayList<String> streams) throws IOException {
         for (String name: streams) {
-            TopicUtils.createTopic(brokerIP, brokerPort, name, partitions, replicationFactor);
+            TopicUtils.createTopic(controllerIP, controllerPort, name, partitions, replicationFactor);
         }
     }
 
     private void deleteTopics(ArrayList<String> streams) throws IOException {
         for (String name: streams) {
-            TopicUtils.deleteTopic(brokerIP, brokerPort, name);
+            TopicUtils.deleteTopic(controllerIP, controllerPort, name);
         }
     }
 
@@ -66,6 +77,7 @@ public class KafkaClient extends MS {
         try {
             createTopics(streams);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new MSException("Create Topics Failed");
         }
     }
@@ -101,11 +113,13 @@ public class KafkaClient extends MS {
         }
     }
 
-    public void finalizeMS(ArrayList<String> streams) {
+    @Override
+    public void finalizeMS(ArrayList<String> streams) throws MSException {
         try {
             deleteTopics(streams);
         } catch (IOException e) {
             e.printStackTrace();
+            throw new MSException("Delete Topics Failed");
         }
     }
 
