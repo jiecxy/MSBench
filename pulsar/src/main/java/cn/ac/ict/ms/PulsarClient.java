@@ -53,9 +53,9 @@ public class PulsarClient extends MS {
         }
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
 
-    }
+    }*/
 
     private void initConfig(Properties prop) {
         clientConf = new ClientConfiguration();
@@ -117,7 +117,6 @@ public class PulsarClient extends MS {
         }
     }
 
-
     @Override
     public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime) {
         try {
@@ -164,7 +163,10 @@ public class PulsarClient extends MS {
                 producer.close();
             if (consumer != null)
                 consumer.close();
-            client.close();
+            if (client != null)
+                client.close();
+            if (admin != null)
+                admin.close();
         } catch (PulsarClientException e) {
             e.printStackTrace();
         }
