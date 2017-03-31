@@ -19,6 +19,7 @@ import cn.ac.ict.worker.throughput.NoLimitThroughput;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
 
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -49,25 +50,25 @@ public class WriteWorker extends Worker implements WriteCallBack {
     public static void main(String[] args) {
         WriteWorker randomWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS(),
+                new SimpleMS("stream-1",true,new Properties()),
                 new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
                         new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},1)));
         randomWK.run();
         WriteWorker noLimitWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS(),
+                new SimpleMS("stream-1",true,new Properties()),
                 new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
                         new NoLimitThroughput()));
         noLimitWK.run();
         WriteWorker constantWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS(),
+                new SimpleMS("stream-1",true,new Properties()),
                 new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
                         new ConstantThroughput(5)));
         constantWK.run();
         WriteWorker gradualWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS(),
+                new SimpleMS("stream-1",true,new Properties()),
                 new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
                         new GradualChangeThroughput(1,10,2,1)));
         gradualWK.run();
@@ -106,7 +107,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 rateLimiter.getLimiter().acquire();
 
             requestTime = System.nanoTime();
-            msClient.send(job.isSync, (byte[]) generator.nextValue(), job.streamName, this);
+            msClient.send(job.isSync, (byte[]) generator.nextValue(),  this,requestTime);
 
         }
 
@@ -133,7 +134,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
     }
 
     @Override
-    public void handleSentMessage(byte[] msg) {
+    public void handleSentMessage(byte[] msg,long requestTime) {
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);
