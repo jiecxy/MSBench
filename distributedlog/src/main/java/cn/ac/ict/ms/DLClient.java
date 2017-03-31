@@ -13,8 +13,8 @@ import java.util.Properties;
  */
 public class DLClient extends MS {
 
-    public DLClient(String streamName, boolean isProducer, Properties p) {
-        super(streamName, isProducer, p);
+    public DLClient(String streamName, boolean isProducer, Properties p, int from) {
+        super(streamName, isProducer, p, from);
     }
 
     @Override
