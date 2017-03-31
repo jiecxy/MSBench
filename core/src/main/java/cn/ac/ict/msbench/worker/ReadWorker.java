@@ -100,7 +100,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void handleReceivedMessage(byte[] msg,long requestTime) {
-        System.out.println("received msg " + new String(msg));
+//        System.out.println("received msg " + new String(msg));
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);

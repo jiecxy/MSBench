@@ -138,7 +138,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);
-        System.out.println("received sned ack for msg " + new String(msg));
+//        System.out.println("received sned ack for msg " + new String(msg));
         numMsg++;
         numByte += msg.length;
         totalNumMsg++;

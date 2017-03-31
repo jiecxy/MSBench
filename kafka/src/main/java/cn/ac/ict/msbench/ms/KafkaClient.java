@@ -39,10 +39,12 @@ public class KafkaClient extends MS {
     public KafkaClient(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
 
+//        System.out.println("Properties: " + p);
+
         controllerIP = (String) p.remove(CONTROLLER_IP);
-        controllerPort = (int) p.remove(CONTROLLER_PORT);
-        partitions = (int) p.remove(TOPIC_PARTITIONS);
-        replicationFactor = (short) p.remove(REPLICATION_FACTOR);
+        controllerPort = Integer.parseInt((String)p.remove(CONTROLLER_PORT));
+        partitions = Integer.parseInt((String)p.remove(TOPIC_PARTITIONS));
+        replicationFactor = Short.parseShort((String)p.remove(REPLICATION_FACTOR));
 
         if (isProducer) {
             producer = new KafkaProducer<>(p);

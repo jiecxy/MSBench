@@ -1,4 +1,4 @@
-package cn.ac.ict.worker.callback;
+package cn.ac.ict.msbench.worker.callback;
 
 import cn.ac.ict.msbench.worker.callback.WriteCallBack;
 
