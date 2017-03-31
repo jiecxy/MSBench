@@ -6,13 +6,13 @@
 
     <parent>
         <artifactId>root</artifactId>
-        <groupId>cn.ac.ict</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>cn.ac.ict.msbench</groupId>
+        <version>1.0</version>
         <relativePath>../../</relativePath>
     </parent>
 
     <artifactId>ms-specific-descriptor</artifactId>
-    <name>Per Datastore Binding descriptor</name>
+    <name>Per MS Binding descriptor</name>
     <packaging>jar</packaging>
 
     <description>
@@ -22,7 +22,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.ac.ict</groupId>
+            <groupId>cn.ac.ict.msbench</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
