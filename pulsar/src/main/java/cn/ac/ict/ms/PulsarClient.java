@@ -29,8 +29,8 @@ public class PulsarClient extends MS {
     ConsumerConfiguration consumerConf = null;
     PulsarAdmin admin = null;
 
-    public PulsarClient(String streamName, boolean isProducer, Properties p) {
-        super(streamName, isProducer, p);
+    public PulsarClient(String streamName, boolean isProducer, Properties p, int from) {
+        super(streamName, isProducer, p, from);
         initConfig(p);
         try {
             client = com.yahoo.pulsar.client.api.PulsarClient.create(URL, clientConf);

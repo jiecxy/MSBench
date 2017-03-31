@@ -153,8 +153,9 @@ public class MSBClient {
                     InputStream propStream = new FileInputStream(configFilePath);
                     Properties msClientProps = new Properties();
                     msClientProps.load(propStream);
-                    ms = MSFactory.newMS(systemClass, isProducer, streamName, msClientProps);
+                    ms = MSFactory.newMS(systemClass, isProducer, streamName, msClientProps, res.getInt(READ_FROM));
                 } catch (Exception e) {
+//                    e.printStackTrace();
                     throw new ArgumentParserException("Load MS Class Error!", parser);
                 }
 

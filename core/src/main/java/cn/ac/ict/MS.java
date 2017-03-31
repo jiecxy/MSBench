@@ -14,6 +14,7 @@ public abstract class MS {
 
     protected boolean isProducer = false;
     protected String streamName = "";
+    protected int from = -2; // -1: read from latest; 0: read from oldest
 
     /**
      * Properties for configuring this MSCLient.
@@ -31,10 +32,12 @@ public abstract class MS {
         return properties;
     }
 
-    public MS(String streamName, boolean isProducer, Properties p) {
+    public MS(String streamName, boolean isProducer, Properties p, int from) {
         this.streamName = streamName;
         this.isProducer = isProducer;
         this.properties = p;
+        this.from = from;
+
     }
 
     /**

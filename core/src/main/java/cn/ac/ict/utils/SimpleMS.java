@@ -10,8 +10,8 @@ import java.util.Properties;
 
 public class SimpleMS extends MS {
 
-    public SimpleMS(String streamName, boolean isProducer, Properties p) {
-        super(streamName, isProducer, p);
+    public SimpleMS(String streamName, boolean isProducer, Properties p, int from) {
+        super(streamName, isProducer, p, from);
     }
 
     @Override

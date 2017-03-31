@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
+import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG;
+
 /**
  * Created by jiecxy on 2017/3/15.
  */
@@ -32,11 +34,12 @@ public class KafkaClient extends MS {
     private KafkaProducer<byte[], byte[]> producer = null;
     private KafkaConsumer<byte[], byte[]> consumer = null;
 
-    public KafkaClient(String streamName, boolean isProducer, Properties p) {
-        super(streamName, isProducer, p);
+    public KafkaClient(String streamName, boolean isProducer, Properties p, int from) {
+        super(streamName, isProducer, p, from);
         if (isProducer) {
             producer = new KafkaProducer<>(p);
         } else {
+            p.setProperty(AUTO_OFFSET_RESET_CONFIG, from == 0 ? "earliest" : "latest");
             consumer = new KafkaConsumer<>(p);
             consumer.subscribe(Collections.singletonList(streamName));
         }
