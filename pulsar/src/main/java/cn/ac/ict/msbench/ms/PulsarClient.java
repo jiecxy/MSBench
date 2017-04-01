@@ -8,7 +8,9 @@ import com.yahoo.pulsar.client.admin.PulsarAdmin;
 import com.yahoo.pulsar.client.admin.PulsarAdminException;
 import com.yahoo.pulsar.client.api.*;
 
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -31,12 +33,12 @@ public class PulsarClient extends MS {
 
     public PulsarClient(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
+        initConfig(p);
         try {
             admin = new PulsarAdmin(new URL(URL), new ClientConfiguration());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        initConfig(p);
         try {
             client = com.yahoo.pulsar.client.api.PulsarClient.create(URL, clientConf);
             if (isProducer) {
@@ -58,11 +60,25 @@ public class PulsarClient extends MS {
     }*/
 
     private void initConfig(Properties prop) {
+        if (prop.containsKey("serviceUrl"))
+            URL=prop.getProperty("serviceUrl");
+        if (prop.containsKey("destinationPrefix"))
+            prefix=prop.getProperty("destinationPrefix");
+        if (prop.containsKey("subscriptionName"))
+            subscription_name=prop.getProperty("subscriptionName");
+        else
+            try {
+                subscription_name= "my-subscription"+InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+
         clientConf = new ClientConfiguration();
         if (isProducer)
             producerConf = new ProducerConfiguration();
         else
             consumerConf = new ConsumerConfiguration();
+
         //client config
         if (prop.containsKey("ioThreads"))
             clientConf.setIoThreads(Integer.valueOf(prop.getProperty("ioThreads")));
