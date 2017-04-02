@@ -1,7 +1,9 @@
 package cn.ac.ict.worker.throughput;
 
 
-public class GivenRandomChangeThroughputList extends ThroughputStrategy {
+import java.io.Serializable;
+
+public class GivenRandomChangeThroughputList extends ThroughputStrategy implements Serializable {
 
     public int[] rtpl = null;
     public int ctps = -1;
@@ -19,7 +21,7 @@ public class GivenRandomChangeThroughputList extends ThroughputStrategy {
             list += " " + t;
         }
         list += " ]";
-        return super.toString() + "; "
+        return super.toString() + ": "
                 + "  rtpl=" + list
                 + "  ctps=" + ctps;
     }

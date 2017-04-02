@@ -19,6 +19,8 @@ package cn.ac.ict;
 
 import cn.ac.ict.exception.UnknownMSException;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 /**
@@ -30,24 +32,34 @@ public final class MSFactory {
         // not used
     }
 
-    public static MS newMS(String dbname, Properties properties) throws UnknownMSException {
-        ClassLoader classLoader = MSFactory.class.getClassLoader();
-
-        MS ret;
-
-        try {
-            Class dbclass = classLoader.loadClass(dbname);
-
-            ret = (MS) dbclass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        ret.setProperties(properties);
+    public static MS newMS(String msname, Boolean isProducer, String streamName, Properties properties) throws UnknownMSException {
+//        ClassLoader classLoader = MSFactory.class.getClassLoader();
+//
+//        MS ret;
+//
+//        try {
+//            Class dbclass = classLoader.loadClass(dbname);
+//
+//            ret = (MS) dbclass.newInstance();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
 
         //return new MSWrapper(ret);
-        return ret;
+//        return ret;
+
+
+        MS ms;
+        Class<?> special = null;
+        try {
+            special = Class.forName(msname);
+            Constructor<?> specialConstructor = special.getConstructor(String.class, Boolean.class, Properties.class);
+            ms = (MS) specialConstructor.newInstance(streamName, isProducer, properties);
+        } catch (Exception e) {
+            throw new UnknownMSException("Load MS class error!");
+        }
+        return ms;
     }
 
 }

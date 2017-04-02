@@ -23,14 +23,15 @@ public class Command implements Serializable {
         SUCCESS, FAIL, REQUESTING, EXISTED;
     }
 
-
+    public String from;  // workerId or master
     public int api = -1;
     public TYPE type = TYPE.UNKNOWN;
     public STATUS status = STATUS.FAIL;
     public Object data = null;
     public int version = -1;
 
-    public Command(int api, TYPE type) {
+    public Command(String from, int api, TYPE type) {
+        this.from = from;
         this.api = api;
         this.type = type;
         if (this.type == TYPE.REQUEST) {
@@ -59,6 +60,7 @@ public class Command implements Serializable {
             case METRICS_WINDOW: return "METRICS_WINDOW";
             case METRICS_TAIL: return "METRICS_TAIL";
             case STOP_CLIENT: return "STOP_CLIENT";
+            case CHECK_TIMEOUT: return "CHECK_TIMEOUT";
             default: return "UNKNOWN";
         }
     }

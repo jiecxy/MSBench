@@ -1,22 +1,28 @@
 package cn.ac.ict.communication;
 
 import akka.actor.ActorRef;
+import cn.ac.ict.stat.MSBWorkerStat;
+import cn.ac.ict.worker.job.Job;
 
 /**
  * Created by jiecxy on 2017/3/21.
  */
-public class WorkerComINfo {
+public class WorkerComInfo {
 
     public static enum STATUS {
-        RUNNING, TERMINATED;
+        RUNNING, TERMINATED, DONE, TIMEOUT;
     }
 
     public ActorRef ref = null;
     public long lastHeartbeat = 0;
     public STATUS status = STATUS.RUNNING;
+    public Job job;
 
-    public WorkerComINfo(ActorRef ref, long lastHeartbeat) {
+    public MSBWorkerStat stat = new MSBWorkerStat();
+
+    public WorkerComInfo(ActorRef ref, Job job, long lastHeartbeat) {
         this.ref = ref;
+        this.job = job;
         this.lastHeartbeat = lastHeartbeat;
         status = STATUS.RUNNING;
     }

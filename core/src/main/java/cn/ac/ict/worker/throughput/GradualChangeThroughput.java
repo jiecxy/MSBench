@@ -1,6 +1,8 @@
 package cn.ac.ict.worker.throughput;
 
-public class GradualChangeThroughput extends ThroughputStrategy {
+import java.io.Serializable;
+
+public class GradualChangeThroughput extends ThroughputStrategy implements Serializable {
 
     public int tp = -1;
     public int ftp = -1;
@@ -17,7 +19,7 @@ public class GradualChangeThroughput extends ThroughputStrategy {
 
     @Override
     public String toString() {
-        return super.toString() + "; "
+        return super.toString() + ": "
                 + "  tp=" + tp
                 + "  ftp=" + ftp
                 + "  ctp=" + ctp

@@ -88,29 +88,6 @@ public class ShiftableRateLimiter implements Runnable {
         }
         writeStrategy=strategy;
     }
-    /*public ShiftableRateLimiter(int InitialThroughput,
-                                int FinalThroughput,
-                                int changeThroughput,
-                                int[] RandomThroughputChange,
-                                long changeInterval,
-                                TimeUnit changeIntervalUnit,
-                                ThroughputStrategy strategy
-    ) {
-        if(strategy.mode == GivenRandomChangeList){
-            this.InitialThroughput = RandomThroughputChange[0];
-        }else {
-            this.InitialThroughput = InitialThroughput;
-        }
-        this.FinalThroughput = FinalThroughput;
-        this.changeThroughput = changeThroughput;
-        this.RandomThroughputChange = RandomThroughputChange;
-        this.changeInterval = changeInterval;
-        this.nextThroughput = InitialThroughput;
-        this.rateLimiter = RateLimiter.create(InitialThroughput);
-        this.executor = Executors.newSingleThreadScheduledExecutor();
-        this.executor.scheduleAtFixedRate(this, changeInterval, changeInterval, changeIntervalUnit);
-        this.writeStrategy = strategy;
-    }*/
 
     public void run() {
         if (writeStrategy.mode == GradualChange && InitialThroughput < FinalThroughput) {

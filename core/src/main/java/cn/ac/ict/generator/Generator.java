@@ -17,6 +17,7 @@
 
 package cn.ac.ict.generator;
 
+
 /**
  * An expression that generates a sequence of values, following some distribution (Uniform, Zipfian, Sequential, etc.).
  */
