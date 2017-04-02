@@ -1,0 +1,29 @@
+#!/usr/bin/expect
+set timeout 10
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+set hostname [lindex $argv 2]
+
+#here need abusoute path
+#spawn scp /home/$username/.ssh/id_rsa.pub $username@$hostname:/tmp/
+spawn ssh-copy-id -i /home/$username/.ssh/id_rsa.pub $username@$hostname
+expect {
+
+"yes/no" { send "yes\r";exp_continue }
+
+"password:" { send "$password\r" }
+
+}
+#chmod
+spawn ssh $username@$hostname
+expect {
+
+"yes/no" { send "yes\r";exp_continue }
+
+"password:" { send "$password\r" }
+
+}
+expect "* "
+send "chmod 640 .ssh/authorized_keys; chmod 700 .ssh\r"
+send "exit\r"
+expect eof

@@ -2,21 +2,16 @@
 #
 #Start MSBench class,includes master and worker(writer or reader)
 #
-# Environment Variable Prerequisites
 #
-#   JAVA_HOME       (Optional) Must point at your Java Development Kit
-#                   installation.  If empty, this script tries use the
-#                   available java executable.
-#
-#   JAVA_OPTS       (Optional) Java runtime options used when any command
-#                   is executed.
 #
 #first check binding name, then set classpath, final execu
 #
 
 usage="Usage: msbench-class.sh  <msbench-class> <args...>"
 
-#load classpath and other conf
+#load classpath and other conf,before call config.sh, pass the SYS to it
+SYS=$1
+shift
 . "${MSBENCH_HOME}/bin/msbench-config.sh"
 
 
