@@ -2,15 +2,21 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MSBench.iml" filepath="$PROJECT_DIR$/MSBench.iml" />
+      <module fileurl="file://$PROJECT_DIR$/binding-parent/binding-parent.iml" filepath="$PROJECT_DIR$/binding-parent/binding-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/binding-parent/binding-parent.iml" filepath="$PROJECT_DIR$/binding-parent/binding-parent.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/binding-parent/datastore-specific-descriptor.iml" filepath="$PROJECT_DIR$/binding-parent/datastore-specific-descriptor.iml" />
-      <module fileurl="file://$PROJECT_DIR$/distributedlog/distributedlog.iml" filepath="$PROJECT_DIR$/distributedlog/distributedlog.iml" />
-      <module fileurl="file://$PROJECT_DIR$/distribution/distribution.iml" filepath="$PROJECT_DIR$/distribution/distribution.iml" />
-      <module fileurl="file://$PROJECT_DIR$/kafka/kafka.iml" filepath="$PROJECT_DIR$/kafka/kafka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/distributedlog/distributedlog-binding.iml" filepath="$PROJECT_DIR$/distributedlog/distributedlog-binding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/distributedlog/distributedlog-binding.iml" filepath="$PROJECT_DIR$/distributedlog/distributedlog-binding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka/kafka-binding.iml" filepath="$PROJECT_DIR$/kafka/kafka-binding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka/kafka-binding.iml" filepath="$PROJECT_DIR$/kafka/kafka-binding.iml" />
       <module fileurl="file://$PROJECT_DIR$/binding-parent/ms-specific-descriptor/ms-specific-descriptor.iml" filepath="$PROJECT_DIR$/binding-parent/ms-specific-descriptor/ms-specific-descriptor.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pulsar/pulsar.iml" filepath="$PROJECT_DIR$/pulsar/pulsar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/binding-parent/ms-specific-descriptor/ms-specific-descriptor.iml" filepath="$PROJECT_DIR$/binding-parent/ms-specific-descriptor/ms-specific-descriptor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/distribution/msbench.iml" filepath="$PROJECT_DIR$/distribution/msbench.iml" />
+      <module fileurl="file://$PROJECT_DIR$/distribution/msbench.iml" filepath="$PROJECT_DIR$/distribution/msbench.iml" />
       <module fileurl="file://$PROJECT_DIR$/pulsar/pulsar-binding.iml" filepath="$PROJECT_DIR$/pulsar/pulsar-binding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pulsar/pulsar-binding.iml" filepath="$PROJECT_DIR$/pulsar/pulsar-binding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/root.iml" filepath="$PROJECT_DIR$/root.iml" />
     </modules>
   </component>
 </project>
