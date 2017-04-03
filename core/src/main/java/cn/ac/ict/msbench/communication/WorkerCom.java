@@ -164,48 +164,48 @@ public class WorkerCom extends Communication implements CallBack {
                             break;
                     }
                     break;
-                // Only from Worker
-                case METRICS_WINDOW:
-                    switch (msg.type) {
-                        case REQUEST:
-//                            Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
-//                            cmd.data = msg.data;
-                            master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, msg.data), getSelf());
-                            System.out.println("METRICS_WINDOW " + msg.data);
-                            break;
-                        default:
-                            unhandled(message);
-                            break;
-                    }
-                    break;
-                // Only from Worker
-                case METRICS_HEAD:
-                    switch (msg.type) {
-                        case REQUEST:
-//                            Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
-//                            cmd.data = msg.data;
-                            master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, msg.data), getSelf());
-                            System.out.println("METRICS_HEAD " + msg.data);
-                            break;
-                        default:
-                            unhandled(message);
-                            break;
-                    }
-                    break;
-                // Only from Worker
-                case METRICS_TAIL:
-                    switch (msg.type) {
-                        case REQUEST:
-//                            Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
-//                            cmd.data = msg.data;
-                            master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, msg.data), getSelf());
-                            System.out.println("METRICS_TAIL " + msg.data);
-                            break;
-                        default:
-                            unhandled(message);
-                            break;
-                    }
-                    break;
+//                // Only from Worker
+//                case METRICS_WINDOW:
+//                    switch (msg.type) {
+//                        case REQUEST:
+////                            Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
+////                            cmd.data = msg.data;
+//                            master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, msg.data), getSelf());
+//                            System.out.println("METRICS_WINDOW " + msg.data);
+//                            break;
+//                        default:
+//                            unhandled(message);
+//                            break;
+//                    }
+//                    break;
+//                // Only from Worker
+//                case METRICS_HEAD:
+//                    switch (msg.type) {
+//                        case REQUEST:
+////                            Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
+////                            cmd.data = msg.data;
+//                            master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, msg.data), getSelf());
+//                            System.out.println("METRICS_HEAD " + msg.data);
+//                            break;
+//                        default:
+//                            unhandled(message);
+//                            break;
+//                    }
+//                    break;
+//                // Only from Worker
+//                case METRICS_TAIL:
+//                    switch (msg.type) {
+//                        case REQUEST:
+////                            Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
+////                            cmd.data = msg.data;
+//                            master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, msg.data), getSelf());
+//                            System.out.println("METRICS_TAIL " + msg.data);
+//                            break;
+//                        default:
+//                            unhandled(message);
+//                            break;
+//                    }
+//                    break;
                 default:
                     unhandled(message);
                     break;
