@@ -126,5 +126,7 @@ public class KafkaClient extends MS {
     public void close() {
         if (producer != null)
             producer.close();
+        if (consumer != null)
+            consumer.close();
     }
 }

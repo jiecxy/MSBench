@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>binding-parent</artifactId>
+        <groupId>cn.ac.ict.msbench</groupId>
+        <version>1.0</version>
+        <relativePath>../binding-parent</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>distributedlog-binding</artifactId>
+    <name>Distributedlog Binding</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>cn.ac.ict.msbench</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>distributedlog-client_2.11</artifactId>
+            <version>0.3.51-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>distributedlog-service</artifactId>
+            <version>0.3.51-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>distributedlog-protocol_2.11</artifactId>
+            <version>0.3.51-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.bookkeeper.stats</groupId>
+            <artifactId>bookkeeper-stats-api</artifactId>
+            <version>4.3.4-TWTTR</version>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <repository>
+            <id>bookkeeper-twitter-mvn-repo</id>
+            <url>https://raw.github.com/twitter/bookkeeper/mvn-repo/4.3.6-TWTTR-OSS</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>twitter-repo</id>
+            <name>Twitter Maven Repo</name>
+            <url>http://maven.twttr.com</url>
+        </repository>
+    </repositories>
+
+</project>

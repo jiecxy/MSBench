@@ -58,7 +58,7 @@ Options:
   -h, --help                    Display this message
   -V, --version                 Display script version
   -v, --verbose
-  -sys, --sys=SYSTEM            System name to be test(include kafka | dl | pulsar)
+  -sys, --sys=SYSTEM            System name to be test(include sample |  kafka | dl | pulsar)
   -sn, --streamnumber=NUMBER    Number of streams
   -name, --stream-prefix=PREFIX Name prefix of streams
   -w, --writer=NUMBER           Number of writer per stream
@@ -71,7 +71,7 @@ Exit status:
 
 Example:
   1) Use short options to start test:
-    $ ./$__ScriptName  -sys [kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100
+    $ ./$__ScriptName  -sys [sample | kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync 0 -r 2 -from -1 -ms 100
     -tp 1000 -tr 1800 -hosts node_a,node_b -rcf read.config -wcf write.config
 
 
@@ -329,7 +329,7 @@ system: $SYS, writer number: $W, writer config file path: $WCF,\
 . "${MSBENCH_HOME}/bin/msbench-config.sh"
 
 
-MASTERCLASS="cn.ac.ict.MSBClient"
+MASTERCLASS="cn.ac.ict.msbench.MSBClient"
 SLAVECLASS="MocSlave"
 
 
