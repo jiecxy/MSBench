@@ -32,7 +32,7 @@
     <bytecodeTargetLevel>
       <module name="binding-parent" target="1.8" />
       <module name="core" target="1.8" />
-      <module name="distributedlog-binding" target="1.8" />
+      <module name="distributedlog-binding" target="1.7" />
       <module name="kafka-binding" target="1.8" />
       <module name="ms-specific-descriptor" target="1.8" />
       <module name="msbench" target="1.8" />

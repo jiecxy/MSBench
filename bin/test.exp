@@ -1,0 +1,18 @@
+#!/usr/bin/expect
+set timeout 10
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+set hostname [lindex $argv 2]
+
+#basic structure:spawn expect send
+#1.reaction time trouble, too long time(maybe use improperly)
+#2.argv value get trouble, it support [] expression to calculate value
+#here need abusoute path
+spawn ssh 172.18.11.161 /home/kangsiqi/msbench/msbench-class.sh kafka cn.ac.ict.MSBClient -tr 1800 -M 1111:9999 -P master -w writer -r reader -sn 1 -name PREFIX 
+expect {
+
+"yes/no" { send "yes\r";exp_continue }
+
+"password:" { send "$password\r" }
+
+}
