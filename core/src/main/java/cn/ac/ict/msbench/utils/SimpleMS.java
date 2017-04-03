@@ -12,6 +12,10 @@ public class SimpleMS extends MS {
 
     public SimpleMS(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
+        if (from==0)
+            System.out.println("create a reader reading from the begining");
+        else
+            System.out.println("create a reader reading from the ending");
     }
 
     @Override
