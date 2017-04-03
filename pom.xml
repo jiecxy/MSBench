@@ -34,7 +34,7 @@
         <module>distribution</module>
 
         <module>kafka</module>
-        <module>distributedlog</module>
+        <module>dl</module>
         <module>pulsar</module>
     </modules>
 

@@ -105,8 +105,6 @@ RCF=
 WCF=
 
 #set user and passwd used by expect
-USER=kangsiqi
-PASSWD=123456
 if [ -z "${MSBENCH_HOME}" ]; then
   export MSBENCH_HOME="$(cd "`dirname "$0"`"/..; pwd)"
 fi

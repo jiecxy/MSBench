@@ -37,6 +37,7 @@ BINDING_CLASS=$(echo "$BINDING_LINE" | cut -d':' -f2)
 #   They are noted with a '-' after the binding name.
 #   (e.g. cassandra-7 & cassandra-8)
 BINDING_DIR=$(echo "$BINDING_NAME" | cut -d'-' -f1)
+echo "Binding dir is $BINDING_DIR"
 
 # The 'basic' binding is core functionality
 if [ "$BINDING_NAME" = "basic" ] ; then
@@ -76,7 +77,7 @@ if [ -r "$f" ] ; then
 fi
 done
 
-echo "the class path is $CLASSPATH"
+#echo "the class path is $CLASSPATH"
 
 export BINDING_NAME
 export BINDING_CLASS

@@ -31,7 +31,7 @@ fi
 
 
 # About to run MSB
-echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath $CLASSPATH $@"
+echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath '$CLASSPATH' $@"
 
 # Run MSB
 "$JAVA_HOME/bin/java" $JAVA_OPTS -classpath "$CLASSPATH" "$@"
