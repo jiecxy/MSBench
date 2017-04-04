@@ -29,6 +29,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class WriteWorker extends Worker implements WriteCallBack {
 
+    private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
     private Generator generator = null;
     private ShiftableRateLimiter rateLimiter;
     private WriteJob job;
@@ -52,27 +53,27 @@ public class WriteWorker extends Worker implements WriteCallBack {
     public static void main(String[] args) {
         WriteWorker randomWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS("stream-1",true,new Properties(), 0),
-                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
-                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},1)));
+                new SimpleMS("stream-1", true, new Properties(), 0),
+                new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
+                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 1)));
         randomWK.run();
         WriteWorker noLimitWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS("stream-1",true,new Properties(), 0),
-                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
+                new SimpleMS("stream-1", true, new Properties(), 0),
+                new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
                         new NoLimitThroughput()));
         noLimitWK.run();
         WriteWorker constantWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS("stream-1",true,new Properties(), 0),
-                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
+                new SimpleMS("stream-1", true, new Properties(), 0),
+                new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
                         new ConstantThroughput(5)));
         constantWK.run();
         WriteWorker gradualWK = new WriteWorker(
                 new SimpleCallBack(),
-                new SimpleMS("stream-1",true,new Properties(), 0),
-                new WriteJob("SimpleMS","localhost",10,5,"stream-1",10,true,
-                        new GradualChangeThroughput(1,10,2,1)));
+                new SimpleMS("stream-1", true, new Properties(), 0),
+                new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
+                        new GradualChangeThroughput(1, 10, 2, 1)));
         gradualWK.run();
     }
 
@@ -96,11 +97,11 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 double elapsed = (System.nanoTime() - lastStatTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
                 // TODO 需不需要将stats存在worker上
-                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed/1024/1024,
+                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed / 1024 / 1024,
                         reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
 
-                numMsg=0;
-                numByte=0;
+                numMsg = 0;
+                numByte = 0;
                 reportHist.reset();
                 lastStatTime = System.nanoTime();
             }
@@ -109,7 +110,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 rateLimiter.getLimiter().acquire();
 
             requestTime = System.nanoTime();
-            msClient.send(job.isSync, (byte[]) generator.nextValue(),  this,requestTime);
+            msClient.send(job.isSync, (byte[]) generator.nextValue(), this, requestTime);
 
         }
 
@@ -117,10 +118,10 @@ public class WriteWorker extends Worker implements WriteCallBack {
         double elapsed = (System.nanoTime() - startTime) / 1e9;
 
         cb.onSendStatTail(
-                new StatTail((long) ((System.nanoTime()) / 1e6), (totalNumByte/1024/1024) / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
+                new StatTail((long) ((System.nanoTime()) / 1e6), (totalNumByte / 1024 / 1024) / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
                         reportHist.getValueAtPercentile(50) / 1000.0, reportHist.getValueAtPercentile(95) / 1000.0,
                         reportHist.getValueAtPercentile(99) / 1000.0, reportHist.getValueAtPercentile(99.9) / 1000.0,
-                        totalNumMsg, (long)(totalNumByte/1024/1024), job.isSync)
+                        totalNumMsg, (long) (totalNumByte / 1024 / 1024), job.isSync)
         );
 
         if (rateLimiter != null)
@@ -136,7 +137,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
     }
 
     @Override
-    public void handleSentMessage(byte[] msg,long requestTime) {
+    public void handleSentMessage(byte[] msg, long requestTime) {
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);
@@ -146,5 +147,4 @@ public class WriteWorker extends Worker implements WriteCallBack {
         totalNumMsg++;
         totalNumByte += msg.length;
     }
-    private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
 }
