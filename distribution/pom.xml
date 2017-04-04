@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>cn.ac.ict.msbench</groupId>
-            <artifactId>distributedlog-binding</artifactId>
+            <artifactId>dl-binding</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
