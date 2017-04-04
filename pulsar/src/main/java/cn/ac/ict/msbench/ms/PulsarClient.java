@@ -58,17 +58,20 @@ public class PulsarClient extends MS {
     /*public static void main(String[] args) {
 
     }*/
+    private String getProp(Properties prop, String key) {
+        return (String) (prop.getProperty(key));
+    }
 
     private void initConfig(Properties prop) {
         if (prop.containsKey("serviceUrl"))
-            URL=prop.getProperty("serviceUrl");
+            URL = getProp(prop, "serviceUrl");
         if (prop.containsKey("destinationPrefix"))
-            prefix=prop.getProperty("destinationPrefix");
+            prefix = getProp(prop, "destinationPrefix");
         if (prop.containsKey("subscriptionName"))
-            subscription_name=prop.getProperty("subscriptionName");
+            subscription_name = getProp(prop, "subscriptionName");
         else
             try {
-                subscription_name= "my-subscription"+InetAddress.getLocalHost().getHostName();
+                subscription_name = "my-subscription" + InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
@@ -81,33 +84,33 @@ public class PulsarClient extends MS {
 
         //client config
         if (prop.containsKey("ioThreads"))
-            clientConf.setIoThreads(Integer.valueOf(prop.getProperty("ioThreads")));
+            clientConf.setIoThreads(Integer.valueOf(getProp(prop, "ioThreads")));
         if (prop.containsKey("connections"))
-            clientConf.setConnectionsPerBroker(Integer.valueOf(prop.getProperty("connections")));
+            clientConf.setConnectionsPerBroker(Integer.valueOf(getProp(prop, "connections")));
         if (prop.containsKey("listenerThreads"))
-            clientConf.setListenerThreads(Integer.valueOf(prop.getProperty("listenerThreads")));
+            clientConf.setListenerThreads(Integer.valueOf(getProp(prop, "listenerThreads")));
         if (prop.containsKey("tcpNoDelay"))
-            clientConf.setUseTcpNoDelay(Boolean.valueOf(prop.getProperty("tcpNoDelay")));
+            clientConf.setUseTcpNoDelay(Boolean.valueOf(getProp(prop, "tcpNoDelay")));
 
 
         if (isProducer) { //producer config
             if (prop.containsKey("enableBatching"))
-                producerConf.setBatchingEnabled(Boolean.valueOf(prop.getProperty("enableBatching")));
+                producerConf.setBatchingEnabled(Boolean.valueOf(getProp(prop, "enableBatching")));
             if (prop.containsKey("batchSize"))
-                producerConf.setBatchingMaxMessages(Integer.valueOf(prop.getProperty("batchSize")));
+                producerConf.setBatchingMaxMessages(Integer.valueOf(getProp(prop, "batchSize")));
             if (prop.containsKey("batchDelayInMs"))
-                producerConf.setBatchingMaxPublishDelay(Integer.valueOf(prop.getProperty("batchDelayInMs")), TimeUnit.MILLISECONDS);
+                producerConf.setBatchingMaxPublishDelay(Integer.valueOf(getProp(prop, "batchDelayInMs")), TimeUnit.MILLISECONDS);
             if (prop.containsKey("pendingMessages"))
-                producerConf.setMaxPendingMessages(Integer.valueOf(prop.getProperty("pendingMessages")));
+                producerConf.setMaxPendingMessages(Integer.valueOf(getProp(prop, "pendingMessages")));
             if (prop.containsKey("compressionType"))
-                producerConf.setCompressionType(CompressionType.valueOf(prop.getProperty("compressionType")));
+                producerConf.setCompressionType(CompressionType.valueOf(getProp(prop, "compressionType")));
             if (prop.containsKey("routingMode"))
-                producerConf.setMessageRoutingMode(ProducerConfiguration.MessageRoutingMode.valueOf(prop.getProperty("routingMode")));
+                producerConf.setMessageRoutingMode(ProducerConfiguration.MessageRoutingMode.valueOf(getProp(prop, "routingMode")));
         } else { //consumer config
             if (prop.containsKey("receiveQueueSize"))
-                consumerConf.setReceiverQueueSize(Integer.valueOf("receiveQueueSize"));
+                consumerConf.setReceiverQueueSize(Integer.valueOf(getProp(prop, "receiveQueueSize")));
             if (prop.containsKey("subscriptionType"))
-                consumerConf.setSubscriptionType(SubscriptionType.valueOf(prop.getProperty("subscriptionType")));
+                consumerConf.setSubscriptionType(SubscriptionType.valueOf(getProp(prop, "subscriptionType")));
         }
     }
 

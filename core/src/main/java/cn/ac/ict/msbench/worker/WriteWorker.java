@@ -18,6 +18,8 @@ import cn.ac.ict.msbench.worker.throughput.GradualChangeThroughput;
 import cn.ac.ict.msbench.worker.throughput.NoLimitThroughput;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -144,4 +146,5 @@ public class WriteWorker extends Worker implements WriteCallBack {
         totalNumMsg++;
         totalNumByte += msg.length;
     }
+    private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
 }
