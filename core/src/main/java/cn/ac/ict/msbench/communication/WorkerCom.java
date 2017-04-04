@@ -43,7 +43,9 @@ public class WorkerCom extends Communication implements CallBack {
         String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
         master = getContext().actorSelection(path);
         this.ms = ms;
-        this.exporter = exporter;
+        //TODO do not store
+        this.exporter = null;
+//        this.exporter = exporter;
         this.job = job;
         this.job.statInterval = STATS_INTERVAL;
         isWriter = job.isWriter;
