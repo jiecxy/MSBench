@@ -5,8 +5,6 @@ import cn.ac.ict.msbench.communication.CallBack;
 import cn.ac.ict.msbench.stat.StatHeader;
 import cn.ac.ict.msbench.stat.StatTail;
 import cn.ac.ict.msbench.stat.StatWindow;
-import cn.ac.ict.msbench.utils.SimpleCallBack;
-import cn.ac.ict.msbench.utils.SimpleMS;
 import cn.ac.ict.msbench.worker.callback.ReadCallBack;
 import cn.ac.ict.msbench.worker.job.Job;
 import cn.ac.ict.msbench.worker.job.ReadJob;
@@ -15,7 +13,6 @@ import org.HdrHistogram.Recorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -23,6 +20,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class ReadWorker extends Worker implements ReadCallBack {
 
+    private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
     private ReadJob job;
 
     public ReadWorker(CallBack cb, MS ms, Job job) {
@@ -69,7 +67,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
                 double elapsed = (System.nanoTime() - lastStatTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
 
-                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed,
+                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed / 1024 / 1024,
                         reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
 
                 numMsg = 0;
@@ -79,7 +77,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             }
 
             requestTime = System.nanoTime();
-            msClient.read( this, requestTime);
+            msClient.read(this, requestTime);
         }
 
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
@@ -102,7 +100,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     }
 
     @Override
-    public void handleReceivedMessage(byte[] msg,long requestTime) {
+    public void handleReceivedMessage(byte[] msg, long requestTime) {
 //        System.out.println("received msg " + new String(msg));
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
         recorder.recordValue(latencyMicros);
@@ -112,5 +110,4 @@ public class ReadWorker extends Worker implements ReadCallBack {
         totalNumMsg++;
         totalNumByte += msg.length;
     }
-    private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
 }
