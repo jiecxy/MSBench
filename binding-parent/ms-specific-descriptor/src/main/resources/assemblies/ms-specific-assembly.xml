@@ -30,7 +30,7 @@
     <fileSet>
       <directory>../bin</directory>
       <outputDirectory>bin</outputDirectory>
-      <fileMode>0644</fileMode>
+      <fileMode>0755</fileMode>
       <includes>
         <include>bindings.properties</include>
       </includes>
