@@ -30,17 +30,18 @@ public class Command implements Serializable {
     public TYPE type = TYPE.UNKNOWN;
     public STATUS status = STATUS.FAIL;
     public Object data = null;
-    public int version = -1;
+//    public int version = -1;
 
     public Command(String from, int api, TYPE type) {
         this(from, api, type, null);
     }
 
     public Command(String from, int api, TYPE type, Object data) {
-        this.data = data;
         this.from = from;
         this.api = api;
         this.type = type;
+        this.data = data;
+//        this.version = version;
         if (this.type == TYPE.REQUEST) {
             status = STATUS.REQUESTING;
         } else if (this.type == TYPE.RESPONSE) {
@@ -53,7 +54,6 @@ public class Command implements Serializable {
         return "{ API = " + getAPIName(api)
                 + "; type = " + type
                 + "; status = " + status
-                + "; version = " + version
                 + "; data = " + data + " }";
     }
 

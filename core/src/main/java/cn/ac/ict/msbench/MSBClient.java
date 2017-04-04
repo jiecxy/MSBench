@@ -6,6 +6,8 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import cn.ac.ict.msbench.communication.MasterCom;
 import cn.ac.ict.msbench.communication.WorkerCom;
+import cn.ac.ict.msbench.exporter.Exporter;
+import cn.ac.ict.msbench.exporter.FileExporter;
 import cn.ac.ict.msbench.worker.job.ReadJob;
 import cn.ac.ict.msbench.worker.job.WriteJob;
 import cn.ac.ict.msbench.worker.throughput.*;
@@ -16,6 +18,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
@@ -58,28 +61,28 @@ public class MSBClient {
     /**
      *
      * 1. Start Master
-     * Arguments: -tr 1000 -M 1.1.1.1:9999 -P master -w 1 -r 1 -sn 1 -name topic
+     * Arguments: -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P master -w 1 -r 1 -sn 1 -name topic
      *
      * 2. Start Worker
      * 2.1 Start Writer
      *   Arguments:
      *    ThroughputStrategy: NoLimitThroughput
-     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10  -tp -1
+     *      -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10  -tp -1
      *
      *    ThroughputStrategy: ConstantThroughput
-     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -tp 1000
+     *      -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10 -tp 1000
      *
      *    ThroughputStrategy: GradualChangeThroughput
-     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -tp 1000 -ftp 2000 -ctp 100 -ctps 5
+     *      -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10 -tp 1000 -ftp 2000 -ctp 100 -ctps 5
      *
      *    ThroughputStrategy: GivenRandomChangeThroughputList
-     *      -tr 1000 -M 1.1.1.1:9999 -P writer -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -ms 10 -rtpl 100,200,300,400 -ctps 5
+     *      -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10 -rtpl 100,200,300,400 -ctps 5
      *
      *    Note: If you want the write mode to be sync(default is Async), then add -sync
      *
      * 2.2 Start Reader
      *   Arguments:
-     *      -tr 1000 -M 1.1.1.1:9999 -P reader -W 2.2.2.2 -sys com.apache.kafka.KafkaClient -cf ./kafka.config -sname topic0 -from 0
+     *      -tr 1000 -M 127.0.0.1:9999 -P reader -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -from 0
      */
     private void initArguments(String[] args) {
         try {
@@ -100,20 +103,40 @@ public class MSBClient {
                 throw new ArgumentParserException("Invalid Master Address!", parser);
             }
 
+
+            // Get the Home Path
+            String homePath = getStringArgOrException(res, HOME_PATH);
+            File dataDir = new File(homePath, DATA_DIR_NAME);
+            if (!dataDir.exists()) {
+                dataDir.mkdirs();
+            }
+
+//            // TODO set the exporter
+//            exporter = new FileExporter(new FileOutputStream());
+
             // Get the process: Master, Reader, or Writer
             String process = res.getString(PROCESS);
             if (process.equals(MASTER)) {
+                File masterDir = new File(dataDir, MASTER_DIR_NAME);
+                if (!masterDir.exists()) {
+                    masterDir.mkdirs();
+                }
 
                 ArrayList<String> streams = getStreamNames(getIntArgOrException(res, STREAM_NUM), getStringArgOrException(res, STREAM_NAME_PREFIX));
                 Integer writerNum = res.getInt(WRITER_NUM);
                 Integer readerNum = res.getInt(READER_NUM);
                 if (writerNum == null && readerNum == null) {
-                    throw new ArgumentParserException("Argument -w or -r required!", parser);
+                    throw new ArgumentParserException("Argument -w or -r is required!", parser);
                 }
                 writerNum = writerNum == null ? 0 : writerNum;
                 readerNum = readerNum == null ? 0 : readerNum;
-                startMaster(masterIP, masterPort, runTime, streams, writerNum, readerNum);
+                startMaster(new FileExporter(masterDir, true), masterIP, masterPort, runTime, streams, writerNum, readerNum);
+
             } else {
+                File workerDir = new File(dataDir, WORKER_DIR_NAME);
+                if (!workerDir.exists()) {
+                    workerDir.mkdirs();
+                }
 
                 // Get the workerIP
                 String workerIP = getStringArgOrException(res, WORKER_ADDRESS);
@@ -124,7 +147,7 @@ public class MSBClient {
                 } else if (process.equals(WRITER)) {
                     isProducer = true;
                 } else {
-                    throw new ArgumentParserException("Invalid process(P)!", parser);
+                    throw new ArgumentParserException("Invalid process(P) Argument!", parser);
                 }
 
                 String systemClass = getStringArgOrException(res, SYSTEM);
@@ -145,7 +168,7 @@ public class MSBClient {
                 if (!isProducer) {
 
                     int from = getIntArgOrException(res, READ_FROM);
-                    startReader(workerIP, masterIP, masterPort, runTime, streamName, from, ms, systemClass);
+                    startReader(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, from, ms, systemClass);
                 } else {
 
                     int messageSize = getIntArgOrException(res, MESSAGE_SIZE);
@@ -171,7 +194,7 @@ public class MSBClient {
                             throw new ArgumentParserException("GivenRandomChangeThroughputList Mode: Invalid argument rtpl!", parser);
                         }
                         int ctps = getIntArgOrException(res, CHANGE_THROUGHPUT_SECONDS);
-                        startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
+                        startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                 new GivenRandomChangeThroughputList(list, ctps));
                     } else {
                         Integer ftp = res.getInt(FINAL_THROUGHPUT);
@@ -179,17 +202,17 @@ public class MSBClient {
                         Integer ctps = res.getInt(CHANGE_THROUGHPUT_SECONDS);
                         if (ftp != null || ctp != null || ctps != null) {
                             if (ftp != null && ctp != null && ctps != null) { // GradualChangeThroughput
-                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
+                                startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                         new GradualChangeThroughput(tp, ftp, ctp, ctps));
                             } else {
                                 throw new ArgumentParserException("GradualChangeThroughput Mode: Require tp ftp ctp ctps!", parser);
                             }
                         } else {
                             if (tp == -1) { // NoLimitThroughput
-                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
+                                startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                         new NoLimitThroughput());
                             } else { // ConstantThroughput
-                                startWriter(workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
+                                startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
                                         new ConstantThroughput(tp));
                             }
                         }
@@ -198,16 +221,17 @@ public class MSBClient {
             }
         } catch (ArgumentParserException e) {
             if (args.length == 0) {
-                parser.printHelp();
+//                parser.printHelp();
                 System.exit(0);
             } else {
-                parser.handleError(e);
+//                parser.handleError(e);
+                System.err.println(e.getMessage());
                 System.exit(1);
             }
         }
     }
 
-    private void startMaster(String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
+    private void startMaster(Exporter exporter, String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
 
         System.out.println("startMaster:" + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
@@ -229,14 +253,14 @@ public class MSBClient {
 
         ActorSystem system = ActorSystem.create("MSBenchMaster", akkaConf);
         System.out.println("MasterCom start " + masterIP + ":" + masterPort);
-        ActorRef master = system.actorOf(Props.create(MasterCom.class, masterIP, masterPort, runTime, streams, writerNum, readerNum), "master");
+        ActorRef master = system.actorOf(Props.create(MasterCom.class, exporter, masterIP, masterPort, runTime, streams, writerNum, readerNum), "master");
 
 //        System.out.println("MasterCom tell ");
 //        master.tell("MasterCom MESSAGES", master);
         system.awaitTermination();
     }
 
-    private void startReader(String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
+    private void startReader(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
         System.out.println("startReader:" + "\n"
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
@@ -257,11 +281,11 @@ public class MSBClient {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from)), "worker");
+        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from)), "worker");
 //        worker.tell("WorkerCom MESSAGES", worker);
     }
 
-    private void startWriter(String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+    private void startWriter(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
         System.out.println("startWriter:" + "\n"
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
@@ -284,7 +308,7 @@ public class MSBClient {
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
 
         System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy)), "worker");
+        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy)), "worker");
 //        worker.tell("WorkerCom MESSAGES", worker);
     }
 
@@ -318,6 +342,7 @@ public class MSBClient {
         processes.add(READER);
         processes.add(WRITER);
         parser.addArgument(CONFIG_PRE + PROCESS).action(store()).required(true).type(String.class).metavar(PROCESS.toUpperCase()).help(PROCESS_DOC).choices(processes);
+        parser.addArgument(CONFIG_PRE + HOME_PATH).action(store()).required(true).type(String.class).metavar(HOME_PATH.toUpperCase()).help(HOME_PATH_DOC);
 
         // For Stream
         parser.addArgument(CONFIG_PRE + STREAM_NUM).action(store()).required(false).type(Integer.class).metavar(STREAM_NUM.toUpperCase()).help(STREAM_NUM_DOC);

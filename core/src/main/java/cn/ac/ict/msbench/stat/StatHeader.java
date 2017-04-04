@@ -80,11 +80,11 @@ public class StatHeader implements Serializable {
                 "\t" + "Reporting Interval: " + reportingInterval + " s" + "\n" +
                 "\t" + "Host: " + host;
         if (isWriter)
-            return "Writer Stats:" + "\n" +
+            return "\nWriter Stats:" + "\n" +
                     str + "\n" +
                     "\t" + "Message Size: " + messageSize + " Byte" + "\n" +
                     "\t" + "Rate: " + strategy + "\n" +
-                    "\t" + "Write Mode: " + getWriteMode() + "\n";
+                    "\t" + "Write Mode: " + getWriteMode();
         else
             return "Reader Stats:" + "\n" +
                     str + "\n" +

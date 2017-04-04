@@ -3,6 +3,8 @@ package cn.ac.ict.msbench.communication;
 import akka.actor.*;
 import cn.ac.ict.msbench.MS;
 import cn.ac.ict.msbench.exception.MSException;
+import cn.ac.ict.msbench.exporter.Exporter;
+import cn.ac.ict.msbench.stat.MSBWorkerStat;
 import cn.ac.ict.msbench.worker.*;
 import cn.ac.ict.msbench.stat.StatHeader;
 import cn.ac.ict.msbench.stat.StatTail;
@@ -12,6 +14,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.UUID;
@@ -27,16 +31,19 @@ public class WorkerCom extends Communication implements CallBack {
     private Cancellable heartbeatScheduler;
     private Worker worker = null;
     private Thread workerThread = null;
+    private MSBWorkerStat stat = new MSBWorkerStat();
 
     private MS ms = null;
+    private Exporter exporter = null;
     private boolean isWriter;
     private Job job;
 
-    public WorkerCom(String masterIP, int masterPort, MS ms, Job job) {
+    public WorkerCom(Exporter exporter, String masterIP, int masterPort, MS ms, Job job) {
         super(masterIP, masterPort);
         String path = "akka.tcp://MSBenchMaster@" + masterIP +  ":" + masterPort + "/user/master";
         master = getContext().actorSelection(path);
         this.ms = ms;
+        this.exporter = exporter;
         this.job = job;
         this.job.statInterval = STATS_INTERVAL;
         isWriter = job.isWriter;
@@ -237,6 +244,12 @@ public class WorkerCom extends Communication implements CallBack {
 
     private void stopAll() {
         stopWorker();
+        try {
+            exporter.close();
+        } catch (IOException e) {
+            System.err.println("Fail to close data file!");
+            e.printStackTrace();
+        }
         if (registerScheduler != null)
             registerScheduler.cancel();
         if (heartbeatScheduler != null)
@@ -248,8 +261,6 @@ public class WorkerCom extends Communication implements CallBack {
     @Override
     public void postStop() throws Exception {
         super.postStop();
-        //getContext().stop(getSelf());
-//        System.out.println("WorkerCom postStop ");
     }
 
     public void onSendStatHeader(StatHeader header) {
@@ -260,6 +271,7 @@ public class WorkerCom extends Communication implements CallBack {
 //        getSelf().tell(cmd, getSelf());
 
         master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, header), getSelf());
+        insertHeader(exporter, header);
         System.out.println("METRICS_HEAD " + header);
     }
 
@@ -270,6 +282,7 @@ public class WorkerCom extends Communication implements CallBack {
 //        cmd.data = window;
 //        getSelf().tell(cmd, getSelf());
 
+        window.version = insertWindow(exporter, window);
         master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, window), getSelf());
         System.out.println("METRICS_WINDOW " + window);
     }
@@ -282,6 +295,29 @@ public class WorkerCom extends Communication implements CallBack {
 //        getSelf().tell(cmd, getSelf());
 
         master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, tail), getSelf());
+        insertTail(exporter, tail);
         System.out.println("METRICS_TAIL " + tail);
+    }
+
+    private void insertHeader(Exporter exporter, StatHeader header) {
+        stat.head = header;
+        if (exporter != null) {
+            exporter.write(workerID, METRICS_HEAD, header.toString());
+        }
+    }
+
+    private int insertWindow(Exporter exporter, StatWindow window) {
+        stat.statWindow.add(window);
+        if (exporter != null) {
+            exporter.write(workerID, METRICS_WINDOW, window.toString());
+        }
+        return stat.statWindow.size() - 1;
+    }
+
+    private void insertTail(Exporter exporter, StatTail tail) {
+        stat.tail = tail;
+        if (exporter != null) {
+            exporter.write(workerID, METRICS_TAIL, tail.toString());
+        }
     }
 }

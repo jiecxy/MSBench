@@ -44,7 +44,7 @@ public class StatTail implements Serializable {
 
     @Override
     public String toString() {
-        String str = "Aggregated Stats: " + "\n" +
+        String str = "\nAggregated Stats: " + "\n" +
                 "\t" + "FinishTime: " + getFinishTime() + "\n";
         if (isWriter) {
             str += "\t" + "Messages Sent: " + messagesSentOrReceived + "\n" +
@@ -61,7 +61,7 @@ public class StatTail implements Serializable {
                     "\t\t" + "50 percentile: " + formatFloat(percentile50) + " ms"  + "\n" +
                     "\t\t" + "95 percentile: " + formatFloat(percentile95) + " ms"  + "\n" +
                     "\t\t" + "99 percentile: " + formatFloat(percentile99) + " ms"  + "\n" +
-                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms"  + "\n";
+                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms";
     }
 
     private String formatFloat(double d) {

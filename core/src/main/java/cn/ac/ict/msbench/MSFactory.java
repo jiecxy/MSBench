@@ -40,8 +40,8 @@ public final class MSFactory {
             Constructor<?> constructor = special.getConstructor(String.class, boolean.class, Properties.class, int.class);
             ms = (MS) constructor.newInstance(streamName, isProducer, properties, (int) from);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new UnknownMSException("Load MS class error!");
+//            e.printStackTrace();
+            throw new UnknownMSException("Load MS class error!", e);
         }
         return ms;
     }

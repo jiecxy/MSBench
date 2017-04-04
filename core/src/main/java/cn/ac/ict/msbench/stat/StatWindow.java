@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class StatWindow implements Serializable {
 
-
+    public long version = -1;
     public long time;  // ms
     public double rate; // msg/s
     public long records;  // msgs
@@ -27,7 +27,7 @@ public class StatWindow implements Serializable {
 
     public static String printHead() {
         return "Reporting Window:\n" +
-                String.format("%-24s  %-12s  %-12s  %-12s  %-14s  %-14s", "Time", "Rate(msg/s)", "Records", "Tps(MB/s)", "AvgLatency(ms)", "MaxLatency(ms)") + "\n";
+                String.format("%-5s  %-24s  %-12s  %-12s  %-12s  %-14s  %-14s", "Seq", "Time", "Rate(msg/s)", "Records", "Tps(MB/s)", "AvgLatency(ms)", "MaxLatency(ms)") + "\n";
     }
 
     public String getTime() {
@@ -37,6 +37,6 @@ public class StatWindow implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f", getTime(), rate, records, tps, avgLatency, maxLatency);
+        return String.format("%-5s  %-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency);
     }
 }

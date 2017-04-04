@@ -30,6 +30,12 @@ public class Constants {
     public static final String MASTER_ADDRESS = "M";
     public static final String MASTER_ADDRESS_DOC = "Indicate master's ip and port.";
 
+    public static final String HOME_PATH = "home";
+    public static final String HOME_PATH_DOC = "Indicate MSBench Home path, like /home/ms/msbench.";
+    public static final String DATA_DIR_NAME = "data";
+    public static final String WORKER_DIR_NAME = "worker";
+    public static final String MASTER_DIR_NAME = "master";
+
     public static final String MASTER = "master";
     public static final String WRITER = "writer";
     public static final String READER = "reader";

@@ -12,7 +12,7 @@ public class SimpleMS extends MS {
 
     public SimpleMS(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
-        if (from==0)
+        if (from == 0)
             System.out.println("create a reader reading from the begining");
         else
             System.out.println("create a reader reading from the ending");
@@ -42,23 +42,23 @@ public class SimpleMS extends MS {
     public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime) {
         if(isSync)
         {
-            System.out.println("Sync sending message " + new String(msg) );
+//            System.out.println("Sync sending message " + new String(msg) );
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("Sync received SEND ack");
+//            System.out.println("Sync received SEND ack");
             sentCallBack.handleSentMessage(msg , requestTime);
         }
         else {
-            System.out.println("Async sending message " + new String(msg) );
+//            System.out.println("Async sending message " + new String(msg) );
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("Async received SEND ack");
+//            System.out.println("Async received SEND ack");
             sentCallBack.handleSentMessage(msg,requestTime);
         }
         return;
@@ -78,7 +78,7 @@ public class SimpleMS extends MS {
     }
 
     public void close() {
-        System.out.println("close MSclient");
+        System.out.println("close MSClient");
         return;
     }
 }

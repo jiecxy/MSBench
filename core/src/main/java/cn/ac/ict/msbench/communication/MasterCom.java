@@ -1,6 +1,7 @@
 package cn.ac.ict.msbench.communication;
 
 import akka.actor.*;
+import cn.ac.ict.msbench.exporter.Exporter;
 import cn.ac.ict.msbench.stat.StatHeader;
 import cn.ac.ict.msbench.stat.StatTail;
 import cn.ac.ict.msbench.stat.StatWindow;
@@ -9,6 +10,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,14 +25,16 @@ public class MasterCom extends Communication {
     private Map<String, WorkerComInfo> workers = new HashMap<String, WorkerComInfo>();
     private Cancellable checkTimeoutScheduler = null;
 
+    private Exporter exporter = null;
     private ArrayList<String> streams;
     private int writerNum;
     private int readerNum;
     private int runTime;
 
-    public MasterCom(String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
+    public MasterCom(Exporter exporter, String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
         super(masterIP, masterPort);
         this.streams = streams;
+        this.exporter = exporter;
         this.runTime = runTime;
         this.writerNum = writerNum;
         this.readerNum = readerNum;
@@ -106,7 +110,7 @@ public class MasterCom extends Communication {
                         case RESPONSE:
                             System.out.println("\nMETRICS_HEAD = \n" + msg.data + "\n");
                             System.out.print(StatWindow.printHead());
-                            workers.get(msg.from).stat.head = (StatHeader) msg.data;
+                            workers.get(msg.from).insertHeader(exporter, (StatHeader) msg.data);
                             break;
                         default:
                             unhandled(msg);
@@ -117,7 +121,7 @@ public class MasterCom extends Communication {
                     switch (msg.type) {
                         case RESPONSE:
                             System.out.println("\nMETRICS_TAIL = \n" + msg.data + "\n");
-                            workers.get(msg.from).stat.tail = (StatTail) msg.data;
+                            workers.get(msg.from).insertTail(exporter, (StatTail) msg.data);
                             workers.get(msg.from).status = WorkerComInfo.STATUS.DONE;
                             if (checkIfAllDone()) {
                                 sendFinalizeRequest();
@@ -132,7 +136,8 @@ public class MasterCom extends Communication {
                     switch (msg.type) {
                         case RESPONSE:
                             System.out.println("" + msg.data);
-                            workers.get(msg.from).stat.statWindow.add((StatWindow) msg.data);
+                            workers.get(msg.from).insertWindow(exporter, (StatWindow)msg.data);
+
                             break;
                         default:
                             unhandled(msg);
@@ -203,6 +208,12 @@ public class MasterCom extends Communication {
     }
 
     private void stopMaster() {
+        try {
+            exporter.close();
+        } catch (IOException e) {
+            System.err.println("Fail to close data file!");
+            e.printStackTrace();
+        }
         if (checkTimeoutScheduler != null)
             checkTimeoutScheduler.cancel();
         getContext().system().stop(getSelf());
@@ -272,7 +283,7 @@ public class MasterCom extends Communication {
             getSender().tell(cmd, getSelf());
             return false;
         } else {
-            workers.put(request.from, new WorkerComInfo(getSender(), (Job) request.data, System.currentTimeMillis()));
+            workers.put(request.from, new WorkerComInfo(request.from, getSender(), (Job) request.data, System.currentTimeMillis()));
 
             getContext().watch(getSender());
 

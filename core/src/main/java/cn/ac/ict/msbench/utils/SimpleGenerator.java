@@ -2,22 +2,32 @@ package cn.ac.ict.msbench.utils;
 
 import cn.ac.ict.msbench.generator.Generator;
 
+import java.util.Random;
+
 /**
  * Created by krumo on 3/23/17.
  */
 public class SimpleGenerator extends Generator {
-    int MsgSize = -1;
 
-    public SimpleGenerator(int messageSize)
-    {
-        MsgSize=messageSize;
+    int msgSize = -1;
+    byte[] payload = null;
+
+    public SimpleGenerator(int messageSize) {
+        msgSize = messageSize;
+
+        Random random = new Random(0);
+        payload = new byte[msgSize];
+        for (int i = 0; i < payload.length; ++i)
+            payload[i] = (byte) (random.nextInt(26) + 65);
     }
 
     public Object nextValue() {
-        return MsgSize < 1 ? "my message".getBytes() : new byte[MsgSize];
+        return msgSize < 1 ? "default".getBytes() : payload;
     }
 
     public Object lastValue() {
-        return MsgSize < 1 ? "my message".getBytes() : new byte[MsgSize];
+        return msgSize < 1 ? "default".getBytes() : payload;
     }
+
+
 }

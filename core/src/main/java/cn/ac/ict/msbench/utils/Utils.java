@@ -3,10 +3,8 @@ package cn.ac.ict.msbench.utils;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Utility functions.
@@ -14,6 +12,11 @@ import java.util.Random;
 public final class Utils {
   private Utils() {
     // not used
+  }
+
+  public static String getTimeForDirName(long time) {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS");
+      return df.format(new Date(time));
   }
 
   private static final Random RAND = new Random();
