@@ -12,6 +12,8 @@ import cn.ac.ict.msbench.worker.job.Job;
 import cn.ac.ict.msbench.worker.job.ReadJob;
 import org.HdrHistogram.Histogram;
 import org.HdrHistogram.Recorder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -37,11 +39,12 @@ public class ReadWorker extends Worker implements ReadCallBack {
     }
 
     public static void main(String[] args) {
-        ReadWorker wk = new ReadWorker(
+        /*ReadWorker wk = new ReadWorker(
                 new SimpleCallBack(),
                 new SimpleMS("stream-1",false,new Properties(), -1),
                 new ReadJob("SimpleMS", "localhost", 10, 5, "stream-1", 0));
-        wk.run();
+        wk.run();*/
+        log.info("hello");
     }
 
     @Override
@@ -109,4 +112,5 @@ public class ReadWorker extends Worker implements ReadCallBack {
         totalNumMsg++;
         totalNumByte += msg.length;
     }
+    private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
 }
