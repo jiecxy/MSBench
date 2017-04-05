@@ -1,5 +1,7 @@
 package cn.ac.ict.msbench.communication;
 
+import sun.util.resources.cldr.uk.TimeZoneNames_uk;
+
 import java.io.Serializable;
 
 public class Command implements Serializable {
@@ -18,7 +20,7 @@ public class Command implements Serializable {
     public static final int FINALIZE_MS = 11;
 
     public enum TYPE implements Serializable {
-        REQUEST, RESPONSE, UNKNOWN;
+        REQUEST, RESPONSE;
     }
 
     public enum STATUS implements Serializable {
@@ -27,7 +29,7 @@ public class Command implements Serializable {
 
     public String from;  // workerId or master
     public int api = -1;
-    public TYPE type = TYPE.UNKNOWN;
+    public TYPE type = null;
     public STATUS status = STATUS.FAIL;
     public Object data = null;
 //    public int version = -1;

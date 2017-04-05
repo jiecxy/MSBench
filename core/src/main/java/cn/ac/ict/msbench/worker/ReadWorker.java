@@ -47,7 +47,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void run() {
-        System.out.println("worker starting reading");
+        log.info("Worker starting reading");
         startTime = System.nanoTime();
         lastStatTime = startTime;
 
@@ -94,6 +94,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void stopWork() {
+        log.info("Stopping reader thread");
         isRunning = false;
         if (msClient != null)
             msClient.close();

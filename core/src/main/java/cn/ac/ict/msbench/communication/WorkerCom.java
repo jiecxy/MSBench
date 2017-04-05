@@ -12,6 +12,8 @@ import cn.ac.ict.msbench.stat.StatWindow;
 import cn.ac.ict.msbench.worker.job.Job;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 import java.io.File;
@@ -25,10 +27,16 @@ import static cn.ac.ict.msbench.communication.Command.*;
 
 public class WorkerCom extends Communication implements CallBack {
 
-    private String workerID = UUID.randomUUID().toString();
+    private static final Logger log = LoggerFactory.getLogger(WorkerCom.class);
+
+    private final int REGISTRATION_RETRIES = 6;
+    private long lastHeartbeat = 0;
+
+    private String workerID = "Worker";
+    private int connectionAttemptCount = 0;
     private ActorSelection master;
-    private Cancellable registerScheduler;
-    private Cancellable heartbeatScheduler;
+    private Cancellable registerScheduler = null;
+    private Cancellable heartbeatScheduler = null;
     private Worker worker = null;
     private Thread workerThread = null;
     private MSBWorkerStat stat = new MSBWorkerStat();
@@ -49,6 +57,10 @@ public class WorkerCom extends Communication implements CallBack {
         this.job = job;
         this.job.statInterval = STATS_INTERVAL;
         isWriter = job.isWriter;
+        workerID = isWriter ? "Writer" : "Reader";
+        workerID += "-" + UUID.randomUUID().toString();
+        log.debug("Starting Worker Communication with job: " + job);
+        log.info("Started Worker Communication with ID: " + workerID);
     }
 
     public static void main(String[] args) {
@@ -66,13 +78,17 @@ public class WorkerCom extends Communication implements CallBack {
         //system.terminate();
     }
 
+    private String getWorkerLogPrefix() {
+        return "WorkerCom (ID: " + workerID + ") ";
+    }
+
     @Override
     public void preStart() throws Exception {
         super.preStart();
         Command registerCmd = new Command(workerID, REGISTER_WORKER, TYPE.REQUEST);
         registerCmd.data = job;
-        //TODO 改成尝试次数
-        registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(2, TimeUnit.SECONDS),
+        log.info(getWorkerLogPrefix() + "Starting register scheduler...");
+        registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS),
                 getSelf(), registerCmd, getContext().dispatcher(), getSelf());
     }
 
@@ -86,17 +102,28 @@ public class WorkerCom extends Communication implements CallBack {
                     switch (msg.type) {
                         // only from worker
                         case REQUEST:
-                            master.tell(msg, getSelf());
+                            if (connectionAttemptCount < REGISTRATION_RETRIES) {
+                                log.debug(getWorkerLogPrefix() + "Register attempt count: " + connectionAttemptCount);
+                                master.tell(msg, getSelf());
+                                connectionAttemptCount++;
+                            } else {
+                                log.error(getWorkerLogPrefix() + "Register retries timeout! Stopping all...");
+                                stopAll();
+                            }
                             break;
                         case RESPONSE:
                             if (msg.status == Command.STATUS.SUCCESS) {
                                 registerScheduler.cancel();
+                                lastHeartbeat = System.currentTimeMillis();
+                                log.info(getWorkerLogPrefix() + "Register success.");
                                 startHeartBeatScheduler();
                             } else if (msg.status == Command.STATUS.EXISTED) {
                                 registerScheduler.cancel();
-                                System.out.println("WorkerCom already registered");
+                                log.warn(getWorkerLogPrefix() + "Already registered.");
                             } else if (msg.status == Command.STATUS.FAIL) {
-                                System.out.println("WorkerCom register fail");
+                                registerScheduler.cancel();
+                                log.error(getWorkerLogPrefix() + "Registration was refused! Stopping all...");
+                                stopAll();
                             }
                             break;
                         default:
@@ -107,9 +134,19 @@ public class WorkerCom extends Communication implements CallBack {
                 case INITIALIZE_MS:
                     switch (msg.type) {
                         case REQUEST:
-                            //TODO 检查是否成功
-                            ms.initializeMS((ArrayList<String>) msg.data);
-                            master.tell(new Command(workerID, INITIALIZE_MS, TYPE.RESPONSE), getSelf());
+                            Command cmd = new Command(workerID, INITIALIZE_MS, TYPE.RESPONSE);
+                            try {
+                                log.info(getWorkerLogPrefix() + "Initializing MS...");
+                                ms.initializeMS((ArrayList<String>) msg.data);
+                                cmd.status = STATUS.SUCCESS;
+                                master.tell(cmd, getSelf());
+                            } catch (MSException e) {
+                                cmd.status = STATUS.FAIL;
+                                master.tell(cmd, getSelf());
+                                log.error(getWorkerLogPrefix() + "Failed to initialize MS. Stopping all");
+                                e.printStackTrace();
+                                stopAll();
+                            }
                             break;
                         default:
                             unhandled(message);
@@ -119,13 +156,18 @@ public class WorkerCom extends Communication implements CallBack {
                 case FINALIZE_MS:
                     switch (msg.type) {
                         case REQUEST:
-                            //TODO 检查是否成功
+                            Command cmd = new Command(workerID, FINALIZE_MS, TYPE.RESPONSE);
                             try {
+                                log.info(getWorkerLogPrefix() + "Finalizing MS...");
                                 ms.finalizeMS((ArrayList<String>) msg.data);
+                                cmd.status = STATUS.SUCCESS;
+                                master.tell(cmd, getSelf());
                             } catch (MSException e) {
+                                cmd.status = STATUS.FAIL;
+                                master.tell(cmd, getSelf());
+                                log.error(getWorkerLogPrefix() + "Failed to Finalize MS. Stopping all");
                                 e.printStackTrace();
                             }
-                            master.tell(new Command(workerID, FINALIZE_MS, TYPE.RESPONSE), getSelf());
                             break;
                         default:
                             unhandled(message);
@@ -135,8 +177,19 @@ public class WorkerCom extends Communication implements CallBack {
                 case HEARTBEAT:
                     switch (msg.type) {
                         case REQUEST:
-                            msg.data = workerID;
-                            master.tell(msg, getSelf());
+                            long dif = System.currentTimeMillis() - lastHeartbeat;
+                            if (dif < WORKER_TIMEOUT_MS) {
+                                log.debug(getWorkerLogPrefix() + "Sending heartbeat...");
+                                msg.data = workerID;
+                                master.tell(msg, getSelf());
+                            } else {
+                                log.error(getWorkerLogPrefix() + "Heartbeat Timeout with " + dif + " ms!. Stopping client");
+                                stopAll();
+                            }
+                            break;
+                        case RESPONSE:
+                            lastHeartbeat = System.currentTimeMillis();
+                            log.debug(getWorkerLogPrefix() + "Received heartbeat.");
                             break;
                         default:
                             unhandled(message);
@@ -146,6 +199,7 @@ public class WorkerCom extends Communication implements CallBack {
                 case START_WORK:
                     switch (msg.type) {
                         case REQUEST:
+                            log.info(getWorkerLogPrefix() + "Received START_WORK request. Starting to work...");
                             startWorker();
                             break;
                         default:
@@ -156,6 +210,7 @@ public class WorkerCom extends Communication implements CallBack {
                 case STOP_WORK:
                     switch (msg.type) {
                         case REQUEST:
+                            log.info(getWorkerLogPrefix() + "Received STOP_WORK request. Stopping work...");
                             stopWorker();
                             break;
                         default:
@@ -166,6 +221,7 @@ public class WorkerCom extends Communication implements CallBack {
                 case STOP_CLIENT:
                     switch (msg.type) {
                         case REQUEST:
+                            log.info(getWorkerLogPrefix() + "Received STOP_CLIENT request. Stopping client...");
                             stopAll();
                             break;
                         default:
@@ -173,59 +229,19 @@ public class WorkerCom extends Communication implements CallBack {
                             break;
                     }
                     break;
-//                // Only from Worker
-//                case METRICS_WINDOW:
-//                    switch (msg.type) {
-//                        case REQUEST:
-////                            Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE);
-////                            cmd.data = msg.data;
-//                            master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, msg.data), getSelf());
-//                            System.out.println("METRICS_WINDOW " + msg.data);
-//                            break;
-//                        default:
-//                            unhandled(message);
-//                            break;
-//                    }
-//                    break;
-//                // Only from Worker
-//                case METRICS_HEAD:
-//                    switch (msg.type) {
-//                        case REQUEST:
-////                            Command cmd = new Command(workerID, METRICS_HEAD, TYPE.RESPONSE);
-////                            cmd.data = msg.data;
-//                            master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, msg.data), getSelf());
-//                            System.out.println("METRICS_HEAD " + msg.data);
-//                            break;
-//                        default:
-//                            unhandled(message);
-//                            break;
-//                    }
-//                    break;
-//                // Only from Worker
-//                case METRICS_TAIL:
-//                    switch (msg.type) {
-//                        case REQUEST:
-////                            Command cmd = new Command(workerID, METRICS_TAIL, TYPE.RESPONSE);
-////                            cmd.data = msg.data;
-//                            master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, msg.data), getSelf());
-//                            System.out.println("METRICS_TAIL " + msg.data);
-//                            break;
-//                        default:
-//                            unhandled(message);
-//                            break;
-//                    }
-//                    break;
                 default:
                     unhandled(message);
                     break;
             }
         } else {
-            System.out.println("WorkerCom onReceive " + message);
+            log.error(getWorkerLogPrefix() + "Received an unknown message: " + message);
         }
     }
 
+    // every 2s send a heartbeat
     private void startHeartBeatScheduler() {
-        heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(CHECK_TIMEOUT_SEC / 4, TimeUnit.SECONDS),
+        log.info(getWorkerLogPrefix() + "Starting heartbeat scheduler...");
+        heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(WORKER_TIMEOUT_MS / 4, TimeUnit.MILLISECONDS),
                 getSelf(), new Command(workerID, HEARTBEAT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
     }
 
@@ -247,9 +263,10 @@ public class WorkerCom extends Communication implements CallBack {
     private void stopAll() {
         stopWorker();
         try {
-            exporter.close();
+            if (exporter != null)
+                exporter.close();
         } catch (IOException e) {
-            System.err.println("Fail to close data file!");
+            log.error(getWorkerLogPrefix() + "Failed to close data file!");
             e.printStackTrace();
         }
         if (registerScheduler != null)
@@ -258,6 +275,7 @@ public class WorkerCom extends Communication implements CallBack {
             heartbeatScheduler.cancel();
         getContext().system().stop(getSelf());
         getContext().system().terminate();
+        log.info(getWorkerLogPrefix() + "Stopped.");
     }
 
     @Override
@@ -266,39 +284,24 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     public void onSendStatHeader(StatHeader header) {
-//        System.out.println("WorkerCom onSendStatHeader " + header);
-
-//        Command cmd = new Command(workerID, METRICS_HEAD, TYPE.REQUEST);
-//        cmd.data = header;
-//        getSelf().tell(cmd, getSelf());
 
         master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, header), getSelf());
         insertHeader(exporter, header);
-        System.out.println("METRICS_HEAD " + header);
+        log.debug(getWorkerLogPrefix() + "Sending METRICS_HEAD " + header);
     }
 
     public void onSendStatWindow(StatWindow window) {
-//        System.out.println("WorkerCom onSendWindowMetrics " + window);
-
-//        Command cmd = new Command(workerID, METRICS_WINDOW, TYPE.REQUEST);
-//        cmd.data = window;
-//        getSelf().tell(cmd, getSelf());
 
         window.version = insertWindow(exporter, window);
         master.tell(new Command(workerID, METRICS_WINDOW, TYPE.RESPONSE, window), getSelf());
-        System.out.println("METRICS_WINDOW " + window);
+        log.debug(getWorkerLogPrefix() + "Sending METRICS_WINDOW " + window);
     }
 
     public void onSendStatTail(StatTail tail) {
-//        System.out.println("WorkerCom onSendStatTail " + tail);
-
-//        Command cmd = new Command(workerID, METRICS_TAIL, TYPE.REQUEST);
-//        cmd.data = tail;
-//        getSelf().tell(cmd, getSelf());
 
         master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, tail), getSelf());
         insertTail(exporter, tail);
-        System.out.println("METRICS_TAIL " + tail);
+        log.debug(getWorkerLogPrefix() + "Sending METRICS_TAIL " + tail);
     }
 
     private void insertHeader(Exporter exporter, StatHeader header) {

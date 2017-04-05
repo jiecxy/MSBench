@@ -36,8 +36,8 @@
       <module name="kafka-binding" target="1.8" />
       <module name="ms-specific-descriptor" target="1.8" />
       <module name="msbench" target="1.8" />
-      <module name="MSBench" target="1.8" />
       <module name="pulsar-binding" target="1.8" />
+      <module name="root" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -17,6 +17,8 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +34,8 @@ import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
  * Main class for executing MSBench.
  */
 public class MSBClient {
+
+    private static final Logger log = LoggerFactory.getLogger(MSBClient.class);
 
     private MS ms = null;
     private ArgumentParser parser = null;
@@ -67,7 +71,7 @@ public class MSBClient {
      * 2.1 Start Writer
      *   Arguments:
      *    ThroughputStrategy: NoLimitThroughput
-     *      -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10  -tp -1
+     *      -home /Users/jiecxy/Desktop/tmp/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10  -tp -1
      *
      *    ThroughputStrategy: ConstantThroughput
      *      -home /home/ms/msbench -tr 1000 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS -cf ./kafka.config -sname topic0 -ms 10 -tp 1000
@@ -155,10 +159,14 @@ public class MSBClient {
 
                 // Get the ms class
                 try {
-                    String configFilePath = getStringArgOrException(res, CONFIG_FILE);
-                    InputStream propStream = new FileInputStream(configFilePath);
-                    Properties msClientProps = new Properties();
-                    msClientProps.load(propStream);
+                    //TODO 将properties改为可选
+                    String configFilePath = res.getString(CONFIG_FILE);
+                    Properties msClientProps = null;
+                    if (configFilePath != null) {
+                        InputStream propStream = new FileInputStream(configFilePath);
+                        msClientProps = new Properties();
+                        msClientProps.load(propStream);
+                    }
                     ms = MSFactory.newMS(systemClass, isProducer, streamName, msClientProps, res.getInt(READ_FROM));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -225,7 +233,8 @@ public class MSBClient {
                 System.exit(0);
             } else {
 //                parser.handleError(e);
-                System.err.println(e.getMessage());
+                log.error(e.getMessage());
+                log.debug(e.toString());
                 System.exit(1);
             }
         }
@@ -233,60 +242,73 @@ public class MSBClient {
 
     private void startMaster(Exporter exporter, String masterIP, int masterPort, int runTime, ArrayList<String> streams, int writerNum, int readerNum) {
 
-        System.out.println("startMaster:" + "\n"
+        String conf = "akka.actor.provider = remote" + "\n"
+                + "akka.loglevel = ERROR" + "\n"
+                + "akka.log-dead-letters = off" + "\n"
+                + "akka.log-dead-letters-during-shutdown = off" + "\n"
+                + "akka.remote.log-remote-lifecycle-events = off" + "\n"
+                + "akka.remote.netty.tcp.hostname = " + masterIP + "\n"
+                + "akka.remote.netty.tcp.port = " + masterPort + "\n"
+                + "akka.actor.warn-about-java-serializer-usage = off" + "\n";
+        Config akkaConf = ConfigFactory.parseString(conf);
+
+        log.info("Start Master:" + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
                 + "\t" + "runTime" + " = " + runTime + "\n"
                 + "\t" + "streams" + " = " + streams + "\n"
                 + "\t" + "writerNum" + " = " + writerNum + "\n"
-                + "\t" + "readerNum" + " = " + readerNum);
-        //System.exit(1);
+                + "\t" + "readerNum" + " = " + readerNum + "\n"
+                + "\t" + "with Akka Conf: " + akkaConf.toString());
 
-        Properties props = new Properties();
-        props.setProperty("akka.remote.netty.tcp.hostname", masterIP);
-        props.setProperty("akka.remote.netty.tcp.port", masterPort + "");
-        props.setProperty("akka.actor.provider", "remote");
-        props.setProperty("akka.actor.serializers.proto", "akka.remote.serialization.ProtobufSerializer");
-        props.setProperty("akka.actor.warn-about-java-serializer-usage", "off");
-        props.setProperty("akka.remote.log-remote-lifecycle-events", "off");
-        Config akkaConf = ConfigFactory.parseProperties(props);
+//        props.setProperty("akka.actor.serializers.proto", "akka.remote.serialization.ProtobufSerializer");
 
         ActorSystem system = ActorSystem.create("MSBenchMaster", akkaConf);
-        System.out.println("MasterCom start " + masterIP + ":" + masterPort);
-        ActorRef master = system.actorOf(Props.create(MasterCom.class, exporter, masterIP, masterPort, runTime, streams, writerNum, readerNum), "master");
-
-//        System.out.println("MasterCom tell ");
-//        master.tell("MasterCom MESSAGES", master);
+        system.actorOf(Props.create(MasterCom.class, exporter, masterIP, masterPort, runTime, streams, writerNum, readerNum), "master");
         system.awaitTermination();
     }
 
     private void startReader(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
-        System.out.println("startReader:" + "\n"
+
+        int workerPort = 0;
+        String conf = "akka.actor.provider = remote" + "\n"
+                + "akka.loglevel = ERROR" + "\n"
+                + "akka.log-dead-letters = off" + "\n"
+                + "akka.log-dead-letters-during-shutdown = off" + "\n"
+                + "akka.remote.log-remote-lifecycle-events = off" + "\n"
+                + "akka.remote.netty.tcp.hostname = " + workerIP + "\n"
+                + "akka.remote.netty.tcp.port = " + workerPort + "\n"
+                + "akka.actor.warn-about-java-serializer-usage = off" + "\n";
+        Config akkaConf = ConfigFactory.parseString(conf);
+
+        log.info("Start Reader:" + "\n"
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
                 + "\t" + "runTime" + " = " + runTime + "\n"
                 + "\t" + "stream" + " = " + stream + "\n"
                 + "\t" + "from" + " = " + from + "\n"
-                + "\t" + "ms" + " = " + ms);
-        //System.exit(1);
+                + "\t" + "ms" + " = " + ms + "\n"
+                + "\t" + "with Akka Conf: " + akkaConf.toString());
 
-        int workerPort = 0;
-        Properties props = new Properties();
-        props.setProperty("akka.actor.provider", "remote");
-        props.setProperty("akka.remote.netty.tcp.hostname", workerIP);
-        props.setProperty("akka.remote.netty.tcp.port", workerPort + "");
-        props.setProperty("akka.actor.warn-about-java-serializer-usage", "off");
-        Config akkaConf = ConfigFactory.parseProperties(props);
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
-
-        System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from)), "worker");
-//        worker.tell("WorkerCom MESSAGES", worker);
+        system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from)), "worker");
     }
 
     private void startWriter(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
-        System.out.println("startWriter:" + "\n"
+
+        int workerPort = 0;
+        String conf = "akka.actor.provider = remote" + "\n"
+                + "akka.loglevel = ERROR" + "\n"
+                + "akka.log-dead-letters = off" + "\n"
+                + "akka.log-dead-letters-during-shutdown = off" + "\n"
+                + "akka.remote.log-remote-lifecycle-events = off" + "\n"
+                + "akka.remote.netty.tcp.hostname = " + workerIP + "\n"
+                + "akka.remote.netty.tcp.port = " + workerPort + "\n"
+                + "akka.actor.warn-about-java-serializer-usage = off" + "\n";
+        Config akkaConf = ConfigFactory.parseString(conf);
+
+        log.info("StartWriter:" + "\n"
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
@@ -295,21 +317,11 @@ public class MSBClient {
                 + "\t" + "ms" + " = " + ms + "\n"
                 + "\t" + "messageSize" + " = " + messageSize + "\n"
                 + "\t" + "isSync" + " = " + isSync + "\n"
-                + "\t" + "strategy" + " = " + strategy);
-        //System.exit(1);
+                + "\t" + "strategy" + " = " + strategy + "\n"
+                + "\t" + "with Akka Conf: " + akkaConf.toString());
 
-        int workerPort = 0;
-        Properties props = new Properties();
-        props.setProperty("akka.actor.provider", "remote");
-        props.setProperty("akka.remote.netty.tcp.hostname", workerIP);
-        props.setProperty("akka.remote.netty.tcp.port", workerPort + "");
-        props.setProperty("akka.actor.warn-about-java-serializer-usage", "off");
-        Config akkaConf = ConfigFactory.parseProperties(props);
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
-
-        System.out.println("WorkerCom start " + workerIP + ":" + workerPort);
-        ActorRef worker = system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy)), "worker");
-//        worker.tell("WorkerCom MESSAGES", worker);
+        system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy)), "worker");
     }
 
     private ArrayList<String> getStreamNames(int streamNum, String StreamPrefix) {

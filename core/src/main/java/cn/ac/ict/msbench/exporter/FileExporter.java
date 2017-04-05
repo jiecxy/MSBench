@@ -1,8 +1,11 @@
 package cn.ac.ict.msbench.exporter;
 
+import cn.ac.ict.msbench.communication.MasterCom;
 import cn.ac.ict.msbench.communication.WorkerComInfo;
 import cn.ac.ict.msbench.stat.StatWindow;
 import cn.ac.ict.msbench.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.HashMap;
@@ -15,6 +18,8 @@ import static cn.ac.ict.msbench.communication.Command.METRICS_WINDOW;
  * Write human readable text. Tries to emulate the previous print report method.
  */
 public class FileExporter implements Exporter {
+
+    private static final Logger log = LoggerFactory.getLogger(FileExporter.class);
 
     private File parentDir = null;
     private HashMap<String, FileInfo> files = new HashMap<>();
@@ -37,6 +42,7 @@ public class FileExporter implements Exporter {
             parentDir = root;
         }
         parentDir.mkdirs();
+        log.debug("Created data directory: " + parentDir.getAbsolutePath());
     }
 
     public void write(String fileID, int metrics, String msg) {
@@ -52,7 +58,7 @@ public class FileExporter implements Exporter {
             files.get(fileID).bw.write(msg);
             files.get(fileID).bw.newLine();
         } catch (IOException e) {
-            System.err.println("Fail to write data file with data: \n" +  msg + "\n");
+            log.error("Fail to write data file with data: " +  msg);
             e.printStackTrace();
         }
     }

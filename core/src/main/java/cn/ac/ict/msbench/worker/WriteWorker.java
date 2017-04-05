@@ -79,7 +79,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
 
     @Override
     public void run() {
-        System.out.println("worker starting writing");
+        log.info("Worker starting writing");
         startTime = System.nanoTime();
         lastStatTime = startTime;
         cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
@@ -129,6 +129,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
     }
 
     public void stopWork() {
+        log.info("Stopping writer thread");
         isRunning = false;
         if (rateLimiter != null)
             rateLimiter.close();

@@ -11,6 +11,8 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +26,8 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET
  */
 public class KafkaClient extends MS {
 
+    private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
+
     private static final String CONTROLLER_IP = "controller.ip";
     private static final String CONTROLLER_PORT = "controller.port";
     private static final String TOPIC_PARTITIONS = "partition.num";
@@ -36,9 +40,13 @@ public class KafkaClient extends MS {
     private KafkaProducer<byte[], byte[]> producer = null;
     private KafkaConsumer<byte[], byte[]> consumer = null;
 
-    public KafkaClient(String streamName, boolean isProducer, Properties p, int from) {
+    public KafkaClient(String streamName, boolean isProducer, Properties p, int from) throws MSException {
         super(streamName, isProducer, p, from);
 
+        if (p == null) {
+            log.error("Kafka Missing the config file");
+            throw new MSException("Missing the config file");
+        }
 //        System.out.println("Properties: " + p);
 
         controllerIP = (String) p.remove(CONTROLLER_IP);
@@ -67,35 +75,36 @@ public class KafkaClient extends MS {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
-
     @Override
     public void initializeMS(ArrayList<String> streams) throws MSException {
         try {
+            log.info("Creating Topic " + streams);
             createTopics(streams);
         } catch (IOException e) {
             e.printStackTrace();
+            log.error("Creating Topic " + streams + " Failed");
             throw new MSException("Create Topics Failed");
         }
     }
 
     @Override
     public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTime) {
+        log.debug("send message (isSync=" + isSync + "): " + msg);
         if (isSync) {
             try {
-                producer.send(new ProducerRecord<byte[], byte[]>(streamName, null, System.currentTimeMillis(), null, msg)).get();
+
+                producer.send(new ProducerRecord<>(streamName, null, System.currentTimeMillis(), null, msg)).get();
                 sentCallBack.handleSentMessage(msg, requestTime);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Message " + msg + " send fail!");
+                log.error("Failed to send message (isSync=" + isSync + "): " + msg);
             }
         } else {
-            producer.send(new ProducerRecord<byte[], byte[]>(streamName, null, System.currentTimeMillis(), null, msg), new Callback() {
+            producer.send(new ProducerRecord<>(streamName, null, System.currentTimeMillis(), null, msg), new Callback() {
                             public void onCompletion(RecordMetadata metadata, Exception e) {
                                 if(e != null) {
                                     e.printStackTrace();
+                                    log.error("Failed to send message (isSync=" + isSync + "): " + msg);
                                 } else {
                                     sentCallBack.handleSentMessage(msg, requestTime);
                                 }
@@ -106,6 +115,7 @@ public class KafkaClient extends MS {
     //TODO 配置读的位置，提交offset
     @Override
     public void read(ReadCallBack readCallBack, long requestTime) {
+        log.debug("read messages by poll");
         ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
         for (ConsumerRecord<byte[], byte[]> record : records) {
             readCallBack.handleReceivedMessage(record.value().toString().getBytes(), requestTime);
@@ -115,9 +125,11 @@ public class KafkaClient extends MS {
     @Override
     public void finalizeMS(ArrayList<String> streams) throws MSException {
         try {
+            log.info("Deleting Topic " + streams);
             deleteTopics(streams);
         } catch (IOException e) {
             e.printStackTrace();
+            log.error("Deleting Topic " + streams + " Failed");
             throw new MSException("Delete Topics Failed");
         }
     }

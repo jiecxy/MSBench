@@ -8,6 +8,8 @@ import cn.ac.ict.msbench.stat.StatWindow;
 import cn.ac.ict.msbench.worker.job.Job;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
@@ -20,6 +22,13 @@ import java.util.concurrent.TimeUnit;
 import static cn.ac.ict.msbench.communication.Command.*;
 
 public class MasterCom extends Communication {
+
+    private static final Logger log = LoggerFactory.getLogger(MasterCom.class);
+
+    private final int WAIT_REGISTRATION_TIMEOUT_MS = 20*1000;
+    private final int CHECK_WORKER_TIMEOUT_INTERVAL_MS = WORKER_TIMEOUT_MS/4;
+
+    private long startTime = -1;
 
     private final String masterID = "master";
     private Map<String, WorkerComInfo> workers = new HashMap<String, WorkerComInfo>();
@@ -38,6 +47,7 @@ public class MasterCom extends Communication {
         this.runTime = runTime;
         this.writerNum = writerNum;
         this.readerNum = readerNum;
+        log.info("Started Master.");
     }
 
     public static void main(String[] args) {
@@ -61,13 +71,19 @@ public class MasterCom extends Communication {
     @Override
     public void preStart() throws Exception {
         super.preStart();
-        checkTimeoutScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.SECONDS), Duration.create(CHECK_TIMEOUT_SEC, TimeUnit.SECONDS),
+        log.info(getMasterLogPrefix() + "Starting check timeout scheduler...");
+        startTime = System.currentTimeMillis();
+        checkTimeoutScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(CHECK_WORKER_TIMEOUT_INTERVAL_MS, TimeUnit.MILLISECONDS),
                 getSelf(), new Command(masterID, CHECK_TIMEOUT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
     }
 
     @Override
     public void postStop() throws Exception {
         super.postStop();
+    }
+
+    private String getMasterLogPrefix() {
+        return "Master: " ;
     }
 
     public void onReceive(Object message) throws Throwable {
@@ -77,12 +93,13 @@ public class MasterCom extends Communication {
             switch (msg.api) {
                 case REGISTER_WORKER:
                     if (msg.type == TYPE.REQUEST) {
-                        if (registerWorker(msg)) {
+                        if (registerWorker(msg, getSender())) {
                             if (checkWorkersReady()) {
+                                log.info(getMasterLogPrefix() + "Sending Initialize request...");
                                 sendInitializeRequest();
                             }
                         } else {
-                            System.out.println("register fail");
+                            log.error(getMasterLogPrefix() + "Worker with ID :" + msg.from + " register failed!");
                         }
                     } else {
                         unhandled(msg);
@@ -90,8 +107,12 @@ public class MasterCom extends Communication {
                     break;
                 case INITIALIZE_MS:
                     if (msg.type == TYPE.RESPONSE) {
-                        if (checkWorkersReady()) {
+                        if (msg.status == STATUS.SUCCESS) {
+                            log.info(getMasterLogPrefix() + "Initialization Success. Sending StartWorker request...");
                             sendStartWorkerRequest();
+                        } else {
+                            log.error(getMasterLogPrefix() + "Failed to initialize MS. Stopping all workers...");
+                            stopAllLiveClients();
                         }
                     } else {
                         unhandled(msg);
@@ -99,7 +120,9 @@ public class MasterCom extends Communication {
                     break;
                 case FINALIZE_MS:
                     if (msg.type == TYPE.RESPONSE) {
-                        //TODO
+                        if (msg.status == STATUS.FAIL) {
+                            log.error(getMasterLogPrefix() + "Failed to finalize MS. Stopping all workers...");
+                        }
                         stopAllLiveClients();
                     } else {
                         unhandled(msg);
@@ -108,8 +131,8 @@ public class MasterCom extends Communication {
                 case METRICS_HEAD:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("\nMETRICS_HEAD = \n" + msg.data + "\n");
-                            System.out.print(StatWindow.printHead());
+                            log.debug(getMasterLogPrefix() + "Received METRICS_HEAD from worker (" + msg.from + "): " +  msg.data);
+//                            System.out.print(StatWindow.printHead());
                             workers.get(msg.from).insertHeader(exporter, (StatHeader) msg.data);
                             break;
                         default:
@@ -120,10 +143,11 @@ public class MasterCom extends Communication {
                 case METRICS_TAIL:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("\nMETRICS_TAIL = \n" + msg.data + "\n");
+                            log.debug(getMasterLogPrefix() + "Received METRICS_TAIL from worker (" + msg.from + "): " +  msg.data);
                             workers.get(msg.from).insertTail(exporter, (StatTail) msg.data);
                             workers.get(msg.from).status = WorkerComInfo.STATUS.DONE;
                             if (checkIfAllDone()) {
+                                log.info(getMasterLogPrefix() + "Sending FINALIZE_MS request...");
                                 sendFinalizeRequest();
                             }
                             break;
@@ -135,9 +159,8 @@ public class MasterCom extends Communication {
                 case METRICS_WINDOW:
                     switch (msg.type) {
                         case RESPONSE:
-                            System.out.println("" + msg.data);
+                            log.debug(getMasterLogPrefix() + "Received METRICS_WINDOW from worker (" + msg.from + "): " +  msg.data);
                             workers.get(msg.from).insertWindow(exporter, (StatWindow)msg.data);
-
                             break;
                         default:
                             unhandled(msg);
@@ -156,8 +179,10 @@ public class MasterCom extends Communication {
                     break;
                 case HEARTBEAT:
                     switch (msg.type) {
-                        case RESPONSE:
+                        case REQUEST:
+                            log.debug(getMasterLogPrefix() + "Received HEARTBEAT from worker (" + msg.from + "): ");
                             workers.get(msg.data).lastHeartbeat = System.currentTimeMillis();
+                            getSender().tell(new Command(masterID, HEARTBEAT, TYPE.RESPONSE), getSelf());
                             break;
                         default:
                             unhandled(msg);
@@ -169,23 +194,24 @@ public class MasterCom extends Communication {
                     break;
             }
         } else if (message instanceof Terminated) {
-            Terminated t = (Terminated)message;
-            System.out.println("Terminated " + t.actor());
+            Terminated t = (Terminated) message;
             for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
                 if (entry.getValue().ref.equals(t.getActor())) {
                     if (entry.getValue().status == WorkerComInfo.STATUS.RUNNING) {
-
-                        System.out.println("Worker " + entry.getValue().ref + "down accidentally, closing all workers...");
+                        log.error(getMasterLogPrefix() + "Worker (ID: " + entry.getValue().workerID + ") down accidentally, closing all workers...");
                         stopAllLiveClients();
+                    } else {
+                        log.info(getMasterLogPrefix() + "Worker (ID: " + entry.getValue().workerID + ") Terminated.");
                     }
                     entry.getValue().status = WorkerComInfo.STATUS.TERMINATED;
                 }
             }
             if (checkIfAllDead()) {
+                log.info(getMasterLogPrefix() + "All Workers are dead. Stoping master...");
                 stopMaster();
             }
         } else {
-            System.out.println("MasterCom onReceive " + message);
+            log.error(getMasterLogPrefix() + "Received unknown message: " + message);
         }
     }
 
@@ -211,13 +237,14 @@ public class MasterCom extends Communication {
         try {
             exporter.close();
         } catch (IOException e) {
-            System.err.println("Fail to close data file!");
+            log.error(getMasterLogPrefix() + "Fail to close data file!");
             e.printStackTrace();
         }
         if (checkTimeoutScheduler != null)
             checkTimeoutScheduler.cancel();
         getContext().system().stop(getSelf());
         getContext().system().terminate();
+        log.info(getMasterLogPrefix() + "Master Stopped.");
     }
 
     private boolean checkIfAllDead() {
@@ -231,7 +258,6 @@ public class MasterCom extends Communication {
         return !workers.isEmpty() && count == workers.size();
     }
 
-    // TODO 打印数据还是什么？
     private boolean checkIfAllDone() {
         int count = 0;
         for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
@@ -244,15 +270,28 @@ public class MasterCom extends Communication {
 
     private void checkTimeoutWorker() {
         long now = System.currentTimeMillis();
-        for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
-            if (entry.getValue().status == WorkerComInfo.STATUS.TERMINATED
-                    || entry.getValue().status == WorkerComInfo.STATUS.TIMEOUT) {
+        if (checkWorkersReady()) {
+            for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
+                if (entry.getValue().status == WorkerComInfo.STATUS.TERMINATED
+                        || entry.getValue().status == WorkerComInfo.STATUS.TIMEOUT) {
 
-            } else {
-                if (now - entry.getValue().lastHeartbeat > CHECK_TIMEOUT_SEC*1000) {
-                    entry.getValue().status = WorkerComInfo.STATUS.TIMEOUT;
-                    //TODO 有worker超时，目前先关闭所有
-                    System.out.println("Some Worker Timeout, closing all clients");
+                } else {
+                    long dif = now - entry.getValue().lastHeartbeat;
+                    if (dif >= WORKER_TIMEOUT_MS) {
+                        entry.getValue().status = WorkerComInfo.STATUS.TIMEOUT;
+                        log.error(getMasterLogPrefix() + "Worker (ID: " + entry.getValue().workerID + ") Timeout " + dif + " ms, closing all clients");
+                        stopAllLiveClients();
+                    }
+                }
+            }
+        } else {
+            long dif = System.currentTimeMillis() - startTime;
+            if (dif >=  WAIT_REGISTRATION_TIMEOUT_MS) {
+                log.error(getMasterLogPrefix() + "Waiting required workers' registration Timeout " + dif + " ms, closing all clients and master");
+                int[] num = getAvailableWorkerNum();
+                if (num[0] + num[1] == 0) {
+                    stopMaster();
+                } else {
                     stopAllLiveClients();
                 }
             }
@@ -275,28 +314,43 @@ public class MasterCom extends Communication {
         }
     }
 
-    private boolean registerWorker(Command request) {
-        //TODO 判断启动多了的情况
+    private boolean registerWorker(Command request, ActorRef sender) {
+        int[] num = getAvailableWorkerNum();
+        if (((Job)request.data).isWriter) {
+            if (num[0] >= writerNum) {
+                Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
+                cmd.status = STATUS.FAIL;
+                sender.tell(cmd, getSelf());
+                log.warn(getMasterLogPrefix() + "Refused registration from writer " + request.from + ", Because there are enough writer.");
+                return false;
+            }
+        } else {
+            if (num[0] >= readerNum) {
+                Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
+                cmd.status = STATUS.FAIL;
+                sender.tell(cmd, getSelf());
+                log.warn(getMasterLogPrefix() + "Refused registration from reader " + request.from + ", Because there are enough reader.");
+                return false;
+            }
+        }
+
         if (workers.containsKey(request.from)) {
             Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.EXISTED;
-            getSender().tell(cmd, getSelf());
+            sender.tell(cmd, getSelf());
             return false;
         } else {
-            workers.put(request.from, new WorkerComInfo(request.from, getSender(), (Job) request.data, System.currentTimeMillis()));
-
-            getContext().watch(getSender());
-
-            System.out.println("Worker registered with ID: " + request.from + " and  " + request.data);
-
+            workers.put(request.from, new WorkerComInfo(request.from, sender, (Job) request.data, System.currentTimeMillis()));
+            getContext().watch(sender);
+            log.info(getMasterLogPrefix() + "Worker registered with ID: " + request.from + " and  Job: " + request.data);
             Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
             cmd.status = STATUS.SUCCESS;
-            getSender().tell(cmd, getSelf());
+            sender().tell(cmd, getSelf());
             return true;
         }
     }
 
-    private boolean checkWorkersReady() {
+    private int[] getAvailableWorkerNum() {
         int writerCount = 0, readerCount = 0;
         for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
             if (entry.getValue().status == WorkerComInfo.STATUS.RUNNING) {
@@ -307,7 +361,21 @@ public class MasterCom extends Communication {
                 }
             }
         }
-        //TODO 判断超过数量的情况
-        return writerCount == writerNum && readerCount == readerNum;
+        return new int[] {writerCount, readerCount};
+    }
+
+    private boolean checkWorkersReady() {
+        int[] num = getAvailableWorkerNum();
+        if (num[0] > writerNum) {
+            log.error(getMasterLogPrefix() + "Available Worker writer number is greater than required number " + writerNum + "! Stopping all...");
+            stopAllLiveClients();
+            return false;
+        }
+        if (num[1] > readerNum) {
+            log.error(getMasterLogPrefix() + "Available Worker reader number is greater than required number " + readerNum + "! Stopping all...");
+            stopAllLiveClients();
+            return false;
+        }
+        return num[0] == writerNum && num[1] == readerNum;
     }
 }

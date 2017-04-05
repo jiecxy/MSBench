@@ -2,23 +2,28 @@ package cn.ac.ict.msbench.utils;
 
 import cn.ac.ict.msbench.MS;
 import cn.ac.ict.msbench.exception.MSException;
+import cn.ac.ict.msbench.exporter.FileExporter;
 import cn.ac.ict.msbench.worker.callback.ReadCallBack;
 import cn.ac.ict.msbench.worker.callback.WriteCallBack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
 public class SimpleMS extends MS {
 
+    private static final Logger log = LoggerFactory.getLogger(SimpleMS.class);
+
     public SimpleMS(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
         if (isProducer) {
-            System.out.println("create a writer");
+            log.info("create a writer");
         } else {
             if (from == 0)
-                System.out.println("create a reader reading from the begining");
+                log.info("create a reader reading from the begining");
             else
-                System.out.println("create a reader reading from the ending");
+                log.info("create a reader reading from the ending");
         }
     }
 
@@ -28,7 +33,7 @@ public class SimpleMS extends MS {
         for (String stream : streams) {
             str += stream + ",";
         }
-        System.out.println("create streams: " + str.substring(0, str.length() - 1));
+        log.info("create streams: " + str.substring(0, str.length() - 1));
     }
 
     @Override
@@ -37,7 +42,7 @@ public class SimpleMS extends MS {
         for (String stream : streams) {
             str += stream + ",";
         }
-        System.out.println("delete streams" + str.substring(0, str.length() - 1));
+        log.info("delete streams" + str.substring(0, str.length() - 1));
     }
 
     @Override

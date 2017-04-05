@@ -21,10 +21,6 @@ public abstract class MS {
      */
     private Properties properties = null;
 
-    public void setProducer(boolean producer) {
-        isProducer = producer;
-    }
-
     /**
      * Get the set of properties for this MSCLient.
      */
@@ -37,7 +33,6 @@ public abstract class MS {
         this.isProducer = isProducer;
         this.properties = p;
         this.from = from;
-
     }
 
     /**

@@ -56,8 +56,6 @@ public class WorkerComInfo {
 //        return true;
     }
 
-
-
     public void insertTail(Exporter exporter, StatTail tail) {
         stat.tail = tail;
         if (exporter != null) {
