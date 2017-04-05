@@ -15,7 +15,7 @@
 
 # symlink and absolute path should rely on MSBENCH_HOME to resolve
 if [ -z "${MSBENCH_HOME}" ]; then
-  export MSBENCH_HOME="$(cd "`dirname "$0"`"/..; pwd)"
+    export MSBENCH_HOME="$(cd "`dirname "$0"`"/..; pwd)"
 fi
 
 export MSBENCH_CONF_DIR="${MSBENCH_CONF_DIR:-"${MSBENCH_HOME}/conf"}"
@@ -25,8 +25,8 @@ echo "get binding info: grep ^$SYS: $MSBENCH_HOME/bin/bindings.properties -m 1"
 BINDING_LINE=$(grep "^$SYS:" "$MSBENCH_HOME/bin/bindings.properties" -m 1)
 
 if [ -z "$BINDING_LINE" ] ; then
-  echo "[ERROR] The specified binding '$2' was not found.  Exiting."
-  exit 1;
+    echo "[ERROR] The specified binding '$2' was not found.  Exiting."
+    exit 1;
 fi
 
 # Get binding name and class
@@ -41,40 +41,40 @@ echo "Binding dir is $BINDING_DIR"
 
 # The 'basic' binding is core functionality
 if [ "$BINDING_NAME" = "basic" ] ; then
-  BINDING_DIR=core
+    BINDING_DIR=core
 fi
 
 
 # Add Top level conf to classpath
 if [ -z "$CLASSPATH" ] ; then
-  CLASSPATH="$MSBENCH_HOME/conf"
+    CLASSPATH="$MSBENCH_HOME/conf"
 else
-  CLASSPATH="$CLASSPATH:$MSBENCH_HOME/conf"
+    CLASSPATH="$CLASSPATH:$MSBENCH_HOME/conf"
 fi
 # Core libraries
 for f in "$MSBENCH_HOME"/lib/*.jar ; do
 if [ -r "$f" ] ; then
-  CLASSPATH="$CLASSPATH:$f"
+    CLASSPATH="$CLASSPATH:$f"
 fi
 done
 
 # Core libraries in core module
 for f in "$MSBENCH_HOME"/core/lib/*.jar ; do
-if [ -r "$f" ] ; then
-  CLASSPATH="$CLASSPATH:$f"
-fi
+    if [ -r "$f" ] ; then
+        CLASSPATH="$CLASSPATH:$f"
+    fi
 done
 
 # Database conf dir
 if [ -r "$MSBENCH_HOME"/"$BINDING_DIR"-binding/conf ] ; then
-CLASSPATH="$CLASSPATH:$MSBENCH_HOME/$BINDING_DIR/conf"
+    CLASSPATH="$CLASSPATH:$MSBENCH_HOME/$BINDING_DIR/conf"
 fi
 
 # Database libraries
 for f in "$MSBENCH_HOME"/"$BINDING_DIR"-binding/lib/*.jar ; do
-if [ -r "$f" ] ; then
-  CLASSPATH="$CLASSPATH:$f"
-fi
+    if [ -r "$f" ] ; then
+        CLASSPATH="$CLASSPATH:$f"
+    fi
 done
 
 #echo "the class path is $CLASSPATH"
@@ -83,5 +83,4 @@ export BINDING_NAME
 export BINDING_CLASS
 export BINDING_DIR
 export CLASSPATH
-
 
