@@ -79,10 +79,9 @@ public class WriteWorker extends Worker implements WriteCallBack {
 
     @Override
     public void run() {
-
+        System.out.println("worker starting writing");
         startTime = System.nanoTime();
         lastStatTime = startTime;
-
         cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
 
         while (isRunning) {
@@ -110,6 +109,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 rateLimiter.getLimiter().acquire();
 
             requestTime = System.nanoTime();
+            //System.out.println("worker start sending a msg");
             msClient.send(job.isSync, (byte[]) generator.nextValue(), this, requestTime);
 
         }

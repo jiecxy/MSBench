@@ -12,36 +12,37 @@ public class SimpleMS extends MS {
 
     public SimpleMS(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
-        if (from == 0)
-            System.out.println("create a reader reading from the begining");
-        else
-            System.out.println("create a reader reading from the ending");
+        if (isProducer) {
+            System.out.println("create a writer");
+        } else {
+            if (from == 0)
+                System.out.println("create a reader reading from the begining");
+            else
+                System.out.println("create a reader reading from the ending");
+        }
     }
 
     @Override
     public void initializeMS(ArrayList<String> streams) throws MSException {
-        String str="";
-        for (String stream : streams)
-        {
-            str+=stream+",";
+        String str = "";
+        for (String stream : streams) {
+            str += stream + ",";
         }
-        System.out.println("create streams: "+str.substring(0,str.length()-1));
+        System.out.println("create streams: " + str.substring(0, str.length() - 1));
     }
 
     @Override
     public void finalizeMS(ArrayList<String> streams) throws MSException {
-        String str="";
-        for (String stream : streams)
-        {
-            str+=stream+",";
+        String str = "";
+        for (String stream : streams) {
+            str += stream + ",";
         }
-        System.out.println("delete streams"+str.substring(0,str.length()-1));
+        System.out.println("delete streams" + str.substring(0, str.length() - 1));
     }
 
     @Override
     public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime) {
-        if(isSync)
-        {
+        if (isSync) {
 //            System.out.println("Sync sending message " + new String(msg) );
             try {
                 Thread.sleep(100);
@@ -49,9 +50,8 @@ public class SimpleMS extends MS {
                 e.printStackTrace();
             }
 //            System.out.println("Sync received SEND ack");
-            sentCallBack.handleSentMessage(msg , requestTime);
-        }
-        else {
+            sentCallBack.handleSentMessage(msg, requestTime);
+        } else {
 //            System.out.println("Async sending message " + new String(msg) );
             try {
                 Thread.sleep(100);
@@ -59,7 +59,7 @@ public class SimpleMS extends MS {
                 e.printStackTrace();
             }
 //            System.out.println("Async received SEND ack");
-            sentCallBack.handleSentMessage(msg,requestTime);
+            sentCallBack.handleSentMessage(msg, requestTime);
         }
         return;
     }
@@ -73,7 +73,7 @@ public class SimpleMS extends MS {
             e.printStackTrace();
         }
         //System.out.println("received SEND ack");
-        readCallBack.handleReceivedMessage("my-message".getBytes(),requestTime);
+        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTime);
         return;
     }
 

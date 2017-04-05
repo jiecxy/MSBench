@@ -47,7 +47,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void run() {
-
+        System.out.println("worker starting reading");
         startTime = System.nanoTime();
         lastStatTime = startTime;
 
@@ -77,6 +77,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             }
 
             requestTime = System.nanoTime();
+            //System.out.println("worker start reading a msg");
             msClient.read(this, requestTime);
         }
 
