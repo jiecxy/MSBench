@@ -9,14 +9,14 @@ public class ReadJob extends Job implements Serializable {
 
     public int from;
 
-    public ReadJob(String system, String host, int runTime, String streamName, int from) {
-        super(system, host, runTime, streamName);
+    public ReadJob(String system, String host, int runTime, String streamName, int from, long delayStartSec) {
+        super(system, host, runTime, streamName, delayStartSec);
         this.from = from;
         isWriter = false;
     }
 
-    public ReadJob(String system, String host, int runTime, int statInterval, String streamName, int from) {
-        super(system, host, runTime, streamName);
+    public ReadJob(String system, String host, int runTime, int statInterval, String streamName, int from, long delayStartSec) {
+        super(system, host, runTime, streamName, delayStartSec);
         super.statInterval = statInterval;
         this.from = from;
         isWriter = false;
@@ -31,6 +31,7 @@ public class ReadJob extends Job implements Serializable {
                 ", statInterval=" + statInterval +
                 ", streamName='" + streamName + '\'' +
                 ", isWriter=" + isWriter +
+                ", delayStartSec=" + delayStartSec +
                 ", from=" + from +
                 '}';
     }

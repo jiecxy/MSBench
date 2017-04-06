@@ -95,8 +95,13 @@ public class MasterCom extends Communication {
                     if (msg.type == TYPE.REQUEST) {
                         if (registerWorker(msg, getSender())) {
                             if (checkWorkersReady()) {
-                                log.info(getMasterLogPrefix() + "Sending Initialize request...");
-                                sendInitializeRequest();
+                                if (NEED_INITIALIZE_MS) {
+                                    log.info(getMasterLogPrefix() + "Sending Initialize request...");
+                                    sendInitializeRequest();
+                                } else {
+                                    log.info(getMasterLogPrefix() + "INITIALIZE_MS is disabled. Sending StartWorker request...");
+                                    sendStartWorkerRequest();
+                                }
                             }
                         } else {
                             log.error(getMasterLogPrefix() + "Worker with ID :" + msg.from + " register failed!");
@@ -147,8 +152,13 @@ public class MasterCom extends Communication {
                             workers.get(msg.from).insertTail(exporter, (StatTail) msg.data);
                             workers.get(msg.from).status = WorkerComInfo.STATUS.DONE;
                             if (checkIfAllDone()) {
-                                log.info(getMasterLogPrefix() + "Sending FINALIZE_MS request...");
-                                sendFinalizeRequest();
+                                if (NEED_FINALIZE_MS) {
+                                    log.info(getMasterLogPrefix() + "Sending FINALIZE_MS request...");
+                                    sendFinalizeRequest();
+                                } else {
+                                    log.info(getMasterLogPrefix() + "INITIALIZE_MS is disabled. Stopping all clients...");
+                                    stopAllLiveClients();
+                                }
                             }
                             break;
                         default:

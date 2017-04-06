@@ -60,6 +60,8 @@ public class Constants {
     // For worker process
     public static final String WORKER_ADDRESS = "W";
     public static final String WORKER_ADDRESS_DOC = "The ip of worker.";
+    public static final String WORKER_DELAY = "d";
+    public static final String WORKER_DELAY_DOC = "The time for worker delay start.";
     //    For Writer
     public static final String WRITER_NUM = "w";
     public static final String WRITER_NUM_DOC = "The number of writer.";

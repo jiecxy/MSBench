@@ -47,6 +47,15 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     @Override
     public void run() {
+
+        try {
+            log.info("Worker delay start with " + job.delayStartSec +  " s.");
+            Thread.sleep(job.delayStartSec * 1000);
+        } catch (InterruptedException e) {
+            log.error("Worker delay start got Exception " + e);
+            e.printStackTrace();
+        }
+
         log.info("Worker starting reading");
         startTime = System.nanoTime();
         lastStatTime = startTime;

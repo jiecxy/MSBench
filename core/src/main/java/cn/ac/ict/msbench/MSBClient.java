@@ -156,6 +156,8 @@ public class MSBClient {
 
                 String systemClass = getStringArgOrException(res, SYSTEM);
                 String streamName = getStringArgOrException(res, STREAM_NAME);
+                Integer delaySec = res.getInt(WORKER_DELAY);
+                delaySec = delaySec == null ? 0 : delaySec;
 
                 // Get the ms class
                 try {
@@ -176,7 +178,7 @@ public class MSBClient {
                 if (!isProducer) {
 
                     int from = getIntArgOrException(res, READ_FROM);
-                    startReader(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, from, ms, systemClass);
+                    startReader(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, from, ms, systemClass, delaySec);
                 } else {
 
                     int messageSize = getIntArgOrException(res, MESSAGE_SIZE);
@@ -203,7 +205,7 @@ public class MSBClient {
                         }
                         int ctps = getIntArgOrException(res, CHANGE_THROUGHPUT_SECONDS);
                         startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
-                                new GivenRandomChangeThroughputList(list, ctps));
+                                new GivenRandomChangeThroughputList(list, ctps), delaySec);
                     } else {
                         Integer ftp = res.getInt(FINAL_THROUGHPUT);
                         Integer ctp = res.getInt(CHANGE_THROUGHPUT);
@@ -211,17 +213,17 @@ public class MSBClient {
                         if (ftp != null || ctp != null || ctps != null) {
                             if (ftp != null && ctp != null && ctps != null) { // GradualChangeThroughput
                                 startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
-                                        new GradualChangeThroughput(tp, ftp, ctp, ctps));
+                                        new GradualChangeThroughput(tp, ftp, ctp, ctps), delaySec);
                             } else {
                                 throw new ArgumentParserException("GradualChangeThroughput Mode: Require tp ftp ctp ctps!", parser);
                             }
                         } else {
                             if (tp == -1) { // NoLimitThroughput
                                 startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
-                                        new NoLimitThroughput());
+                                        new NoLimitThroughput(), delaySec);
                             } else { // ConstantThroughput
                                 startWriter(new FileExporter(workerDir, false), workerIP, masterIP, masterPort, runTime, streamName, ms, systemClass, messageSize, isSync,
-                                        new ConstantThroughput(tp));
+                                        new ConstantThroughput(tp), delaySec);
                             }
                         }
                     }
@@ -268,7 +270,7 @@ public class MSBClient {
         system.awaitTermination();
     }
 
-    private void startReader(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName) {
+    private void startReader(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, int from, MS ms, String systemName, long delayStartSec) {
 
         int workerPort = 0;
         String conf = "akka.actor.provider = remote" + "\n"
@@ -292,10 +294,10 @@ public class MSBClient {
                 + "\t" + "with Akka Conf: " + akkaConf.toString());
 
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
-        system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from)), "worker");
+        system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new ReadJob(systemName, workerIP, runTime, stream, from, delayStartSec)), "worker");
     }
 
-    private void startWriter(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
+    private void startWriter(Exporter exporter, String workerIP, String masterIP, int masterPort, int runTime, String stream, MS ms, String systemName, int messageSize, boolean isSync, ThroughputStrategy strategy, long delayStartSec) {
 
         int workerPort = 0;
         String conf = "akka.actor.provider = remote" + "\n"
@@ -321,7 +323,7 @@ public class MSBClient {
                 + "\t" + "with Akka Conf: " + akkaConf.toString());
 
         ActorSystem system = ActorSystem.create("MSBenchWorker", akkaConf);
-        system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy)), "worker");
+        system.actorOf(Props.create(WorkerCom.class, exporter, masterIP, masterPort, ms, new WriteJob(systemName, workerIP, runTime, stream, messageSize, isSync, strategy, delayStartSec)), "worker");
     }
 
     private ArrayList<String> getStreamNames(int streamNum, String StreamPrefix) {
@@ -367,6 +369,7 @@ public class MSBClient {
 
         // For worker process
         parser.addArgument(CONFIG_PRE + WORKER_ADDRESS).action(store()).required(false).type(String.class).metavar(WORKER_ADDRESS.toUpperCase()).help(WORKER_ADDRESS_DOC);
+        parser.addArgument(CONFIG_PRE + WORKER_DELAY).action(store()).required(false).type(Integer.class).metavar(WORKER_DELAY.toUpperCase()).help(WORKER_DELAY_DOC);
         parser.addArgument(CONFIG_PRE + SYSTEM).action(store()).required(false).type(String.class).metavar(SYSTEM.toUpperCase()).help(SYSTEM_DOC);
         parser.addArgument(CONFIG_PRE + CONFIG_FILE).action(store()).required(false).type(String.class).metavar(CONFIG_FILE.toUpperCase()).help(CONFIG_FILE_DOC);
         //    For Writer

@@ -16,8 +16,8 @@ public class WriteJob extends Job implements Serializable {
     public ThroughputStrategy strategy;
     transient public Generator generator;
 
-    public WriteJob(String system, String host, int runTime, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
-        super(system, host, runTime, streamName);
+    public WriteJob(String system, String host, int runTime, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy, long delayStartSec) {
+        super(system, host, runTime, streamName, delayStartSec);
         this.messageSize = messageSize;
         this.isSync = isSync;
         this.strategy = strategy;
@@ -27,8 +27,8 @@ public class WriteJob extends Job implements Serializable {
         }
     }
 
-    public WriteJob(String system, String host, int runTime, int statInterval, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy) {
-        super(system, host, runTime, streamName);
+    public WriteJob(String system, String host, int runTime, int statInterval, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy, long delayStartSec) {
+        super(system, host, runTime, streamName, delayStartSec);
         super.statInterval = statInterval;
         this.messageSize = messageSize;
         this.isSync = isSync;
@@ -47,6 +47,7 @@ public class WriteJob extends Job implements Serializable {
                 ", runTime=" + runTime +
                 ", statInterval=" + statInterval +
                 ", streamName='" + streamName + '\'' +
+                ", delayStartSec=" + delayStartSec  +
                 ", isWriter=" + isWriter +
                 ", messageSize=" + messageSize +
                 ", isSync=" + isSync +

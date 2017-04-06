@@ -82,6 +82,10 @@ public class WorkerCom extends Communication implements CallBack {
         return "WorkerCom (ID: " + workerID + ") ";
     }
 
+    /***
+     * start the thread to attempt to register
+     * @throws Exception
+     */
     @Override
     public void preStart() throws Exception {
         super.preStart();
@@ -239,6 +243,10 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     // every 2s send a heartbeat
+
+    /***
+     * start the thread to send heatbeat to master
+     */
     private void startHeartBeatScheduler() {
         log.info(getWorkerLogPrefix() + "Starting heartbeat scheduler...");
         heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(WORKER_TIMEOUT_MS / 4, TimeUnit.MILLISECONDS),
@@ -246,6 +254,7 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     private void startWorker() {
+
         if (isWriter) {
             worker = new WriteWorker(this, ms, job);
         } else {
@@ -283,6 +292,10 @@ public class WorkerCom extends Communication implements CallBack {
         super.postStop();
     }
 
+    /***
+     * Callback method, to send header data
+     * @param header
+     */
     public void onSendStatHeader(StatHeader header) {
 
         master.tell(new Command(workerID, METRICS_HEAD, TYPE.RESPONSE, header), getSelf());
@@ -290,6 +303,10 @@ public class WorkerCom extends Communication implements CallBack {
         log.debug(getWorkerLogPrefix() + "Sending METRICS_HEAD " + header);
     }
 
+    /**
+     * Callback method, to send window data
+     * @param window
+     */
     public void onSendStatWindow(StatWindow window) {
 
         window.version = insertWindow(exporter, window);
@@ -297,6 +314,10 @@ public class WorkerCom extends Communication implements CallBack {
         log.debug(getWorkerLogPrefix() + "Sending METRICS_WINDOW " + window);
     }
 
+    /***
+     * Callback method, to send tail data
+     * @param tail
+     */
     public void onSendStatTail(StatTail tail) {
 
         master.tell(new Command(workerID, METRICS_TAIL, TYPE.RESPONSE, tail), getSelf());

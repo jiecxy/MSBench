@@ -55,30 +55,39 @@ public class WriteWorker extends Worker implements WriteCallBack {
                 new SimpleCallBack(),
                 new SimpleMS("stream-1", true, new Properties(), 0),
                 new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
-                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 1)));
+                        new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 1), 0));
         randomWK.run();
         WriteWorker noLimitWK = new WriteWorker(
                 new SimpleCallBack(),
                 new SimpleMS("stream-1", true, new Properties(), 0),
                 new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
-                        new NoLimitThroughput()));
+                        new NoLimitThroughput(), 0));
         noLimitWK.run();
         WriteWorker constantWK = new WriteWorker(
                 new SimpleCallBack(),
                 new SimpleMS("stream-1", true, new Properties(), 0),
                 new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
-                        new ConstantThroughput(5)));
+                        new ConstantThroughput(5), 0));
         constantWK.run();
         WriteWorker gradualWK = new WriteWorker(
                 new SimpleCallBack(),
                 new SimpleMS("stream-1", true, new Properties(), 0),
                 new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
-                        new GradualChangeThroughput(1, 10, 2, 1)));
+                        new GradualChangeThroughput(1, 10, 2, 1), 0));
         gradualWK.run();
     }
 
     @Override
     public void run() {
+
+        try {
+            log.info("Worker delay start with " + job.delayStartSec +  " s.");
+            Thread.sleep(job.delayStartSec * 1000);
+        } catch (InterruptedException e) {
+            log.error("Worker delay start got Exception " + e);
+            e.printStackTrace();
+        }
+
         log.info("Worker starting writing");
         startTime = System.nanoTime();
         lastStatTime = startTime;
