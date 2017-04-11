@@ -83,7 +83,7 @@ public class SimpleMS extends MS {
     }
 
     public void close() {
-        System.out.println("close MSClient");
+//        System.out.println("close MSClient");
         return;
     }
 }

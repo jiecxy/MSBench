@@ -33,7 +33,7 @@ JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs"
 
 # About to run MSB
 #echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath '$CLASSPATH' $@"
-echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath '...' $@"
+#echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath '...' $@"
 
 # Run MSB
 "$JAVA_HOME/bin/java" $JAVA_OPTS -classpath "$CLASSPATH" "$@"
