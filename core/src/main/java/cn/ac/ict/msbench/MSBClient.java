@@ -110,6 +110,7 @@ public class MSBClient {
 
             // Get the Home Path
             String homePath = getStringArgOrException(res, HOME_PATH);
+            System.out.println("the home path is " + homePath);
             File dataDir = new File(homePath, DATA_DIR_NAME);
             if (!dataDir.exists()) {
                 dataDir.mkdirs();

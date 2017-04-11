@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#todo the parameter parsing and command executing
 #
 # FILE: msbench.sh
 #
@@ -39,7 +38,7 @@
 #-2不同进程从不同地方开始读（一个读，一个写，轮转）
 #
 # ./msbench.sh -sys [kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100 -tp 1000 -tr 1800 -hosts node_a,node_b
-# -rcf read.config -wcf write.config
+# -rcf read.config -wcf write.config -d delay
 
 __ScriptVersion="2017.03.26"
 __ScriptName="msbench.sh"
@@ -98,6 +97,7 @@ RTPL=
 HOSTS=
 RCF=
 WCF=
+d=
 
 #set user and passwd used by expect
 if [ -z "${MSBENCH_HOME}" ]; then
@@ -269,6 +269,16 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
+    -d|--delay)
+      if [ -n "$2" ]; then
+        d="$2"
+        shift 2
+        continue
+      else
+        echo "ERROR: '-d' requires a non-empty option argument."
+        exit 1
+      fi
+      ;;
     -rcf|--reader-config)
       if [ -n "$2" ]; then
         RCF="$2"
@@ -317,7 +327,7 @@ echo "the options are: \
 system: $SYS, writer number: $W, writer config file path: $WCF,\
  reader number: $R, reader config file path: $RCF, read mode: $RMODE,\
   stream number: $NUMBER, test duration: $DURATION, hosts: $HOSTS,\
-   write velocity: $VELOCITY, velocity mode: $VMODE, stream prefix: $PREFIX, "
+   write velocity: $VELOCITY, velocity mode: $VMODE, stream prefix: $PREFIX, delay is: $d "
 
 . "${MSBENCH_HOME}/bin/msbench-config.sh"
 
@@ -363,6 +373,8 @@ echo "msbench reader config path is ${RCF}"
 if [ "$MSBENCH_MASTER_PORT" = "" ]; then
   MSBENCH_MASTER_PORT=6789
 fi
+
+JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs"
 
 
 # Attempt to find the available JAVA, if JAVA_HOME not set
@@ -412,7 +424,6 @@ fi
 #plan1:calculate every node's worker type, number, stream_name and write mode
 #
 #plan2:assign through every node
-#all number of the writer
 #
 #transfer conf
 #
@@ -446,39 +457,39 @@ IP=${IPARRY[$((${i}%${IPSIZE}))]}
 #use ssh in remote host
 if [ $IP != $LOCALIP ]; then
 if [ $VMODE -eq -1 ]; then
-echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home \${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &"
-ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home \${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &
 elif [ $VMODE -eq -2 ]; then
-echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  -home \${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &"
-ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  -home \${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &
 elif [ $VMODE -eq -3 ]; then
-ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  -home \${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS &
 elif [ $VMODE -eq -4 ]; then
-ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home \${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS &
 fi
 else
 echo "start writer in local machine"
 if [ $VMODE -eq -1 ]; then
-echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath $CLASSPATH $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath $CLASSPATH $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &"
-"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &
 elif [ $VMODE -eq -2 ]; then
-echo "${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+echo "${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &"
-"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &
 elif [ $VMODE -eq -3 ]; then
-"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS &
 elif [ $VMODE -eq -4 ]; then
-"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P writer -W $IP \
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
 -sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS &
 fi
 fi
@@ -492,11 +503,11 @@ LOCATE=$((${IPSIZE}-1-$((${i}%${IPSIZE}))))
 IP=${IPARRY[$LOCATE]}
 #use ssh in remote host
 if [ $IP != $LOCALIP ]; then
-ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
 -sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RRCF} -sname ${PREFIX}$j -from $RMODE &
 else
 echo "start reader in local machine"
-"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
 -sys $BINDING_CLASS -cf ${RCF} -sname ${PREFIX}$j -from $RMODE &
 
 fi
