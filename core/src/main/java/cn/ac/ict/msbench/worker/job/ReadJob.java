@@ -17,7 +17,7 @@ public class ReadJob extends Job implements Serializable {
 
     public ReadJob(String system, String host, int runTime, int statInterval, String streamName, int from, long delayStartSec) {
         super(system, host, runTime, streamName, delayStartSec);
-        super.statInterval = statInterval;
+        super.statIntervalInSec = statInterval;
         this.from = from;
         isWriter = false;
     }
@@ -27,8 +27,8 @@ public class ReadJob extends Job implements Serializable {
         return "Job{" +
                 "system='" + system + '\'' +
                 ", host='" + host + '\'' +
-                ", runTime=" + runTime +
-                ", statInterval=" + statInterval +
+                ", runTimeInSec=" + runTimeInSec +
+                ", statIntervalInSec=" + statIntervalInSec +
                 ", streamName='" + streamName + '\'' +
                 ", isWriter=" + isWriter +
                 ", delayStartSec=" + delayStartSec +

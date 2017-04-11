@@ -3,15 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="1fab3d24-e4d0-4fb8-b546-8ac002fba97b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MS.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MS.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatHeader.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatHeader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MSBClient.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MSBClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/Communication.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/Communication.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerCom.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerCom.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatTail.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatTail.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatWindow.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/ReadWorker.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/ReadWorker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/Worker.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/Worker.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/WriteWorker.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/WriteWorker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/ReadCallBack.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/ReadCallBack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/WriteCallBack.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/WriteCallBack.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/Job.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/Job.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/ReadJob.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/ReadJob.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/WriteJob.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/WriteJob.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/resources/log4j.properties" afterPath="$PROJECT_DIR$/core/src/main/resources/log4j.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dl/src/main/java/cn/ac/ict/msbench/ms/DLClient.java" afterPath="$PROJECT_DIR$/dl/src/main/java/cn/ac/ict/msbench/ms/DLClient.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/msbench/ms/KafkaClient.java" afterPath="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/msbench/ms/KafkaClient.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/msbench/ms/PulsarClient.java" afterPath="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/msbench/ms/PulsarClient.java" />
@@ -42,7 +45,28 @@
     <favorites_list name="root" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="log4j.properties" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/resources/log4j.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="495">
+              <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SimpleMS.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="535">
+              <caret line="76" column="28" selection-start-line="76" selection-start-column="28" selection-end-line="76" selection-end-column="28" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -64,12 +88,10 @@
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MSFactory.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/Command.java" />
         <option value="$PROJECT_DIR$/core/pom.xml" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/Job.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/Communication.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/ReadJob.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/WriteJob.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/constants/Constants.java" />
-        <option value="$PROJECT_DIR$/core/src/main/resources/log4j.properties" />
         <option value="$PROJECT_DIR$/pulsar/pom.xml" />
         <option value="$USER_HOME$/.m2/settings.xml" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MSBClient.java" />
@@ -78,25 +100,27 @@
         <option value="$PROJECT_DIR$/bin/msbench-config.sh" />
         <option value="$PROJECT_DIR$/bin/bindings.properties" />
         <option value="$PROJECT_DIR$/bin/msbench-class.sh" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/MasterCom.java" />
         <option value="$PROJECT_DIR$/bin/msbench.sh" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/exporter/FileExporter.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/exporter/Exporter.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerCom.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerComInfo.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatTail.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/Worker.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatWindow.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/ReadCallBack.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatHeader.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/ReadWorker.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/WriteCallBack.java" />
-        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/WriteWorker.java" />
         <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MS.java" />
-        <option value="$PROJECT_DIR$/dl/src/main/java/cn/ac/ict/msbench/ms/DLClient.java" />
-        <option value="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/msbench/ms/KafkaClient.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatTail.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatWindow.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/WriteWorker.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/ReadCallBack.java" />
         <option value="$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/msbench/ms/PulsarClient.java" />
+        <option value="$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/msbench/ms/KafkaClient.java" />
+        <option value="$PROJECT_DIR$/dl/src/main/java/cn/ac/ict/msbench/ms/DLClient.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/Job.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerCom.java" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/ReadWorker.java" />
+        <option value="$PROJECT_DIR$/core/src/main/resources/log4j.properties" />
+        <option value="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java" />
       </list>
     </option>
   </component>
@@ -213,7 +237,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="distribution" />
+              <option name="myItemId" value="core" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -227,11 +251,151 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="distribution" />
+              <option name="myItemId" value="core" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="target" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="resources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="root" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MSBench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="msbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="root" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MSBench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="msbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="worker" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="root" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MSBench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="msbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="utils" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="root" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MSBench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="msbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="communication" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -251,7 +415,7 @@
       <recent name="$PROJECT_DIR$/bin" />
     </key>
   </component>
-  <component name="RunManager" selected="Bash.msbench.sh">
+  <component name="RunManager" selected="Application.startReader">
     <configuration default="false" name="msbench.sh" type="BashConfigurationType" factoryName="Bash" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="bash" />
       <option name="INTERPRETER_PATH" value="/usr/bin/env" />
@@ -775,7 +939,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="cn.ac.ict.msbench.MSBClient" />
       <option name="VM_PARAMETERS" value="-Dmsbench.logs.dir=$PROJECT_DIR$/../tmp/msbench/logs" />
-      <option name="PROGRAM_PARAMETERS" value="-home $PROJECT_DIR$/../tmp/msbench -tr 20 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS  -cf $PROJECT_DIR$/../ms.config -sname topic0 -d 5 -ms 10  -tp -1" />
+      <option name="PROGRAM_PARAMETERS" value="-home $PROJECT_DIR$/../tmp/msbench -tr 20 -M 127.0.0.1:9999 -P writer -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS  -cf $PROJECT_DIR$/../ms.config -sname topic0 -ms 10  -tp -1" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -786,7 +950,22 @@
       <envs />
       <method />
     </configuration>
-    <configuration default="false" name="startMaster" type="Application" factoryName="Application">
+    <configuration default="false" name="startReader" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" value="cn.ac.ict.msbench.MSBClient" />
+      <option name="VM_PARAMETERS" value="-Dmsbench.logs.dir=$PROJECT_DIR$/../tmp/msbench/logs" />
+      <option name="PROGRAM_PARAMETERS" value="-home $PROJECT_DIR$/../tmp/msbench -tr 20 -M 127.0.0.1:9999 -P reader -W 127.0.0.1 -sys cn.ac.ict.msbench.utils.SimpleMS  -cf $PROJECT_DIR$/../ms.config -sname topic0  -from 0" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="core" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="startMasterForWriter" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="cn.ac.ict.msbench.MSBClient" />
       <option name="VM_PARAMETERS" value="-Dmsbench.logs.dir=$PROJECT_DIR$/../tmp/msbench/logs" />
@@ -801,10 +980,27 @@
       <envs />
       <method />
     </configuration>
-    <list size="3">
+    <configuration default="false" name="startMasterForReader" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" value="cn.ac.ict.msbench.MSBClient" />
+      <option name="VM_PARAMETERS" value="-Dmsbench.logs.dir=$PROJECT_DIR$/../tmp/msbench/logs" />
+      <option name="PROGRAM_PARAMETERS" value="-home $PROJECT_DIR$/../tmp/msbench -tr 20 -M 127.0.0.1:9999 -P master -r 1 -sn 1 -name topic" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="core" />
+      <envs />
+      <method />
+    </configuration>
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Application.startWriter" />
-      <item index="1" class="java.lang.String" itemvalue="Application.startMaster" />
-      <item index="2" class="java.lang.String" itemvalue="Bash.msbench.sh" />
+      <item index="1" class="java.lang.String" itemvalue="Application.startReader" />
+      <item index="2" class="java.lang.String" itemvalue="Application.startMasterForWriter" />
+      <item index="3" class="java.lang.String" itemvalue="Application.startMasterForReader" />
+      <item index="4" class="java.lang.String" itemvalue="Bash.msbench.sh" />
     </list>
     <recent_temporary>
       <list size="1">
@@ -839,12 +1035,12 @@
       <workItem from="1491422037947" duration="2653000" />
       <workItem from="1491465323208" duration="1808000" />
       <workItem from="1491794908824" duration="6293000" />
-      <workItem from="1491881849699" duration="14574000" />
+      <workItem from="1491881849699" duration="21205000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="44237000" />
+    <option name="totallyTimeSpent" value="50868000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1200" extended-state="0" />
@@ -856,7 +1052,7 @@
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32054794" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25985092" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25985092" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17433628" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23628318" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.509589" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -901,8 +1097,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/config/1.3.0/config-1.3.0-sources.jar!/com/typesafe/config/Config.java" />
-    <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/akka/akka-actor_2.11/2.4.14/akka-actor_2.11-2.4.14-sources.jar!/akka/actor/ActorSystem.scala" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/config/1.3.0/config-1.3.0-sources.jar!/com/typesafe/config/impl/SimpleConfig.java" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/typesafe/config/1.3.0/config-1.3.0-sources.jar!/com/typesafe/config/ConfigFactory.java" />
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/Scenario.java" />
@@ -963,14 +1157,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/WriteJob.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="18" column="160" selection-start-line="18" selection-start-column="140" selection-end-line="18" selection-end-column="160" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/sourceforge/argparse4j/argparse4j/0.5.0/argparse4j-0.5.0.jar!/net/sourceforge/argparse4j/inf/Namespace.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -982,14 +1168,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
           <caret line="32" column="31" selection-start-line="32" selection-start-column="31" selection-end-line="32" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/resources/log4j.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="57" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="57" />
           <folding />
         </state>
       </provider>
@@ -1050,14 +1228,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/Job.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="17" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/MasterCom.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="486">
@@ -1099,9 +1269,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="418">
           <caret line="45" column="19" selection-start-line="45" selection-start-column="16" selection-end-line="45" selection-end-column="21" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1109,14 +1277,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="16" column="43" selection-start-line="16" selection-start-column="43" selection-end-line="16" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerCom.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="541">
-          <caret line="349" column="12" selection-start-line="349" selection-start-column="12" selection-end-line="352" selection-end-column="64" />
           <folding />
         </state>
       </provider>
@@ -1137,70 +1297,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-30">
-          <caret line="36" column="5" selection-start-line="36" selection-start-column="5" selection-end-line="36" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatTail.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="81" column="92" selection-start-line="81" selection-start-column="92" selection-end-line="81" selection-end-column="92" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/CallBack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="9" column="16" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatHeader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="19" column="27" selection-start-line="19" selection-start-column="27" selection-end-line="19" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/Worker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="436">
-          <caret line="55" column="38" selection-start-line="55" selection-start-column="34" selection-end-line="55" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/ReadWorker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="139" column="0" selection-start-line="139" selection-start-column="0" selection-end-line="139" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/WriteCallBack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="16" selection-start-line="6" selection-start-column="16" selection-end-line="6" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/SimpleWriteCallBack.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -1217,38 +1313,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/ReadCallBack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="16" selection-start-line="6" selection-start-column="16" selection-end-line="6" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/msbench/ms/PulsarClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="316">
-          <caret line="179" column="13" selection-start-line="179" selection-start-column="13" selection-end-line="179" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/msbench/ms/KafkaClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="123" column="0" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dl/src/main/java/cn/ac/ict/msbench/ms/DLClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="70">
-          <caret line="173" column="81" selection-start-line="173" selection-start-column="64" selection-end-line="173" selection-end-column="81" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MS.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="556">
@@ -1257,10 +1321,154 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/WriteCallBack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="68" selection-start-line="6" selection-start-column="51" selection-end-line="6" selection-end-column="68" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatHeader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="70" column="27" selection-start-line="70" selection-start-column="27" selection-end-line="70" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatTail.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="982">
+          <caret line="98" column="33" selection-start-line="98" selection-start-column="33" selection-end-line="98" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/hdrhistogram/HdrHistogram/2.1.9/HdrHistogram-2.1.9-sources.jar!/org/HdrHistogram/AbstractHistogram.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="36" column="21" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/callback/ReadCallBack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="95" selection-start-line="6" selection-start-column="78" selection-end-line="6" selection-end-column="95" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pulsar/src/main/java/cn/ac/ict/msbench/ms/PulsarClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="176" column="107" selection-start-line="176" selection-start-column="107" selection-end-line="176" selection-end-column="107" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dl/src/main/java/cn/ac/ict/msbench/ms/DLClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="550">
+          <caret line="200" column="0" selection-start-line="200" selection-start-column="0" selection-end-line="200" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/src.zip!/java/lang/System.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="728">
+          <caret line="398" column="30" selection-start-line="398" selection-start-column="30" selection-end-line="398" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/kafka/src/main/java/cn/ac/ict/msbench/ms/KafkaClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1105">
+          <caret line="139" column="29" selection-start-line="139" selection-start-column="29" selection-end-line="139" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/WriteWorker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="886">
-          <caret line="166" column="30" selection-start-line="166" selection-start-column="30" selection-end-line="166" selection-end-column="30" />
+        <state relative-caret-position="601">
+          <caret line="162" column="42" selection-start-line="162" selection-start-column="42" selection-end-line="162" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/WriteJob.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="31" column="13" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/job/Job.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="33" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/CallBack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="9" column="16" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/Worker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="8" column="41" selection-start-line="8" selection-start-column="41" selection-end-line="8" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/communication/WorkerCom.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-59">
+          <caret line="286" column="1" selection-start-line="286" selection-start-column="1" selection-end-line="286" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/worker/ReadWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="82" column="33" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/stat/StatWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="458">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/resources/log4j.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/utils/SimpleMS.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="535">
+          <caret line="76" column="28" selection-start-line="76" selection-start-column="28" selection-end-line="76" selection-end-column="28" />
           <folding />
         </state>
       </provider>

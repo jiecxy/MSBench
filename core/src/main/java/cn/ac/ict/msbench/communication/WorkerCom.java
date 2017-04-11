@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -56,7 +55,7 @@ public class WorkerCom extends Communication implements CallBack {
         this.exporter = null;
 //        this.exporter = exporter;
         this.job = job;
-        this.job.statInterval = STATS_INTERVAL;
+        this.job.statIntervalInSec = STATS_INTERVAL;
         isWriter = job.isWriter;
         workerID = isWriter ? "Writer" : "Reader";
         workerID += "-" + UUID.randomUUID().toString();

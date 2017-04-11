@@ -96,6 +96,6 @@ public class StatTail implements Serializable {
     }
 
     private String formatFloat(double d) {
-        return String.format("%.3f", d);
+        return String.format("%.6f", d);
     }
 }

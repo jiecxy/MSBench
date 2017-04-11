@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
 
 public class WriteWorker extends Worker implements WriteCallBack {
 
@@ -91,24 +89,25 @@ public class WriteWorker extends Worker implements WriteCallBack {
         log.info("Worker starting writing");
         startTime = System.nanoTime();
         lastStatTime = startTime;
-        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime/1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.messageSize, job.strategy, job.isSync));
 
         while (isRunning) {
-            if (System.nanoTime() - startTime > job.runTime * 1e9) {
+            if (System.nanoTime() - startTime > job.runTimeInSec * 1e9) {
                 isRunning = false;
                 break;
             }
 
-            if (System.nanoTime() - lastStatTime > job.statInterval * 1e9) {
+            if (System.nanoTime() - lastStatTime > job.statIntervalInSec * 1e9) {
 
                 Histogram reportHist = null;
                 long now = System.nanoTime();
                 double elapsedInNano = now - lastStatTime;
                 reportHist = recorder.getIntervalHistogram(reportHist);
-                cb.onSendStatWindow(new StatWindow((long) (now/1e6),
-                        numMsg*1.0 / elapsedInNano / 1e9,
+
+                cb.onSendStatWindow(new StatWindow(System.currentTimeMillis(),
+                        numMsg*1.0 / (elapsedInNano / 1e9),
                         numMsg,
-                        numByte / elapsedInNano / 1e9 / 1024.0 / 1024.0,
+                        numByte / (elapsedInNano / 1e9) / 1024.0 / 1024.0,
                         reportHist.getMean()/1e6,
                         reportHist.getMaxValue()/1e6));
 
@@ -132,8 +131,8 @@ public class WriteWorker extends Worker implements WriteCallBack {
         double elapsedInNano = now - startTime;
 
         cb.onSendStatTail(
-                new StatTail((long) (now/1e6),
-                        totalNumByte / 1024.0 / 1024.0 / elapsedInNano / 1e9,
+                new StatTail(System.currentTimeMillis(),
+                        totalNumByte / 1024.0 / 1024.0 / (elapsedInNano / 1e9),
                         reportHist.getMean()/1e6,
                         reportHist.getMaxValue()/1e6,
                         reportHist.getValueAtPercentile(50)/1e6,

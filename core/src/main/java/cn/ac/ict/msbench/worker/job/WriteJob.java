@@ -29,7 +29,7 @@ public class WriteJob extends Job implements Serializable {
 
     public WriteJob(String system, String host, int runTime, int statInterval, String streamName, int messageSize, boolean isSync, ThroughputStrategy strategy, long delayStartSec) {
         super(system, host, runTime, streamName, delayStartSec);
-        super.statInterval = statInterval;
+        super.statIntervalInSec = statInterval;
         this.messageSize = messageSize;
         this.isSync = isSync;
         this.strategy = strategy;
@@ -44,8 +44,8 @@ public class WriteJob extends Job implements Serializable {
         return "Job{" +
                 "system='" + system + '\'' +
                 ", host='" + host + '\'' +
-                ", runTime=" + runTime +
-                ", statInterval=" + statInterval +
+                ", runTimeInSec=" + runTimeInSec +
+                ", statIntervalInSec=" + statIntervalInSec +
                 ", streamName='" + streamName + '\'' +
                 ", delayStartSec=" + delayStartSec  +
                 ", isWriter=" + isWriter +

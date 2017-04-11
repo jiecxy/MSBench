@@ -59,9 +59,9 @@ public class StatWindow implements Serializable {
     @Override
     public String toString() {
         if (isEndToEnd) {
-            return String.format("%-5s  %-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f  %-24.3f  %-24.3f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency, endToEndAvgLatency, endToEndMaxLatency);
+            return String.format("%-5s  %-24s  %-12.6f  %-12d  %-12.6f  %-14.6f  %-14.6f  %-24.6f  %-24.6f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency, endToEndAvgLatency, endToEndMaxLatency);
         } else {
-            return String.format("%-5s  %-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency);
+            return String.format("%-5s  %-24s  %-12.6f  %-12d  %-12.6f  %-14.6f  %-14.6f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency);
         }
     }
 }
