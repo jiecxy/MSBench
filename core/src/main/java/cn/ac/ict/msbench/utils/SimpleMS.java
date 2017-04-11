@@ -50,7 +50,7 @@ public class SimpleMS extends MS {
         if (isSync) {
 //            System.out.println("Sync sending message " + new String(msg) );
             try {
-                Thread.sleep(100);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -59,7 +59,7 @@ public class SimpleMS extends MS {
         } else {
 //            System.out.println("Async sending message " + new String(msg) );
             try {
-                Thread.sleep(100);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -72,14 +72,14 @@ public class SimpleMS extends MS {
     @Override
     public void read(ReadCallBack readCallBack, long requestTimeInNano) {
 //        System.out.println("receiving message from ");
-        long publishTimeInNano =System.currentTimeMillis()*1000000;
+        long publishTimeInMillis =System.currentTimeMillis();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         //System.out.println("received SEND ack");
-        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTimeInNano, publishTimeInNano);
+        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTimeInNano, publishTimeInMillis);
         return;
     }
 

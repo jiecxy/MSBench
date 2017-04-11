@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 
 public class WriteWorker extends Worker implements WriteCallBack {
 
@@ -52,7 +54,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
         WriteWorker randomWK = new WriteWorker(
                 new SimpleCallBack(),
                 new SimpleMS("stream-1", true, new Properties(), 0),
-                new WriteJob("SimpleMS", "localhost", 10, 5, "stream-1", 10, true,
+                new WriteJob("SimpleMS", "localhost", 20, 5, "stream-1", 10, true,
                         new GivenRandomChangeThroughputList(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 1), 0));
         randomWK.run();
         WriteWorker noLimitWK = new WriteWorker(
@@ -133,12 +135,12 @@ public class WriteWorker extends Worker implements WriteCallBack {
         cb.onSendStatTail(
                 new StatTail(System.currentTimeMillis(),
                         totalNumByte / 1024.0 / 1024.0 / (elapsedInNano / 1e9),
-                        reportHist.getMean()/1e6,
-                        reportHist.getMaxValue()/1e6,
-                        reportHist.getValueAtPercentile(50)/1e6,
-                        reportHist.getValueAtPercentile(95)/1e6,
-                        reportHist.getValueAtPercentile(99)/1e6,
-                        reportHist.getValueAtPercentile(99.9)/1e6,
+                        reportHist.getMean()/1000.0,
+                        reportHist.getMaxValue()/1000.0,
+                        reportHist.getValueAtPercentile(50)/1000.0,
+                        reportHist.getValueAtPercentile(95)/1000.0,
+                        reportHist.getValueAtPercentile(99)/1000.0,
+                        reportHist.getValueAtPercentile(99.9)/1000.0,
                         totalNumMsg,
                         totalNumByte / 1024.0 / 1024.0,
                         job.isSync)
@@ -159,9 +161,10 @@ public class WriteWorker extends Worker implements WriteCallBack {
 
     @Override
     public void handleSentMessage(byte[] msg, long requestTimeInNano) {
-        long latencyNano = System.nanoTime() - requestTimeInNano;
-        recorder.recordValue(latencyNano);
-        cumulativeRecorder.recordValue(latencyNano);
+        //long latencyNano = System.nanoTime() - requestTimeInNano;
+        long latencyMicros=NANOSECONDS.toMicros(System.nanoTime() - requestTimeInNano);
+        recorder.recordValue(latencyMicros);
+        cumulativeRecorder.recordValue(latencyMicros);
         numMsg++;
         numByte += msg.length;
         totalNumMsg++;

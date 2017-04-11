@@ -81,7 +81,7 @@ public class StatTail implements Serializable {
                     "\t\t" + "50 percentile: " + formatFloat(percentile50) + " ms"  + "\n" +
                     "\t\t" + "95 percentile: " + formatFloat(percentile95) + " ms"  + "\n" +
                     "\t\t" + "99 percentile: " + formatFloat(percentile99) + " ms"  + "\n" +
-                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms";
+                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms" + "\n";
         if (isEndToEnd) {
             return str + "\t" + "End To End Latency: " +  "\n" +
                     "\t\t" + "Avg Latency: " + formatFloat(endToEndAvgLatency) + " ms" + "\n" +
@@ -89,7 +89,7 @@ public class StatTail implements Serializable {
                     "\t\t" + "50 percentile: " + formatFloat(endToEndPercentile50) + " ms"  + "\n" +
                     "\t\t" + "95 percentile: " + formatFloat(endToEndPercentile95) + " ms"  + "\n" +
                     "\t\t" + "99 percentile: " + formatFloat(endToEndPercentile99) + " ms"  + "\n" +
-                    "\t\t" + "99.9 percentile: " + formatFloat(endToEndPercentile999) + " ms";
+                    "\t\t" + "99.9 percentile: " + formatFloat(endToEndPercentile999) + " ms" + "\n";
         } else {
             return str;
         }
