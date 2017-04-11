@@ -37,10 +37,10 @@ public class ReadWorker extends Worker implements ReadCallBack {
         numByte = 0;
         totalNumMsg = 0;
         totalNumByte = 0;
-        recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 3);
-        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 3);
-        end2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 3);
-        cumulativeEnd2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 3);
+        recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        end2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        cumulativeEnd2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
 
     public static void main(String[] args) {
