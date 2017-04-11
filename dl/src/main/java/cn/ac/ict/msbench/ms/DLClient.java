@@ -154,14 +154,14 @@ public class DLClient extends MS {
 
     //final
     @Override
-    public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTime) {
+    public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTimeInNano) {
         if(isSync){
             //同步问题
             try {
                 //todo use twitter's future's wait func
                 client.write(streamName,ByteBuffer.wrap(msg)).toJavaFuture().get();
                // client.write(streamName,ByteBuffer.wrap(msg)).get();
-                sentCallBack.handleSentMessage(msg, requestTime);
+                sentCallBack.handleSentMessage(msg, requestTimeInNano);
             }catch (Exception e){
                 e.printStackTrace();
                 System.out.println("sync-write failed!");
@@ -171,7 +171,7 @@ public class DLClient extends MS {
                     new FutureEventListener<DLSN>() {
                         @Override
                         public void onSuccess(DLSN dlsn) {
-                            sentCallBack.handleSentMessage(msg, requestTime);
+                            sentCallBack.handleSentMessage(msg, requestTimeInNano);
                         }
 
                         @Override
@@ -189,13 +189,13 @@ public class DLClient extends MS {
     }
 
     @Override
-    public void read(final ReadCallBack readCallBack, final long requestTime) {
+    public void read(final ReadCallBack readCallBack, final long requestTimeInNano) {
         reader.readBulk(readbulknum).addEventListener(
                 new FutureEventListener<List<LogRecordWithDLSN>>() {
                     @Override
                     public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
                         for (LogRecordWithDLSN log : logRecordWithDLSNs){
-                            readCallBack.handleReceivedMessage(log.getPayload(), requestTime, log.getTransactionId());
+                            readCallBack.handleReceivedMessage(log.getPayload(), requestTimeInNano, (long) (log.getTransactionId()*1e6));
                         }
                     }
 

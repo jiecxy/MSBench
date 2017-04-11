@@ -14,10 +14,10 @@ public class StatWindow implements Serializable {
     public double rate; // msg/s
     public long records;  // msgs
     public double tps; // Byte/s
-    public double avgLatency; // writer or reader
-    public double maxLatency; // writer or reader
-    public double endToEndAvgLatency; // end to end
-    public double endToEndMaxLatency; // end to end
+    public double avgLatency; // writer or reader  - ms
+    public double maxLatency; // writer or reader - ms
+    public double endToEndAvgLatency; // end to end - ms
+    public double endToEndMaxLatency; // end to end - ms
 
 
     public StatWindow(long time, double rate, long records, double tps, double avgLatency, double maxLatency) {

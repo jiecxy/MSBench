@@ -88,13 +88,13 @@ public class KafkaClient extends MS {
     }
 
     @Override
-    public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTime) {
+    public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTimeInNano) {
         log.debug("send message (isSync=" + isSync + "): " + msg);
         if (isSync) {
             try {
 
                 producer.send(new ProducerRecord<>(streamName, null, System.currentTimeMillis(), null, msg)).get();
-                sentCallBack.handleSentMessage(msg, requestTime);
+                sentCallBack.handleSentMessage(msg, requestTimeInNano);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("Failed to send message (isSync=" + isSync + "): " + msg);
@@ -106,7 +106,7 @@ public class KafkaClient extends MS {
                                     e.printStackTrace();
                                     log.error("Failed to send message (isSync=" + isSync + "): " + msg);
                                 } else {
-                                    sentCallBack.handleSentMessage(msg, requestTime);
+                                    sentCallBack.handleSentMessage(msg, requestTimeInNano);
                                 }
                             }
                     });
@@ -114,11 +114,11 @@ public class KafkaClient extends MS {
     }
     //TODO 配置读的位置，提交offset
     @Override
-    public void read(ReadCallBack readCallBack, long requestTime) {
+    public void read(ReadCallBack readCallBack, long requestTimeInNano) {
         log.debug("read messages by poll");
         ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
         for (ConsumerRecord<byte[], byte[]> record : records) {
-            readCallBack.handleReceivedMessage(record.value().toString().getBytes(), requestTime, record.timestamp());
+            readCallBack.handleReceivedMessage(record.value().toString().getBytes(), requestTimeInNano, (long) (record.timestamp()*1e6));
         }
     }
 

@@ -55,7 +55,7 @@ public abstract class MS {
      * @param msg The message to be sent
      * @return
      */
-    public abstract void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime);
+    public abstract void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTimeInNano);
 
     /**
      * read messages from the Message System.
@@ -63,7 +63,7 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract void read(ReadCallBack readCallBack, long requestTime);
+    public abstract void read(ReadCallBack readCallBack, long requestTimeInNano);
 
     /**
      * close the Message System.

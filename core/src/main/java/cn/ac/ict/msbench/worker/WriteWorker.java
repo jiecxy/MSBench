@@ -91,22 +91,26 @@ public class WriteWorker extends Worker implements WriteCallBack {
         log.info("Worker starting writing");
         startTime = System.nanoTime();
         lastStatTime = startTime;
-        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime / 1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTime, (long) (startTime/1e6), job.statInterval, job.host, job.messageSize, job.strategy, job.isSync));
 
         while (isRunning) {
-            if ((System.nanoTime() - startTime) / 1e9 > job.runTime) {
+            if (System.nanoTime() - startTime > job.runTime * 1e9) {
                 isRunning = false;
                 break;
             }
 
-            if ((System.nanoTime() - lastStatTime) / 1e9 > job.statInterval) {
+            if (System.nanoTime() - lastStatTime > job.statInterval * 1e9) {
 
                 Histogram reportHist = null;
-                double elapsed = (System.nanoTime() - lastStatTime) / 1e9;
+                long now = System.nanoTime();
+                double elapsedInNano = now - lastStatTime;
                 reportHist = recorder.getIntervalHistogram(reportHist);
-                // TODO 需不需要将stats存在worker上
-                cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed / 1024 / 1024,
-                        reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
+                cb.onSendStatWindow(new StatWindow((long) (now/1e6),
+                        numMsg*1.0 / elapsedInNano / 1e9,
+                        numMsg,
+                        numByte / elapsedInNano / 1e9 / 1024.0 / 1024.0,
+                        reportHist.getMean()/1e6,
+                        reportHist.getMaxValue()/1e6));
 
                 numMsg = 0;
                 numByte = 0;
@@ -124,13 +128,21 @@ public class WriteWorker extends Worker implements WriteCallBack {
         }
 
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
-        double elapsed = (System.nanoTime() - startTime) / 1e9;
+        long now = System.nanoTime();
+        double elapsedInNano = now - startTime;
 
         cb.onSendStatTail(
-                new StatTail((long) ((System.nanoTime()) / 1e6), (totalNumByte / 1024 / 1024) / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
-                        reportHist.getValueAtPercentile(50) / 1000.0, reportHist.getValueAtPercentile(95) / 1000.0,
-                        reportHist.getValueAtPercentile(99) / 1000.0, reportHist.getValueAtPercentile(99.9) / 1000.0,
-                        totalNumMsg, (long) (totalNumByte / 1024 / 1024), job.isSync)
+                new StatTail((long) (now/1e6),
+                        totalNumByte / 1024.0 / 1024.0 / elapsedInNano / 1e9,
+                        reportHist.getMean()/1e6,
+                        reportHist.getMaxValue()/1e6,
+                        reportHist.getValueAtPercentile(50)/1e6,
+                        reportHist.getValueAtPercentile(95)/1e6,
+                        reportHist.getValueAtPercentile(99)/1e6,
+                        reportHist.getValueAtPercentile(99.9)/1e6,
+                        totalNumMsg,
+                        totalNumByte / 1024.0 / 1024.0,
+                        job.isSync)
         );
 
         if (rateLimiter != null)
@@ -147,11 +159,10 @@ public class WriteWorker extends Worker implements WriteCallBack {
     }
 
     @Override
-    public void handleSentMessage(byte[] msg, long requestTime) {
-        long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
-        recorder.recordValue(latencyMicros);
-        cumulativeRecorder.recordValue(latencyMicros);
-//        System.out.println("received sned ack for msg " + new String(msg));
+    public void handleSentMessage(byte[] msg, long requestTimeInNano) {
+        long latencyNano = System.nanoTime() - requestTimeInNano;
+        recorder.recordValue(latencyNano);
+        cumulativeRecorder.recordValue(latencyNano);
         numMsg++;
         numByte += msg.length;
         totalNumMsg++;

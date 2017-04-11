@@ -18,7 +18,7 @@ public class StatTail implements Serializable {
     public double percentile999;  // ms
 
     public long messagesSentOrReceived;
-    public long dataSentOrReceived;  // MB
+    public double dataSentOrReceived;  // MB
 
     // end to end latency
     public double endToEndAvgLatency; // end to end
@@ -30,7 +30,7 @@ public class StatTail implements Serializable {
 
     public boolean isWriter;
 
-    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, long dataSentOrReceived, boolean isWriter) {
+    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, double dataSentOrReceived, boolean isWriter) {
         this.finishTime = finishTime;
         this.avgTps = avgTps;
         this.avgLatency = avgLatency;
@@ -45,7 +45,7 @@ public class StatTail implements Serializable {
         isEndToEnd = false;
     }
 
-    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, long dataSentOrReceived,
+    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, double dataSentOrReceived,
                     double endToEndAvgLatency, double endToEndMaxLatency, double endToEndPercentile50, double endToEndPercentile95, double endToEndPercentile99, double endToEndPercentile999, boolean isWriter) {
         this(finishTime, avgTps, avgLatency, maxLatency, percentile50, percentile95, percentile99, percentile999, messagesSentOrReceived, dataSentOrReceived, isWriter);
         this.endToEndAvgLatency = endToEndAvgLatency;
@@ -68,10 +68,10 @@ public class StatTail implements Serializable {
                 "\t" + "FinishTime: " + getFinishTime() + "\n";
         if (isWriter) {
             str += "\t" + "Messages Sent: " + messagesSentOrReceived + "\n" +
-                    "\t" + "Data Sent: " + dataSentOrReceived + " MB" + "\n";
+                    "\t" + "Data Sent: " + formatFloat(dataSentOrReceived) + " MB" + "\n";
         } else {
             str += "\t" + "Messages Received: " + messagesSentOrReceived + "\n" +
-                    "\t" + "Data Received: " + dataSentOrReceived + " MB" + "\n";
+                    "\t" + "Data Received: " + formatFloat(dataSentOrReceived) + " MB" + "\n";
         }
 
         str += "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +

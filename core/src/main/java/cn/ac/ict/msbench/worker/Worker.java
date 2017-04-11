@@ -14,13 +14,13 @@ public class Worker implements Runnable {
     MS msClient = null;
 
     //stat variables
-    long startTime;
-    long lastStatTime;
+    long startTime;       // ns
+    long lastStatTime;    // ns
     long numMsg;
     long numByte;
     long totalNumMsg;
     long totalNumByte;
-    long requestTime;
+    long requestTime;     // ns
     Recorder recorder = null;
     Recorder cumulativeRecorder = null;
 
