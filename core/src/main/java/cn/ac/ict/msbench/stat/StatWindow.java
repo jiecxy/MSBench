@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class StatWindow implements Serializable {
 
-    private boolean isEndToEnd;
+    public boolean isEndToEnd;
 
     public long version = -1;
     public long time;  // ms

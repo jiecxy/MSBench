@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class StatTail implements Serializable {
 
-    private boolean isEndToEnd;
+    public boolean isEndToEnd;
     public long finishTime; // milliseconds
 
     public double avgTps; // MB/s

@@ -118,7 +118,7 @@ public class KafkaClient extends MS {
         log.debug("read messages by poll");
         ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
         for (ConsumerRecord<byte[], byte[]> record : records) {
-            readCallBack.handleReceivedMessage(record.value().toString().getBytes(), requestTime);
+            readCallBack.handleReceivedMessage(record.value().toString().getBytes(), requestTime, record.timestamp());
         }
     }
 

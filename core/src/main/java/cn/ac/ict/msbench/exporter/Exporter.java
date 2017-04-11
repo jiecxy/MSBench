@@ -14,6 +14,7 @@ public interface Exporter extends Closeable {
     public static final int WINDOW = 2;
     public static final int WINDOW_END_TO_END = 3;
     public static final int TAIL = 4;
+    public static final int TAIL_END_TO_END = 4;
 
     void write(String fileID, int metrics, String msg);
 }
