@@ -22,6 +22,8 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
     private static final Logger log = LoggerFactory.getLogger(ReadWorker.class);
     private ReadJob job;
+    private Recorder end2endRecorder;
+    private Recorder cumulativeEnd2endRecorder;
 
     public ReadWorker(CallBack cb, MS ms, Job job) {
         super(cb);
@@ -34,6 +36,8 @@ public class ReadWorker extends Worker implements ReadCallBack {
         totalNumByte = 0;
         recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
         cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        end2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+        cumulativeEnd2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
 
     public static void main(String[] args) {
@@ -73,15 +77,19 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
             if ((System.nanoTime() - lastStatTime) / 1e9 > job.statInterval) {
                 Histogram reportHist = null;
+                Histogram end2endReportHist=null;
                 double elapsed = (System.nanoTime() - lastStatTime) / 1e9;
                 reportHist = recorder.getIntervalHistogram(reportHist);
+                end2endReportHist=end2endRecorder.getIntervalHistogram(end2endReportHist);
 
                 cb.onSendStatWindow(new StatWindow((long) ((System.nanoTime()) / 1e6), numMsg / elapsed, numMsg, numByte / elapsed / 1024 / 1024,
-                        reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0));
+                        reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0),
+                        end2endReportHist.getMean()/1000.0,end2endReportHist.getMean()/1000.0);
 
                 numMsg = 0;
                 numByte = 0;
                 reportHist.reset();
+                end2endReportHist.reset();
                 lastStatTime = System.nanoTime();
             }
 
@@ -91,13 +99,17 @@ public class ReadWorker extends Worker implements ReadCallBack {
         }
 
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
+        Histogram end2endReportHist=cumulativeEnd2endRecorder.getIntervalHistogram();
         double elapsed = (System.nanoTime() - startTime) / 1e9;
 
         cb.onSendStatTail(
                 new StatTail((long) ((System.nanoTime()) / 1e6), (totalNumByte / 1024 / 1024) / elapsed, reportHist.getMean() / 1000.0, reportHist.getMaxValue() / 1000.0,
                         reportHist.getValueAtPercentile(50) / 1000.0, reportHist.getValueAtPercentile(95) / 1000.0,
                         reportHist.getValueAtPercentile(99) / 1000.0, reportHist.getValueAtPercentile(99.9) / 1000.0,
-                        totalNumMsg, (long) (totalNumByte / 1024 / 1024), false)
+                        totalNumMsg, (long) (totalNumByte / 1024 / 1024), false,
+                        end2endReportHist.getMean()/1000.0,end2endReportHist.getMean()/1000.0,
+                        end2endReportHist.getValueAtPercentile(50)/1000.0,end2endReportHist.getValueAtPercentile(95)/1000.0,
+                        end2endReportHist.getValueAtPercentile(99)/1000.0,end2endReportHist.getValueAtPercentile(99.9)/1000.0)
         );
     }
 
@@ -111,11 +123,14 @@ public class ReadWorker extends Worker implements ReadCallBack {
     }
 
     @Override
-    public void handleReceivedMessage(byte[] msg, long requestTime) {
+    public void handleReceivedMessage(byte[] msg, long requestTime,long publishTime) {
 //        System.out.println("received msg " + new String(msg));
         long latencyMicros = NANOSECONDS.toMicros(System.nanoTime() - requestTime);
+        long end2endLatencyMicros = NANOSECONDS.toMicros(System.nanoTime() - publishTime);
         recorder.recordValue(latencyMicros);
         cumulativeRecorder.recordValue(latencyMicros);
+        end2endRecorder.recordValue(end2endLatencyMicros);
+        cumulativeEnd2endRecorder.recordValue(end2endLatencyMicros);
         numMsg++;
         numByte += msg.length;
         totalNumMsg++;
