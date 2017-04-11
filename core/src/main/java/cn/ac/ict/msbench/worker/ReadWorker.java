@@ -89,7 +89,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
                                 reportHist.getMean() / 1000.0,
                                 reportHist.getMaxValue() / 1000.0,
                                 end2endReportHist.getMean()/1000.0,
-                                end2endReportHist.getMean()/1000.0));
+                                end2endReportHist.getMaxValue()/1000.0));
 
                 numMsg = 0;
                 numByte = 0;
@@ -119,7 +119,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
                         totalNumMsg,
                         (long) (totalNumByte / 1024 / 1024),
                         end2endReportHist.getMean()/1000.0,
-                        end2endReportHist.getMean()/1000.0,
+                        end2endReportHist.getMaxValue()/1000.0,
                         end2endReportHist.getValueAtPercentile(50)/1000.0,
                         end2endReportHist.getValueAtPercentile(95)/1000.0,
                         end2endReportHist.getValueAtPercentile(99)/1000.0,
