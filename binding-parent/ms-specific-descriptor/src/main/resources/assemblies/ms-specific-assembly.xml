@@ -24,17 +24,25 @@
       <outputDirectory>bin</outputDirectory>
       <fileMode>0755</fileMode>
       <includes>
-        <include>msbench*</include>
+        <include>*</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>../bin</directory>
-      <outputDirectory>bin</outputDirectory>
-      <fileMode>0755</fileMode>
+      <directory>../conf</directory>
+      <outputDirectory>conf</outputDirectory>
+      <fileMode>0644</fileMode>
       <includes>
-        <include>bindings.properties</include>
+        <include>*</include>
       </includes>
     </fileSet>
+    <!--<fileSet>-->
+      <!--<directory>../bin</directory>-->
+      <!--<outputDirectory>bin</outputDirectory>-->
+      <!--<fileMode>0755</fileMode>-->
+      <!--<includes>-->
+        <!--<include>bindings.properties</include>-->
+      <!--</includes>-->
+    <!--</fileSet>-->
     <fileSet>
       <directory>src/main/conf</directory>
       <outputDirectory>conf</outputDirectory>

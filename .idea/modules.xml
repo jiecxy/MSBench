@@ -8,7 +8,6 @@
       <module fileurl="file://$PROJECT_DIR$/kafka/kafka-binding.iml" filepath="$PROJECT_DIR$/kafka/kafka-binding.iml" />
       <module fileurl="file://$PROJECT_DIR$/binding-parent/ms-specific-descriptor/ms-specific-descriptor.iml" filepath="$PROJECT_DIR$/binding-parent/ms-specific-descriptor/ms-specific-descriptor.iml" group="binding-parent and modules" />
       <module fileurl="file://$PROJECT_DIR$/distribution/msbench.iml" filepath="$PROJECT_DIR$/distribution/msbench.iml" />
-      <module fileurl="file://$PROJECT_DIR$/distribution/msbench.iml" filepath="$PROJECT_DIR$/distribution/msbench.iml" />
       <module fileurl="file://$PROJECT_DIR$/pulsar/pulsar-binding.iml" filepath="$PROJECT_DIR$/pulsar/pulsar-binding.iml" />
       <module fileurl="file://$PROJECT_DIR$/root.iml" filepath="$PROJECT_DIR$/root.iml" />
     </modules>
