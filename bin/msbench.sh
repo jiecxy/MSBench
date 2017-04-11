@@ -192,7 +192,7 @@ while [ "$1" != "" ]; do
       fi
       ;;
     -sync)
-        echo "Info: '-sync' set to 1."
+#        echo "Info: '-sync' set to 1."
         SYNC=1
         shift
         continue
@@ -208,7 +208,7 @@ while [ "$1" != "" ]; do
       fi
       ;;
     -r|--reader-num)
-      echo "Info: '-r' set to $2."
+#      echo "Info: '-r' set to $2."
       if [ -n "$2" ]; then
         R="$2"
         shift 2
@@ -220,7 +220,7 @@ while [ "$1" != "" ]; do
       ;;
     -w|--writer-num)
       if [ -n "$2" ]; then
-        echo "Info: '-w' set to $2."
+#        echo "Info: '-w' set to $2."
         W="$2"
         shift 2
         continue
