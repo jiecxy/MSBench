@@ -9,6 +9,11 @@ import java.io.IOException;
  */
 public interface Exporter extends Closeable {
 
-    // metrics: METRICS_HEAD  METRICS_WINDOW  METRICS_TAIL
+    // metrics
+    public static final int HEAD = 1;
+    public static final int WINDOW = 2;
+    public static final int WINDOW_END_TO_END = 3;
+    public static final int TAIL = 4;
+
     void write(String fileID, int metrics, String msg);
 }

@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class StatTail implements Serializable {
 
-
+    private boolean isEndToEnd;
     public long finishTime; // milliseconds
 
     public double avgTps; // MB/s
@@ -17,9 +17,16 @@ public class StatTail implements Serializable {
     public double percentile99;  // ms
     public double percentile999;  // ms
 
-    // writer
     public long messagesSentOrReceived;
     public long dataSentOrReceived;  // MB
+
+    // end to end latency
+    public double endToEndAvgLatency; // end to end
+    public double endToEndMaxLatency; // end to end
+    public double endToEndPercentile50;  // end to end
+    public double endToEndPercentile95;  // end to end
+    public double endToEndPercentile99;  // end to end
+    public double endToEndPercentile999;  // end to end
 
     public boolean isWriter;
 
@@ -35,6 +42,19 @@ public class StatTail implements Serializable {
         this.messagesSentOrReceived = messagesSentOrReceived;
         this.dataSentOrReceived = dataSentOrReceived;
         this.isWriter = isWriter;
+        isEndToEnd = false;
+    }
+
+    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, long dataSentOrReceived,
+                    double endToEndAvgLatency, double endToEndMaxLatency, double endToEndPercentile50, double endToEndPercentile95, double endToEndPercentile99, double endToEndPercentile999, boolean isWriter) {
+        this(finishTime, avgTps, avgLatency, maxLatency, percentile50, percentile95, percentile99, percentile999, messagesSentOrReceived, dataSentOrReceived, isWriter);
+        this.endToEndAvgLatency = endToEndAvgLatency;
+        this.endToEndMaxLatency = endToEndMaxLatency;
+        this.endToEndPercentile50 = endToEndPercentile50;
+        this.endToEndPercentile95 = endToEndPercentile95;
+        this.endToEndPercentile99 = endToEndPercentile99;
+        this.endToEndPercentile999 = endToEndPercentile999;
+        isEndToEnd = true;
     }
 
     public String getFinishTime() {
@@ -54,7 +74,7 @@ public class StatTail implements Serializable {
                     "\t" + "Data Received: " + dataSentOrReceived + " MB" + "\n";
         }
 
-        return str + "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +
+        str += "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +
                     "\t" + "Latency: " +  "\n" +
                     "\t\t" + "Avg Latency: " + formatFloat(avgLatency) + " ms" + "\n" +
                     "\t\t" + "Max Latency: " + formatFloat(maxLatency) + " ms"  + "\n" +
@@ -62,6 +82,17 @@ public class StatTail implements Serializable {
                     "\t\t" + "95 percentile: " + formatFloat(percentile95) + " ms"  + "\n" +
                     "\t\t" + "99 percentile: " + formatFloat(percentile99) + " ms"  + "\n" +
                     "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms";
+        if (isEndToEnd) {
+            return str + "\t" + "End To End Latency: " +  "\n" +
+                    "\t\t" + "Avg Latency: " + formatFloat(endToEndAvgLatency) + " ms" + "\n" +
+                    "\t\t" + "Max Latency: " + formatFloat(endToEndMaxLatency) + " ms"  + "\n" +
+                    "\t\t" + "50 percentile: " + formatFloat(endToEndPercentile50) + " ms"  + "\n" +
+                    "\t\t" + "95 percentile: " + formatFloat(endToEndPercentile95) + " ms"  + "\n" +
+                    "\t\t" + "99 percentile: " + formatFloat(endToEndPercentile99) + " ms"  + "\n" +
+                    "\t\t" + "99.9 percentile: " + formatFloat(endToEndPercentile999) + " ms";
+        } else {
+            return str;
+        }
     }
 
     private String formatFloat(double d) {

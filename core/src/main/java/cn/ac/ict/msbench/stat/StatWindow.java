@@ -7,13 +7,17 @@ import java.util.Date;
 
 public class StatWindow implements Serializable {
 
+    private boolean isEndToEnd;
+
     public long version = -1;
     public long time;  // ms
     public double rate; // msg/s
     public long records;  // msgs
     public double tps; // Byte/s
-    public double avgLatency;
-    public double maxLatency;
+    public double avgLatency; // writer or reader
+    public double maxLatency; // writer or reader
+    public double endToEndAvgLatency; // end to end
+    public double endToEndMaxLatency; // end to end
 
 
     public StatWindow(long time, double rate, long records, double tps, double avgLatency, double maxLatency) {
@@ -23,11 +27,28 @@ public class StatWindow implements Serializable {
         this.tps = tps;
         this.avgLatency = avgLatency;
         this.maxLatency = maxLatency;
+        isEndToEnd = false;
+    }
+
+    public StatWindow(long time, double rate, long records, double tps, double avgLatency, double maxLatency, double endToEndAvgLatency, double endToEndMaxLatency) {
+        this(time, rate, records, tps, avgLatency, maxLatency);
+        this.endToEndAvgLatency = endToEndAvgLatency;
+        this.endToEndMaxLatency = endToEndMaxLatency;
+        isEndToEnd = true;
+    }
+
+    public static String printHeadWithEndToEnd() {
+        String header = "Reporting Window:\n";
+        return header + String.format("%-5s  %-24s  %-12s  %-12s  %-12s  %-14s  %-14s  %-24s  %-24s",
+                "Seq", "Time", "Rate(msg/s)", "Records", "Tps(MB/s)", "AvgLatency(ms)", "MaxLatency(ms)", "EndToEndAvgLatency(ms)", "EndToEndMaxLatency(ms)") + "\n";
+
+
     }
 
     public static String printHead() {
-        return "Reporting Window:\n" +
-                String.format("%-5s  %-24s  %-12s  %-12s  %-12s  %-14s  %-14s", "Seq", "Time", "Rate(msg/s)", "Records", "Tps(MB/s)", "AvgLatency(ms)", "MaxLatency(ms)") + "\n";
+        String header = "Reporting Window:\n";
+        return header + String.format("%-5s  %-24s  %-12s  %-12s  %-12s  %-14s  %-14s",
+                "Seq", "Time", "Rate(msg/s)", "Records", "Tps(MB/s)", "AvgLatency(ms)", "MaxLatency(ms)") + "\n";
     }
 
     public String getTime() {
@@ -37,6 +58,10 @@ public class StatWindow implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%-5s  %-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency);
+        if (isEndToEnd) {
+            return String.format("%-5s  %-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f  %-24.3f  %-24.3f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency, endToEndAvgLatency, endToEndMaxLatency);
+        } else {
+            return String.format("%-5s  %-24s  %-12.3f  %-12d  %-12.3f  %-14.3f  %-14.3f", " " + version, getTime(), rate, records, tps, avgLatency, maxLatency);
+        }
     }
 }
