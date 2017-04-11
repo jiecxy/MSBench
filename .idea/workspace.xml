@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1fab3d24-e4d0-4fb8-b546-8ac002fba97b" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/msbench-config.sh" afterPath="$PROJECT_DIR$/bin/msbench-config.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/msbench.sh" afterPath="$PROJECT_DIR$/bin/msbench.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/binding-parent/ms-specific-descriptor/src/main/resources/assemblies/ms-specific-assembly.xml" afterPath="$PROJECT_DIR$/binding-parent/ms-specific-descriptor/src/main/resources/assemblies/ms-specific-assembly.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MSBClient.java" afterPath="$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/MSBClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/distribution/src/main/assembly/distribution.xml" afterPath="$PROJECT_DIR$/distribution/src/main/assembly/distribution.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/bindings.properties" afterPath="$PROJECT_DIR$/bin/bindings.properties" />
     </list>
     <ignored path="root.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,7 +41,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="msbench.sh" pinned="false" current-in-tab="true">
+      <file leaf-file-name="msbench.sh" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/msbench.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="463">
@@ -64,6 +58,16 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="525">
               <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bindings.properties" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bin/bindings.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="210">
+              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -136,6 +140,7 @@
         <option value="$PROJECT_DIR$/binding-parent/ms-specific-descriptor/src/main/resources/assemblies/ms-specific-assembly.xml" />
         <option value="$PROJECT_DIR$/bin/msbench-config.sh" />
         <option value="$PROJECT_DIR$/bin/msbench.sh" />
+        <option value="$PROJECT_DIR$/bin/bindings.properties" />
       </list>
     </option>
   </component>
@@ -159,38 +164,7 @@
     </option>
   </component>
   <component name="MavenProjectNavigator">
-    <treeState>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="" />
-          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$RootNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="" />
-          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$RootNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="MSBench Root" />
-          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$ProjectNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="" />
-          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$RootNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="MSBench Root" />
-          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$ProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="Lifecycle" />
-          <option name="myItemType" value="org.jetbrains.idea.maven.navigator.MavenProjectsStructure$LifecycleNode" />
-        </PATH_ELEMENT>
-      </PATH>
-    </treeState>
+    <treeState />
   </component>
   <component name="ProjectFrameBounds">
     <option name="width" value="1920" />
@@ -958,12 +932,12 @@
       <workItem from="1491422037947" duration="2653000" />
       <workItem from="1491465323208" duration="1808000" />
       <workItem from="1491794908824" duration="6293000" />
-      <workItem from="1491881849699" duration="726000" />
+      <workItem from="1491881849699" duration="950000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="30389000" />
+    <option name="totallyTimeSpent" value="30613000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1200" extended-state="0" />
@@ -1244,14 +1218,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/bindings.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/java/cn/ac/ict/msbench/constants/Constants.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
@@ -1323,6 +1289,14 @@
           <folding>
             <element signature="e#2949#3151#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/bindings.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
