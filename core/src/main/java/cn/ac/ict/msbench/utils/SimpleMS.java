@@ -78,7 +78,7 @@ public class SimpleMS extends MS {
             e.printStackTrace();
         }
         //System.out.println("received SEND ack");
-        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTime);
+        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTime, System.currentTimeMillis());
         return;
     }
 
