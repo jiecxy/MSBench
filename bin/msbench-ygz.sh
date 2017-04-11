@@ -69,7 +69,7 @@ Exit status:
   !=0 if serious problems.
 
 Example:
-    $ ./$__ScriptName  -sys [ basic | kafka | dl | pulsar ] -sn 1 -name topic -w 1 -sync 0 -r 2 -from -1 -ms 100
+    $ ./$__ScriptName  -sys [sample | kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync 0 -r 2 -from -1 -ms 100
     -tp 1000 -tr 1800 -hosts node_a,node_b -rcf read.config -wcf write.config
 
 Report bugs to yaoguangzhong@ict.ac.cn
@@ -97,7 +97,7 @@ RTPL=
 HOSTS=
 RCF=
 WCF=
-D=
+d=
 
 #set user and passwd used by expect
 if [ -z "${MSBENCH_HOME}" ]; then
@@ -271,7 +271,7 @@ while [ "$1" != "" ]; do
       ;;
     -d|--delay)
       if [ -n "$2" ]; then
-        D="$2"
+        d="$2"
         shift 2
         continue
       else
@@ -323,72 +323,55 @@ while [ "$1" != "" ]; do
   shift
 done
 
-# arguments w r
-if [ -z $W ] && [ -z $R ]; then
-    echo "ERROR: -w or -r is required!"
-    exit
-fi
-
-# argument hosts
-if [ -z $HOSTS ]; then
-    echo "ERROR: -hosts is required!"
-    exit
-fi
-
-# argument tr
-if [ -z $DURATION ]; then
-    echo "ERROR: -tr is required!"
-    exit
-fi
-
-# argument d
-if [ ! -z $D ]; then
-    READER_DURATION=${DURATION}
-    if [ ! $(expr ${DURATION} - ${D}) -gt 0 ]; then
-        echo "ERROR: -tr should be greater than -d"
-        exit
-    else
-        READER_DURATION=$(expr ${DURATION} - ${D})
-    fi
-fi
+#echo "the options are: \
+#system: $SYS, writer number: $W, writer config file path: $WCF,\
+# reader number: $R, reader config file path: $RCF, read mode: $RMODE,\
+#  stream number: $NUMBER, test duration: $DURATION, hosts: $HOSTS,\
+#   write velocity: $VELOCITY, velocity mode: $VMODE, stream prefix: $PREFIX, delay is: $d "
 
 . "${MSBENCH_HOME}/bin/msbench-config.sh"
 
 
 MASTERCLASS="cn.ac.ict.msbench.MSBClient"
+SLAVECLASS="MocSlave"
+
 
 IPLIST=${HOSTS//,/' '}
 HOSTNUM=$(echo $IPLIST | wc -w)
-
-# select a master to run
-# if local ip is in the hosts list, select local machine as master, else random select one
+#echo "the IPLIST is $IPLIST, the host num is $HOSTNUM"
+#select a master to run
+#if local ip is in the hosts list, select local machine as master, else random select one
 LOCALIP=$(hostname -i)
+#echo "LocalIP is $LOCALIP"
 MASTERIP=127.0.0.1
 location=$(($RANDOM % $HOSTNUM))
+#echo "master ip locate in iplist $location"
 i=0
 for ip in $IPLIST
 do
     if [ $i -eq $location ]; then
-        MASTERIP=$ip
+    MASTERIP=$ip
     fi
     if [ "$ip"x = "$LOCALIP"x ]; then
-        MASTERIP=$LOCALIP
-        break
+    MASTERIP=$LOCALIP
+    break
     fi
     i=$(($i+1))
 done
+#echo "master ip is $MASTERIP"
 
-# Relative conf path
+#relative conf path
 RWCF=${WCF}
 RRCF=${RCF}
-# record the conf file absolute path
+#record the conf file absolute path
 WCF=${MSBENCH_CONF_DIR}/${WCF}
+#echo "msbench writer config path is ${WCF}"
 RCF=${MSBENCH_CONF_DIR}/${RCF}
-# echo "msbench reader config path is ${RCF}"
-# todo execute other shell file in shell file internal
+#echo "msbench reader config path is ${RCF}"
+#todo execute other shell file in shell file internal
 
 if [ "$MSBENCH_MASTER_PORT" = "" ]; then
-    MSBENCH_MASTER_PORT=6789
+  MSBENCH_MASTER_PORT=6789
 fi
 
 JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs"
@@ -414,132 +397,138 @@ if [ "$MSBENCH_SSH_OPTS" = "" ]; then
   MSBENCH_SSH_OPTS="-o StrictHostKeyChecking=no"
 fi
 # Start Master
-#   -tr 1000 -M 1.1.1.1:9999 -P master -w 1 -r 1 -sn 1 -name topic
+#-tr 1000 -M 1.1.1.1:9999 -P master -w 1 -r 1 -sn 1 -name topic
 
-CMD=
+
 # About to run MSB Master
 if [ "$LOCALIP" = "$MASTERIP" ]; then
-    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS  -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P master -sn $NUMBER -name $PREFIX"
+
+#echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath $CLASSPATH $MASTERCLASS -home ${MSBENCH_HOME}  -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P master -w $W \
+#-r $R -sn $NUMBER -name $PREFIX &"
+
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P master -w $W \
+-r $R -sn $NUMBER -name $PREFIX &
 else
-    #expect ssh.exp $USER $PASSWD $MASTERIP
-    CMD="ssh $MSBENCH_SSH_OPTS $MASTERIP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION \
-        -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P master -sn $NUMBER -name $PREFIX"
+
+#echo "ssh $MSBENCH_SSH_OPTS "$MASTERIP" "${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P master -w $W \
+#-r $R -sn $NUMBER -name $PREFIX &"
+
+#expect ssh.exp $USER $PASSWD $MASTERIP
+ssh $MSBENCH_SSH_OPTS "$MASTERIP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P master -w $W \
+-r $R -sn $NUMBER -name $PREFIX &
+
 fi
-if [ ! -z $W ]; then
-    CMD=${CMD}" -w $W"
-fi
-if [ ! -z $R ]; then
-    CMD=${CMD}" -r $R"
-fi
-##########################################################################################
-#echo $CMD
-$CMD &
 
 
 # Start Workers
+#plan1:calculate every node's worker type, number, stream_name and write mode
 #
+#plan2:assign through every node
+#
+#transfer conf
+#
+#Note everynode should export the $MSBENCH_HOME in /etc/profile
+#and ssh command may need source /etc/profile first to get $MSBENCH_HOME
+#NOTE the user name should be consistent in all nodes,
 IPARRY=
 i=0
 for IP in $IPLIST; do
-    IPARRY[$i]=$IP
-    if [ $IP != $LOCALIP ]; then
-        if [ ! -z $RWCF ]; then
-            ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; scp $LOCALIP:${WCF} \${MSBENCH_HOME}/conf"
-        fi
-        if [ ! -z $RRCF ]; then
-            ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; scp $LOCALIP:${RCF} \${MSBENCH_HOME}/conf"
-        fi
-    fi
-    i=$(($i+1))
+IPARRY[$i]=$IP
+if [ $IP != $LOCALIP ]; then
+#echo "transfering conf to $IP"
+#scp ${MSBENCH_HOME}/conf/${WCF} $IP:
+#echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; scp $LOCALIP:${WCF} \${MSBENCH_HOME}/conf"
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; scp $LOCALIP:${WCF} \${MSBENCH_HOME}/conf"
+#echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; scp $LOCALIP:${RCF} \${MSBENCH_HOME}/conf"
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; scp $LOCALIP:${RCF} \${MSBENCH_HOME}/conf"
+fi
+i=$(($i+1))
 done
-
-
 IPSIZE=${#IPARRY[@]}
 NW=$(($NUMBER*$W))
+#echo "all number of writer is $NW,starting writer"
 j=0
 while [ $j -lt $NUMBER ]; do
-    if [ ! -z $W ]; then
-        i=0
-        while [ $i -lt $W ]; do
-            #use module to choose ip
-            IP=${IPARRY[$((${i}%${IPSIZE}))]}
-            #use ssh in remote host
-            CMD=
-            if [ $IP != $LOCALIP ]; then
-                if [ $VMODE -eq -1 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1"
-                elif [ $VMODE -eq -2 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY"
-                elif [ $VMODE -eq -3 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS"
-                elif [ $VMODE -eq -4 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS"
-                fi
-                if [ ! -z $RWCF ]; then
-                    CMD=${CMD}" -cf \${MSBENCH_HOME}/conf/${RWCF}"
-                fi
-            else
-            #echo "start writer in local machine"
-                if [ $VMODE -eq -1 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1"
-                elif [ $VMODE -eq -2 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY"
-                elif [ $VMODE -eq -3 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS"
-                elif [ $VMODE -eq -4 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS"
-                fi
-                if [ ! -z $RWCF ]; then
-                    CMD=${CMD}" -cf ${WCF}"
-                fi
-            fi
-            ##########################################################################################
-            #echo $CMD
-            $CMD &
-            i=$(($i+1))
-        done
-    fi
 
-    if [ ! -z $R ]; then
-        i=0
-        while [ $i -lt $R ]; do
-            #assign from the end
-            LOCATE=$((${IPSIZE}-1-$((${i}%${IPSIZE}))))
-            IP=${IPARRY[$LOCATE]}
-            #use ssh in remote host
-            CMD=
-            if [ $IP != $LOCALIP ]; then
-                CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION \
-                    -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -from $RMODE"
-                if [ ! -z $RRCF ]; then
-                    CMD=${CMD}" -cf \${MSBENCH_HOME}/conf/${RRCF}"
-                fi
-            else
-                #echo "start reader in local machine"
-                CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -d ${d} -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
-                    -sys $BINDING_CLASS -sname ${PREFIX}$j -from $RMODE"
-                if [ ! -z $RRCF ]; then
-                    CMD=${CMD}" -cf ${RCF}"
-                fi
-            fi
-            if [ ! -z $D ]; then
-                CMD=${CMD}" -d ${D}"
-            fi
-            ##########################################################################################
-            #echo $CMD
-            $CMD &
-            i=$(($i+1))
-        done
-    fi
-    j=$(($j+1))
+i=0
+while [ $i -lt $W ]; do
+#use module to choose ip
+IP=${IPARRY[$((${i}%${IPSIZE}))]}
+#use ssh in remote host
+if [ $IP != $LOCALIP ]; then
+if [ $VMODE -eq -1 ]; then
+#echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home \${MSBENCH_HOME} -P writer -W $IP \
+#-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &"
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home \${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &
+elif [ $VMODE -eq -2 ]; then
+#echo "ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  -home \${MSBENCH_HOME} -P writer -W $IP \
+#-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &"
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  -home \${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &
+elif [ $VMODE -eq -3 ]; then
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  -home \${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS &
+elif [ $VMODE -eq -4 ]; then
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home \${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RWCF} -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS &
+fi
+else
+#echo "start writer in local machine"
+if [ $VMODE -eq -1 ]; then
+#echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath $CLASSPATH $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+#-sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &"
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp -1 &
+elif [ $VMODE -eq -2 ]; then
+#echo "${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+#-sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &"
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY &
+elif [ $VMODE -eq -3 ]; then
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS &
+elif [ $VMODE -eq -4 ]; then
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS  -d ${d} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+-sys $BINDING_CLASS -cf ${WCF} -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS &
+fi
+fi
+i=$(($i+1))
 done
+
+i=0
+while [ $i -lt $R ]; do
+#assign from the end
+LOCATE=$((${IPSIZE}-1-$((${i}%${IPSIZE}))))
+IP=${IPARRY[$LOCATE]}
+#use ssh in remote host
+if [ $IP != $LOCALIP ]; then
+ssh $MSBENCH_SSH_OPTS "$IP" "source .bash_profile; \${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
+-sys $BINDING_CLASS -cf \${MSBENCH_HOME}/conf/${RRCF} -sname ${PREFIX}$j -from $RMODE &
+else
+#echo "start reader in local machine"
+"${MSBENCH_HOME}/bin"/msbench-class.sh $SYS $MASTERCLASS -d ${d} -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
+-sys $BINDING_CLASS -cf ${RCF} -sname ${PREFIX}$j -from $RMODE &
+
+fi
+i=$(($i+1))
+done
+j=$(($j+1))
+done
+
+#todo log impl
+#todo add source profile to before every ssh call(ssh shell env investigate)
+
+# parse options using getopt:
+#MSB=`getopt -o s:n:N:w:r:S:::i:S:G:T:B:M: \
+#--long help,version,verbose,origver:,disksize:,path-prefix:,memsize:,\
+#vcpus:,vmname:,domain::,ipv4:,supervisor:,gateway:,\
+#iftype:,broadcast:,netmask:\
+#  -n ' * ERROR' -- "$@"#`
+#if [ $? != 0 ] ; then
+#echoerror "$__ScriptName exited with doing nothing." >&2 ; exit 1 ; fi
+#
+## Note the quotes around $RET: they are essential!
+#eval set -- "$MSB"
 
 

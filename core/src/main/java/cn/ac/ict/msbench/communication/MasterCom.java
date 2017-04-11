@@ -33,6 +33,7 @@ public class MasterCom extends Communication {
     private final String masterID = "master";
     private Map<String, WorkerComInfo> workers = new HashMap<String, WorkerComInfo>();
     private Cancellable checkTimeoutScheduler = null;
+    private boolean isRunning = false;
 
     private Exporter exporter = null;
     private ArrayList<String> streams;
@@ -95,6 +96,7 @@ public class MasterCom extends Communication {
                     if (msg.type == TYPE.REQUEST) {
                         if (registerWorker(msg, getSender())) {
                             if (checkWorkersReady()) {
+                                isRunning = true;
                                 if (NEED_INITIALIZE_MS) {
                                     log.info(getMasterLogPrefix() + "Sending Initialize request...");
                                     sendInitializeRequest();
@@ -156,7 +158,7 @@ public class MasterCom extends Communication {
                                     log.info(getMasterLogPrefix() + "Sending FINALIZE_MS request...");
                                     sendFinalizeRequest();
                                 } else {
-                                    log.info(getMasterLogPrefix() + "INITIALIZE_MS is disabled. Stopping all clients...");
+                                    log.info(getMasterLogPrefix() + "FINALIZE_MS is disabled. Stopping all clients...");
                                     stopAllLiveClients();
                                 }
                             }
@@ -280,7 +282,8 @@ public class MasterCom extends Communication {
 
     private void checkTimeoutWorker() {
         long now = System.currentTimeMillis();
-        if (checkWorkersReady()) {
+        if (isRunning) {
+            // while running the test
             for (Map.Entry<String, WorkerComInfo> entry : workers.entrySet()) {
                 if (entry.getValue().status == WorkerComInfo.STATUS.TERMINATED
                         || entry.getValue().status == WorkerComInfo.STATUS.TIMEOUT) {
@@ -295,6 +298,7 @@ public class MasterCom extends Communication {
                 }
             }
         } else {
+            // while waiting the registration
             long dif = System.currentTimeMillis() - startTime;
             if (dif >=  WAIT_REGISTRATION_TIMEOUT_MS) {
                 log.error(getMasterLogPrefix() + "Waiting required workers' registration Timeout " + dif + " ms, closing all clients and master");
