@@ -29,7 +29,7 @@
 #-ctp: 每次变化多大的速率(change tp)
 #-ctps: 每隔多久变化一次，单位秒(change tp seconds)
 #-rtpl: 指定速率变化的list，速率按照这个list周期变化(random tp list)，例-rtpl  10,20,15,30,1；此参数也需要配合cpts参数；与其他变化参数将冲突
-#-sync:0异步，1同步
+#-sync: 同步，默认为异步
 #注：速率控制和同步异步暂时只针对writer。速率控制策略有：恒定速率，不限速率，递增/减速率，随机变速。
 #
 #-r: 每个流的reader进程数量
@@ -69,7 +69,7 @@ Exit status:
   !=0 if serious problems.
 
 Example:
-    $ ./$__ScriptName  -sys [ basic | kafka | dl | pulsar ] -sn 1 -name topic -w 1 -sync 0 -r 2 -from -1 -ms 100
+    $ ./$__ScriptName  -sys [ basic | kafka | dl | pulsar ] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100
     -tp 1000 -tr 1800 -hosts node_a,node_b -rcf read.config -wcf write.config
 
 Report bugs to yaoguangzhong@ict.ac.cn
@@ -81,7 +81,7 @@ if [ $# -eq 0 ]; then usage; exit 1; fi
 SYS=
 PREFIX=
 NUMBER=
-SYNC=0
+SYNC=""
 SIZE=
 VERBOSE=false
 DURATION=
@@ -192,8 +192,7 @@ while [ "$1" != "" ]; do
       fi
       ;;
     -sync)
-#        echo "Info: '-sync' set to 1."
-        SYNC=1
+        SYNC="-sync"
         shift
         continue
         ;;
@@ -466,16 +465,16 @@ while [ $j -lt $NUMBER ]; do
             if [ $IP != $LOCALIP ]; then
                 if [ $VMODE -eq -1 ]; then
                     CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1"
+                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1 $SYNC"
                 elif [ $VMODE -eq -2 ]; then
                     CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY"
+                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY $SYNC"
                 elif [ $VMODE -eq -3 ]; then
                     CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS"
+                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS $SYNC"
                 elif [ $VMODE -eq -4 ]; then
                     CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS"
+                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS $SYNC"
                 fi
                 if [ ! -z $RWCF ]; then
                     CMD=${CMD}" -cf \${MSBENCH_HOME}/conf/${RWCF}"
@@ -484,16 +483,16 @@ while [ $j -lt $NUMBER ]; do
             #echo "start writer in local machine"
                 if [ $VMODE -eq -1 ]; then
                     CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1"
+                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1 $SYNC"
                 elif [ $VMODE -eq -2 ]; then
                     CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY"
+                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY $SYNC"
                 elif [ $VMODE -eq -3 ]; then
                     CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS"
+                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS $SYNC"
                 elif [ $VMODE -eq -4 ]; then
                     CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS"
+                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS $SYNC"
                 fi
                 if [ ! -z $RWCF ]; then
                     CMD=${CMD}" -cf ${WCF}"
