@@ -195,7 +195,7 @@ public class DLClient extends MS {
                     @Override
                     public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
                         for (LogRecordWithDLSN log : logRecordWithDLSNs){
-                            readCallBack.handleReceivedMessage(log.getPayload(), requestTimeInNano, log.getTransactionId()*1000000);
+                            readCallBack.handleReceivedMessage(log.getPayload(), requestTimeInNano, log.getTransactionId());
                         }
                     }
 

@@ -453,9 +453,7 @@ for IP in $IPLIST; do
     i=$(($i+1))
 done
 
-
 IPSIZE=${#IPARRY[@]}
-NW=$(($NUMBER*$W))
 j=0
 while [ $j -lt $NUMBER ]; do
     if [ ! -z $W ]; then
