@@ -391,7 +391,7 @@ if [ "$MSBENCH_MASTER_PORT" = "" ]; then
     MSBENCH_MASTER_PORT=6789
 fi
 
-JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs"
+JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs -Dlog4j.configuration=file:${MSBENCH_HOME}/conf/log4j.properties"
 
 
 # Attempt to find the available JAVA, if JAVA_HOME not set
