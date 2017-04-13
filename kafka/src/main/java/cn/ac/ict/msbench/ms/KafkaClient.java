@@ -4,13 +4,11 @@ import cn.ac.ict.msbench.MS;
 import cn.ac.ict.msbench.exception.MSException;
 import cn.ac.ict.msbench.worker.callback.ReadCallBack;
 import cn.ac.ict.msbench.worker.callback.WriteCallBack;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.clients.producer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Random;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG;
 
@@ -33,10 +32,15 @@ public class KafkaClient extends MS {
     private static final String TOPIC_PARTITIONS = "partition.num";
     private static final String REPLICATION_FACTOR = "replication.factor";
 
-    private String controllerIP = "";  // controller's ip
+    private static final String DEFAULT_BATCH_SIZE = "65536";
+    private static final String DEFAULT_BUFFER_MEMORY = "4194304";
+    private static final String DEFAULT_ACKS = "all";
+    private static final String DEFAULT_LINGER_MS = "20";
+
+    private String controllerIP = "localhost";  // controller's ip
     private int controllerPort = 9092;
-    private int partitions = 12;
-    private short replicationFactor = 3;
+    private int partitions = 18;
+    private short replicationFactor = 1;
     private KafkaProducer<byte[], byte[]> producer = null;
     private KafkaConsumer<byte[], byte[]> consumer = null;
 
@@ -44,22 +48,51 @@ public class KafkaClient extends MS {
         super(streamName, isProducer, p, from);
 
         if (p == null) {
-            log.error("Kafka Missing the config file");
+            log.error("Kafka Missing the config file which should include the bootstrap.servers at least!");
             throw new MSException("Missing the config file");
         }
-//        System.out.println("Properties: " + p);
 
-        controllerIP = (String) p.remove(CONTROLLER_IP);
-        controllerPort = Integer.parseInt((String)p.remove(CONTROLLER_PORT));
-        partitions = Integer.parseInt((String)p.remove(TOPIC_PARTITIONS));
-        replicationFactor = Short.parseShort((String)p.remove(REPLICATION_FACTOR));
+        if (!extractMSBasic(p)) {
+            log.warn("If you disabled NEED_INITIALIZE_MS or NEED_FINALIZE_MS, you need to do them by yourself!");
+        }
 
         if (isProducer) {
+            setValue(p, ProducerConfig.BATCH_SIZE_CONFIG, DEFAULT_BATCH_SIZE);
+            setValue(p, ProducerConfig.BUFFER_MEMORY_CONFIG, DEFAULT_BUFFER_MEMORY);
+            setValue(p, ProducerConfig.ACKS_CONFIG, DEFAULT_ACKS);
+            setValue(p, ProducerConfig.LINGER_MS_CONFIG, DEFAULT_LINGER_MS);
+            p.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
+            p.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
+            log.info("Kafka Producer config: " + p.toString());
             producer = new KafkaProducer<>(p);
         } else {
+            setValue(p, ConsumerConfig.GROUP_ID_CONFIG, streamName + "-" + (new Random(System.currentTimeMillis()).nextInt(10000)));
+            setValue(p, ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+            p.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+            p.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
             p.setProperty(AUTO_OFFSET_RESET_CONFIG, from == 0 ? "earliest" : "latest");
+            log.info("Kafka Consumer config: " + p.toString());
             consumer = new KafkaConsumer<>(p);
             consumer.subscribe(Collections.singletonList(streamName));
+        }
+    }
+
+    private void setValue(Properties p, String key, String value) {
+        if (!p.containsKey(key)) {
+            p.setProperty(key, value);
+        }
+    }
+
+    private boolean extractMSBasic(Properties p) {
+        try {
+            controllerIP = (String) p.remove(CONTROLLER_IP);
+            controllerPort = Integer.parseInt((String)p.remove(CONTROLLER_PORT));
+            partitions = Integer.parseInt((String)p.remove(TOPIC_PARTITIONS));
+            replicationFactor = Short.parseShort((String)p.remove(REPLICATION_FACTOR));
+            return true;
+        } catch (Exception e) {
+            log.warn(e.toString());
+            return false;
         }
     }
 

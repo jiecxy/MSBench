@@ -161,7 +161,6 @@ public class MSBClient {
 
                 // Get the ms class
                 try {
-                    //TODO 将properties改为可选
                     String configFilePath = res.getString(CONFIG_FILE);
                     Properties msClientProps = null;
                     if (configFilePath != null) {
