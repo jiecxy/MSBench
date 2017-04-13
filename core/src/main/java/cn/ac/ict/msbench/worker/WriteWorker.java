@@ -110,8 +110,8 @@ public class WriteWorker extends Worker implements WriteCallBack {
                         numMsg*1.0 / (elapsedInNano / 1e9),
                         numMsg,
                         numByte / (elapsedInNano / 1e9) / 1024.0 / 1024.0,
-                        reportHist.getMean()/1e6,
-                        reportHist.getMaxValue()/1e6));
+                        reportHist.getMean()/1000.0,
+                        reportHist.getMaxValue()/1000.0));
 
                 numMsg = 0;
                 numByte = 0;

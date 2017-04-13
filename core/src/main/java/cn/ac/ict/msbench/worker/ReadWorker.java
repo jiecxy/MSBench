@@ -113,8 +113,8 @@ public class ReadWorker extends Worker implements ReadCallBack {
         cb.onSendStatTail(
                 new StatTail(System.currentTimeMillis(),
                         totalNumByte / 1024.0 / 1024.0 / (elapsedInNano / 1e9),
-                        reportHist.getMean()/1e6,
-                        reportHist.getMaxValue()/1e6,
+                        reportHist.getMean()/1000.0,
+                        reportHist.getMaxValue()/1000.0,
                         reportHist.getValueAtPercentile(50)/1000.0,
                         reportHist.getValueAtPercentile(95)/1000.0,
                         reportHist.getValueAtPercentile(99)/1000.0,
