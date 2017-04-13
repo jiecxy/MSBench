@@ -165,4 +165,4 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-conf/
+.DS_Store
