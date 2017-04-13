@@ -50,7 +50,7 @@ public class SimpleMS extends MS {
         if (isSync) {
 //            System.out.println("Sync sending message " + new String(msg) );
             try {
-                Thread.sleep(10000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -59,7 +59,7 @@ public class SimpleMS extends MS {
         } else {
 //            System.out.println("Async sending message " + new String(msg) );
             try {
-                Thread.sleep(10000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -74,7 +74,7 @@ public class SimpleMS extends MS {
 //        System.out.println("receiving message from ");
         long publishTimeInMillis =System.currentTimeMillis();
         try {
-            Thread.sleep(10000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

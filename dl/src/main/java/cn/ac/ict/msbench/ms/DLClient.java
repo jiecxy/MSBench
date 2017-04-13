@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 /**
- * DLCient, responsible for DL write and read using DLog interface
+ * Created by jiecxy on 2017/3/15.
  */
 public class DLClient extends MS {
     private static final String SERVERSETPATHS = "serversetpaths";

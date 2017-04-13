@@ -69,7 +69,7 @@ Exit status:
   !=0 if serious problems.
 
 Example:
-    $ ./$__ScriptName  -sys [sample | kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync 0 -r 2 -from -1 -ms 100
+    $ ./$__ScriptName  -sys [sample | kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100
     -tp 1000 -tr 1800 -hosts node_a,node_b -rcf read.config -wcf write.config
 
 Report bugs to yaoguangzhong@ict.ac.cn
@@ -374,7 +374,7 @@ if [ "$MSBENCH_MASTER_PORT" = "" ]; then
   MSBENCH_MASTER_PORT=6789
 fi
 
-JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs"
+JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs -Dlog4j.configuration=file:${MSBENCH_HOME}/conf/log4j.properties"
 
 
 # Attempt to find the available JAVA, if JAVA_HOME not set

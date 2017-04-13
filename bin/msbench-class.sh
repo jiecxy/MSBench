@@ -29,7 +29,7 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1;
 fi
 
-JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs"
+JAVA_OPTS="-Dmsbench.logs.dir=${MSBENCH_HOME}/logs -Dlog4j.configuration=file:${MSBENCH_HOME}/conf/log4j.properties"
 
 # About to run MSB
 #echo "$JAVA_HOME/bin/java $JAVA_OPTS -classpath '$CLASSPATH' $@"
