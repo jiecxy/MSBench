@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static cn.ac.ict.msbench.communication.Command.METRICS_HEAD;
 import static cn.ac.ict.msbench.communication.Command.METRICS_TAIL;
 import static cn.ac.ict.msbench.communication.Command.METRICS_WINDOW;
+import static cn.ac.ict.msbench.exporter.Exporter.*;
+import static cn.ac.ict.msbench.exporter.Exporter.TAIL;
 
 /**
  * Created by jiecxy on 2017/3/21.
@@ -43,7 +45,7 @@ public class WorkerComInfo {
     public void insertHeader(Exporter exporter, StatHeader header) {
         stat.head = header;
         if (exporter != null) {
-            exporter.write(workerID, METRICS_HEAD, header.toString());
+            exporter.write(workerID, HEAD, header.toString());
         }
     }
 
@@ -51,7 +53,10 @@ public class WorkerComInfo {
     public void insertWindow(Exporter exporter, StatWindow window) {
         stat.statWindow.add(window);
         if (exporter != null) {
-            exporter.write(workerID, METRICS_WINDOW, window.toString());
+            if (window.isEndToEnd)
+                exporter.write(workerID, WINDOW_END_TO_END, window.toString());
+            else
+                exporter.write(workerID, WINDOW, window.toString());
         }
 //        return true;
     }
@@ -59,7 +64,10 @@ public class WorkerComInfo {
     public void insertTail(Exporter exporter, StatTail tail) {
         stat.tail = tail;
         if (exporter != null) {
-            exporter.write(workerID, METRICS_TAIL, tail.toString());
+            if (tail.isEndToEnd)
+                exporter.write(workerID, TAIL_END_TO_END, tail.toString());
+            else
+                exporter.write(workerID, TAIL, tail.toString());
         }
     }
 }

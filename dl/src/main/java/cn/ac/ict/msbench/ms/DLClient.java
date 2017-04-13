@@ -28,9 +28,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 /**
- * Created by jiecxy on 2017/3/15.
+ * DLCient, responsible for DL write and read using DLog interface
  */
 public class DLClient extends MS {
     private static final String SERVERSETPATHS = "serversetpaths";
@@ -40,9 +41,11 @@ public class DLClient extends MS {
     private static final String HOSTCONNECTIONCORESIZE = "hostConnectionCoresize";
     private static final String THRIFTMUX = "thriftmux";
     private static final String READBULKNUM = "readbulknum";
+    private static final String ISWRITER ="iswriter";
 
     DistributedLogConfiguration conf = null;
     AsyncLogReader reader = null;
+    AsyncLogWriter writer = null;
     ClientBuilder clientBuilder = null;
     DistributedLogClientBuilder builder = null;
     DistributedLogClient client = null;
@@ -56,15 +59,16 @@ public class DLClient extends MS {
     boolean thriftmux = true;
     List<String> serversetPaths = new ArrayList<String>();
     List<String> finagleNames = new ArrayList<String>();
+    boolean iswriter = true;
 
     public DLClient(String streamName, boolean isProducer, Properties p,int from) {
         super(streamName, isProducer, p,from);
+        uri = URI.create((String) p.remove(DLURI));
+        Preconditions.checkNotNull(uri);
+        conf = new DistributedLogConfiguration();
         if(!isProducer){
-            uri = URI.create((String) p.remove(DLURI));
             readbulknum = Integer.parseInt((String) p.remove(READBULKNUM));
-            Preconditions.checkNotNull(uri);
             Preconditions.checkNotNull(readbulknum);
-            conf = new DistributedLogConfiguration();
             try {
                 namespace = DistributedLogNamespaceBuilder.newBuilder()
                         .conf(conf)
@@ -87,6 +91,7 @@ public class DLClient extends MS {
             hostConnectionLimit = Integer.parseInt((String) p.remove(HOSTCONNECTIONLIMIT));
             hostConnectionCoresize = Integer.parseInt((String) p.remove(HOSTCONNECTIONCORESIZE));
             thriftmux = Boolean.parseBoolean((String) p.remove(THRIFTMUX));
+            iswriter = Boolean.parseBoolean((String)p.remove(ISWRITER));
             serverSets = createServerSets(serversetPaths);
 
             Preconditions.checkArgument(!finagleNames.isEmpty() || !serversetPaths.isEmpty(),
@@ -95,31 +100,46 @@ public class DLClient extends MS {
                     "host connection core size must be > 0");
             Preconditions.checkArgument(hostConnectionLimit > 0,
                     "host connection limit must be > 0");
-            clientBuilder = ClientBuilder.get()
-                    .hostConnectionLimit(hostConnectionLimit)
-                    .hostConnectionCoresize(hostConnectionCoresize)
-                    .tcpConnectTimeout(Duration$.MODULE$.fromMilliseconds(200))
-                    .connectTimeout(Duration$.MODULE$.fromMilliseconds(200))
-                    .requestTimeout(Duration$.MODULE$.fromSeconds(2));
-            builder = DistributedLogClientBuilder.newBuilder()
-                    .clientId(ClientId.apply("msbench-proxy-writer"))
-                    .name("msbench-proxy-writer")
-                    .thriftmux(thriftmux)
-                    .clientBuilder(clientBuilder);
-            if (serverSets.length == 0) {
-                String local = finagleNames.get(0);
-                String[] remotes = new String[finagleNames.size() - 1];
-                finagleNames.subList(1, finagleNames.size()).toArray(remotes);
-                builder = builder.finagleNameStrs(local, remotes);
-            } else {
-                ServerSet local = serverSets[0].getServerSet();
-                ServerSet[] remotes = new ServerSet[serverSets.length - 1];
-                for (int i = 1; i < serverSets.length; i++) {
-                    remotes[i-1] = serverSets[i].getServerSet();
+            Preconditions.checkNotNull(iswriter);
+            if(iswriter){
+                try {
+                    namespace = DistributedLogNamespaceBuilder.newBuilder()
+                            .conf(conf)
+                            .uri(uri)
+                            .build();
+                    DistributedLogManager dlm = namespace.openLog(streamName);
+                    writer = FutureUtils.result(dlm.openAsyncLogWriter());
+                }catch (IOException e){
+                    e.printStackTrace();
                 }
-                builder = builder.serverSets(local, remotes);
+            }else{
+                clientBuilder = ClientBuilder.get()
+                        .hostConnectionLimit(hostConnectionLimit)
+                        .hostConnectionCoresize(hostConnectionCoresize)
+                        .tcpConnectTimeout(Duration$.MODULE$.fromMilliseconds(200))
+                        .connectTimeout(Duration$.MODULE$.fromMilliseconds(200))
+                        .requestTimeout(Duration$.MODULE$.fromSeconds(2));
+                builder = DistributedLogClientBuilder.newBuilder()
+                        .clientId(ClientId.apply("msbench-proxy-writer"))
+                        .name("msbench-proxy-writer")
+                        .thriftmux(thriftmux)
+                        .clientBuilder(clientBuilder);
+                if (serverSets.length == 0) {
+                    String local = finagleNames.get(0);
+                    String[] remotes = new String[finagleNames.size() - 1];
+                    finagleNames.subList(1, finagleNames.size()).toArray(remotes);
+                    builder = builder.finagleNameStrs(local, remotes);
+                } else {
+                    ServerSet local = serverSets[0].getServerSet();
+                    ServerSet[] remotes = new ServerSet[serverSets.length - 1];
+                    for (int i = 1; i < serverSets.length; i++) {
+                        remotes[i-1] = serverSets[i].getServerSet();
+                    }
+                    builder = builder.serverSets(local, remotes);
+                }
+                client = builder.build();
             }
-            client = builder.build();
+
         }
     }
 
@@ -157,34 +177,63 @@ public class DLClient extends MS {
     public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTime) {
         if(isSync){
             //同步问题
-            try {
-                //todo use twitter's future's wait func
-                client.write(streamName,ByteBuffer.wrap(msg)).toJavaFuture().get();
-               // client.write(streamName,ByteBuffer.wrap(msg)).get();
-                sentCallBack.handleSentMessage(msg, requestTime);
-            }catch (Exception e){
-                e.printStackTrace();
-                System.out.println("sync-write failed!");
+            if(iswriter){
+                try {
+                    writer.write(new LogRecord(requestTime,msg)).toJavaFuture().get();
+                    sentCallBack.handleSentMessage(msg,requestTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    //todo use twitter's future's wait func
+                    client.write(streamName,ByteBuffer.wrap(msg)).toJavaFuture().get();
+                    // client.write(streamName,ByteBuffer.wrap(msg)).get();
+                    sentCallBack.handleSentMessage(msg, requestTime);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("sync-write failed!");
+                }
             }
-        }else{
-            client.write(streamName, ByteBuffer.wrap(msg)).addEventListener(
-                    new FutureEventListener<DLSN>() {
-                        @Override
-                        public void onSuccess(DLSN dlsn) {
-                            sentCallBack.handleSentMessage(msg, requestTime);
-                        }
 
-                        @Override
-                        public void onFailure(Throwable cause) {
-                            //抛异常
-                            if (cause instanceof DLException) {
-                                DLException dle = (DLException) cause;
-                                dle.printStackTrace();
+        }else{
+            if(iswriter){
+                writer.write(new LogRecord(requestTime,msg)).addEventListener(
+                        new FutureEventListener<DLSN>() {
+                            @Override
+                            public void onFailure(Throwable cause) {
                                 System.out.println("Async-write failed!");
                             }
+
+                            @Override
+                            public void onSuccess(DLSN value) {
+                                sentCallBack.handleSentMessage(msg,requestTime);
+                            }
                         }
-                    }
-            );
+                );
+            }else{
+                client.write(streamName, ByteBuffer.wrap(msg)).addEventListener(
+                        new FutureEventListener<DLSN>() {
+                            @Override
+                            public void onSuccess(DLSN dlsn) {
+                                sentCallBack.handleSentMessage(msg, requestTime);
+                            }
+
+                            @Override
+                            public void onFailure(Throwable cause) {
+                                //抛异常
+                                if (cause instanceof DLException) {
+                                    DLException dle = (DLException) cause;
+                                    dle.printStackTrace();
+                                    System.out.println("Async-write failed!");
+                                }
+                            }
+                        }
+                );
+            }
+
         }
     }
 
@@ -195,7 +244,7 @@ public class DLClient extends MS {
                     @Override
                     public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
                         for (LogRecordWithDLSN log : logRecordWithDLSNs){
-                            readCallBack.handleReceivedMessage(log.getPayload(),requestTime);
+                            readCallBack.handleReceivedMessage(log.getPayload(),requestTime,log.getTransactionId());
                         }
                     }
 
@@ -215,6 +264,8 @@ public class DLClient extends MS {
     public void close() {
         if(reader!=null)
             reader.asyncClose();
+        if(writer!=null)
+            writer.asyncClose();
         if(client!=null)
             client.close();
     }

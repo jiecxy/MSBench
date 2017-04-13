@@ -11,8 +11,6 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cn.ac.ict.msbench.communication.Command.METRICS_HEAD;
-import static cn.ac.ict.msbench.communication.Command.METRICS_WINDOW;
 
 /**
  * Write human readable text. Tries to emulate the previous print report method.
@@ -50,10 +48,16 @@ public class FileExporter implements Exporter {
             if (!files.containsKey(fileID)) {
                 files.put(fileID, new FileInfo(createFile(fileID)));
             }
-            if (METRICS_WINDOW == metrics && !files.get(fileID).writenWindowHeader) {
-                files.get(fileID).bw.newLine();
-                files.get(fileID).bw.write(StatWindow.printHead());
-                files.get(fileID).writenWindowHeader = true;
+            if (!files.get(fileID).writenWindowHeader) {
+                if (WINDOW == metrics) {
+                    files.get(fileID).bw.newLine();
+                    files.get(fileID).bw.write(StatWindow.printHead());
+                    files.get(fileID).writenWindowHeader = true;
+                } else if (WINDOW_END_TO_END == metrics) {
+                    files.get(fileID).bw.newLine();
+                    files.get(fileID).bw.write(StatWindow.printHeadWithEndToEnd());
+                    files.get(fileID).writenWindowHeader = true;
+                }
             }
             files.get(fileID).bw.write(msg);
             files.get(fileID).bw.newLine();

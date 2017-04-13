@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -24,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static cn.ac.ict.msbench.communication.Command.*;
+import static cn.ac.ict.msbench.exporter.Exporter.*;
 
 public class WorkerCom extends Communication implements CallBack {
 
@@ -55,7 +55,7 @@ public class WorkerCom extends Communication implements CallBack {
         this.exporter = null;
 //        this.exporter = exporter;
         this.job = job;
-        this.job.statInterval = STATS_INTERVAL;
+        this.job.statIntervalInSec = STATS_INTERVAL;
         isWriter = job.isWriter;
         workerID = isWriter ? "Writer" : "Reader";
         workerID += "-" + UUID.randomUUID().toString();
@@ -328,14 +328,17 @@ public class WorkerCom extends Communication implements CallBack {
     private void insertHeader(Exporter exporter, StatHeader header) {
         stat.head = header;
         if (exporter != null) {
-            exporter.write(workerID, METRICS_HEAD, header.toString());
+            exporter.write(workerID, HEAD, header.toString());
         }
     }
 
     private int insertWindow(Exporter exporter, StatWindow window) {
         stat.statWindow.add(window);
         if (exporter != null) {
-            exporter.write(workerID, METRICS_WINDOW, window.toString());
+            if (window.isEndToEnd)
+                exporter.write(workerID, WINDOW_END_TO_END, window.toString());
+            else
+                exporter.write(workerID, WINDOW, window.toString());
         }
         return stat.statWindow.size() - 1;
     }
@@ -343,7 +346,10 @@ public class WorkerCom extends Communication implements CallBack {
     private void insertTail(Exporter exporter, StatTail tail) {
         stat.tail = tail;
         if (exporter != null) {
-            exporter.write(workerID, METRICS_TAIL, tail.toString());
+            if (tail.isEndToEnd)
+                exporter.write(workerID, TAIL_END_TO_END, tail.toString());
+            else
+                exporter.write(workerID, TAIL, tail.toString());
         }
     }
 }

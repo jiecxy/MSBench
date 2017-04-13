@@ -46,44 +46,45 @@ public class SimpleMS extends MS {
     }
 
     @Override
-    public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTime) {
+    public void send(boolean isSync, byte[] msg, WriteCallBack sentCallBack, long requestTimeInNano) {
         if (isSync) {
 //            System.out.println("Sync sending message " + new String(msg) );
             try {
-                Thread.sleep(100);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 //            System.out.println("Sync received SEND ack");
-            sentCallBack.handleSentMessage(msg, requestTime);
+            sentCallBack.handleSentMessage(msg, requestTimeInNano);
         } else {
 //            System.out.println("Async sending message " + new String(msg) );
             try {
-                Thread.sleep(100);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 //            System.out.println("Async received SEND ack");
-            sentCallBack.handleSentMessage(msg, requestTime);
+            sentCallBack.handleSentMessage(msg, requestTimeInNano);
         }
         return;
     }
 
     @Override
-    public void read(ReadCallBack readCallBack, long requestTime) {
-        //System.out.println("receiving message from ");
+    public void read(ReadCallBack readCallBack, long requestTimeInNano) {
+//        System.out.println("receiving message from ");
+        long publishTimeInMillis =System.currentTimeMillis();
         try {
-            Thread.sleep(100);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         //System.out.println("received SEND ack");
-        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTime);
+        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTimeInNano, publishTimeInMillis);
         return;
     }
 
     public void close() {
-        System.out.println("close MSClient");
+//        System.out.println("close MSClient");
         return;
     }
 }

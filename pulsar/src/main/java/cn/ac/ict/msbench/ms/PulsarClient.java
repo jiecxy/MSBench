@@ -174,7 +174,7 @@ public class PulsarClient extends MS {
             try {
                 //System.out.println("receive a msg");
                 consumer.acknowledge(msg);
-                readCallBack.handleReceivedMessage(msg.getData(), requestTime);
+                readCallBack.handleReceivedMessage(msg.getData(), requestTime, msg.getPublishTime()*1000000);
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }

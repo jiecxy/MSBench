@@ -19,9 +19,9 @@ if [ -z "${MSBENCH_HOME}" ]; then
 fi
 
 export MSBENCH_CONF_DIR="${MSBENCH_CONF_DIR:-"${MSBENCH_HOME}/conf"}"
-echo "msbench_conf_dir is $MSBENCH_CONF_DIR"
+#echo "msbench_conf_dir is $MSBENCH_CONF_DIR"
 # Find binding information
-echo "get binding info: grep ^$SYS: $MSBENCH_HOME/bin/bindings.properties -m 1"
+#echo "get binding info: grep ^$SYS: $MSBENCH_HOME/bin/bindings.properties -m 1"
 BINDING_LINE=$(grep "^$SYS:" "$MSBENCH_HOME/bin/bindings.properties" -m 1)
 
 if [ -z "$BINDING_LINE" ] ; then
@@ -37,7 +37,7 @@ BINDING_CLASS=$(echo "$BINDING_LINE" | cut -d':' -f2)
 #   They are noted with a '-' after the binding name.
 #   (e.g. cassandra-7 & cassandra-8)
 BINDING_DIR=$(echo "$BINDING_NAME" | cut -d'-' -f1)
-echo "Binding dir is $BINDING_DIR"
+#echo "Binding dir is $BINDING_DIR"
 
 # The 'basic' binding is core functionality
 if [ "$BINDING_NAME" = "basic" ] ; then

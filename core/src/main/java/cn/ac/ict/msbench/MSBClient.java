@@ -110,7 +110,6 @@ public class MSBClient {
 
             // Get the Home Path
             String homePath = getStringArgOrException(res, HOME_PATH);
-            System.out.println("the home path is " + homePath);
             File dataDir = new File(homePath, DATA_DIR_NAME);
             if (!dataDir.exists()) {
                 dataDir.mkdirs();
@@ -258,7 +257,7 @@ public class MSBClient {
         log.info("Start Master:" + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
-                + "\t" + "runTime" + " = " + runTime + "\n"
+                + "\t" + "runTimeInSec" + " = " + runTime + "\n"
                 + "\t" + "streams" + " = " + streams + "\n"
                 + "\t" + "writerNum" + " = " + writerNum + "\n"
                 + "\t" + "readerNum" + " = " + readerNum + "\n"
@@ -288,7 +287,7 @@ public class MSBClient {
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
-                + "\t" + "runTime" + " = " + runTime + "\n"
+                + "\t" + "runTimeInSec" + " = " + runTime + "\n"
                 + "\t" + "stream" + " = " + stream + "\n"
                 + "\t" + "from" + " = " + from + "\n"
                 + "\t" + "ms" + " = " + ms + "\n"
@@ -315,7 +314,7 @@ public class MSBClient {
                 + "\t" + "workerIP" + " = " + workerIP + "\n"
                 + "\t" + "masterIP" + " = " + masterIP + "\n"
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
-                + "\t" + "runTime" + " = " + runTime + "\n"
+                + "\t" + "runTimeInSec" + " = " + runTime + "\n"
                 + "\t" + "stream" + " = " + stream + "\n"
                 + "\t" + "ms" + " = " + ms + "\n"
                 + "\t" + "messageSize" + " = " + messageSize + "\n"

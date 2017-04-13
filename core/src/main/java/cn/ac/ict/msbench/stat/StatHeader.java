@@ -13,7 +13,7 @@ public class StatHeader implements Serializable {
     public String streamName;
     public int runTime;
     public long startTime;   // milliseconds
-    public int reportingInterval;
+    public int reportingInterval; // s
     public String host;
 
     // writer

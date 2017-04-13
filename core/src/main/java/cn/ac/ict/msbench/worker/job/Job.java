@@ -9,17 +9,17 @@ public class Job implements Serializable {
 
     public String system;
     public String host;
-    public int runTime;
-    public int statInterval;
+    public int runTimeInSec;
+    public int statIntervalInSec;
     public String streamName;
     public long delayStartSec = 0;
 
     public boolean isWriter;
 
-    public Job(String system, String host, int runTime, String streamName, long delayStartSec) {
+    public Job(String system, String host, int runTimeInSec, String streamName, long delayStartSec) {
         this.system = system;
         this.host = host;
-        this.runTime = runTime;
+        this.runTimeInSec = runTimeInSec;
         this.streamName = streamName;
         this.delayStartSec = delayStartSec;
     }
