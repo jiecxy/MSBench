@@ -7,18 +7,27 @@ import cn.ac.ict.msbench.worker.callback.WriteCallBack;
 import com.yahoo.pulsar.client.admin.PulsarAdmin;
 import com.yahoo.pulsar.client.admin.PulsarAdminException;
 import com.yahoo.pulsar.client.api.*;
+import com.yahoo.pulsar.client.impl.PulsarClientImpl;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import org.apache.commons.lang.SystemUtils;
 
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jiecxy on 2017/3/15.
  */
 public class PulsarClient extends MS {
+
     com.yahoo.pulsar.client.api.PulsarClient client = null;
     Producer producer = null;
     Consumer consumer = null;
@@ -33,7 +42,6 @@ public class PulsarClient extends MS {
 
     public PulsarClient(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
-        System.out.println("create pulsar client");
         initConfig(p);
         System.out.println("properties initialized");
         try {
@@ -43,7 +51,15 @@ public class PulsarClient extends MS {
         }
         System.out.println("pulsar admin created");
         try {
-            client = com.yahoo.pulsar.client.api.PulsarClient.create(URL, clientConf);
+            EventLoopGroup eventLoopGroup;
+            if (SystemUtils.IS_OS_LINUX) {
+                eventLoopGroup = new EpollEventLoopGroup(Runtime.getRuntime().availableProcessors(),
+                        new DefaultThreadFactory("pulsar-perf-producer"));
+            } else {
+                eventLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),
+                        new DefaultThreadFactory("pulsar-perf-producer"));
+            }
+            client = new PulsarClientImpl(URL, clientConf,eventLoopGroup);
             System.out.println("pulsar client created");
             if (isProducer) {
                 System.out.println("creating a pulsar producer on " + prefix + streamName);
@@ -54,7 +70,7 @@ public class PulsarClient extends MS {
                     admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
                 System.out.println("creating a pulsar consumer on " + prefix + streamName);
                 consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
-                System.out.println("created a pulsar consumer");
+                System.out.println("created a pulsar consumer on " + prefix + streamName);
             }
         } catch (PulsarClientException e) {
             System.out.println("pulsar client error");
