@@ -4,43 +4,9 @@
 #
 # DESCRIPTION: Start a messaging system benchmark work.
 #
-#
-#
-#   WARNING!!! MSBench home must be located in a directory path that doesn't
-#   contain spaces.
-#
-#        www.shellcheck.net was used to validate this script
-#
-#
-#Args：
-#-sys: 要测试的系统，需要提供用户自己根据具体系统实现MS接口的类路径
-#-tr: 测试时间长度（单位：秒）
-#-hosts：client所在节点列表
-#-cf: 需要传入各个系统客户端的配置文件(config file)
-#
-#-sn：流的数量
-#-name: 流名字的前缀
-#
-#-w: 每个流的writer进程数量
-#-ms: 每条消息大小
-#-tp: 写入速度(每秒写入多少条消息)，初始速率，若未设置下面用于变速的参数则一直为此恒定速率；当为-1时则不限定速率，其他变化参数将冲突
-#-ftp: 变速下最后的达到速率(final tp)
-#-ctp: 每次变化多大的速率(change tp)
-#-ctps: 每隔多久变化一次，单位秒(change tp seconds)
-#-rtpl: 指定速率变化的list，速率按照这个list周期变化(random tp list)，例-rtpl  10,20,15,30,1；此参数也需要配合cpts参数；与其他变化参数将冲突
-#-sync: 同步，默认为异步
-#注：速率控制和同步异步暂时只针对writer。速率控制策略有：恒定速率，不限速率，递增/减速率，随机变速。
-#
-#-r: 每个流的reader进程数量
-#-from：0从头读；
-#-1从尾读，即catchup read；
-#-2不同进程从不同地方开始读（一个读，一个写，轮转）
-#
-# ./msbench.sh -sys [ basic | kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100 -tp 1000 -tr 1800 -hosts node_a,node_b
-# -rcf read.config -wcf write.config -d delay
 
-__ScriptVersion="2017.03.26"
-__ScriptName="msbench.sh"
+__ScriptName=$(basename $0)
+__BaseDir=$(cd $(dirname $0)"/.."; pwd)
 
 #-----------------------------------------------------------------------
 # FUNCTION: usage
@@ -48,31 +14,40 @@ __ScriptName="msbench.sh"
 #-----------------------------------------------------------------------
 usage() {
     cat << EOT
-
-Usage :  ${__ScriptName} CFGFILE [OPTION] ...
+Usage :  ${__ScriptName} [OPTIONS]
   Start a MSBench test work from given options.
 
 Options:
-  -h, --help                    Display this message
-  -V, --version                 Display script version
-  -v, --verbose
-  -sys, --sys=SYSTEM            System name to be test(include sample |  kafka | dl | pulsar)
-  -sn, --streamnumber=NUMBER    Number of streams
-  -name, --stream-prefix=PREFIX Name prefix of streams
-  -w, --writer=NUMBER           Number of writer per stream
-  -r, --reader=NUMBER           Number of reader per stream
-  -from, --readmode=MODE        Mode of read
+  -h                    [ REQUIRED ] Display this message
+  -sys                  [ REQUIRED ] System system to be test (include basic | kafka | dl | pulsar). eg: -sys basic
+  -sn                   [ REQUIRED ] Number of streams. eg: -sn 1
+  -name                 [ REQUIRED ] Name prefix of streams. eg: -name test
+  -tr                   [ REQUIRED ] Run time (seconds). eg: -tr 10
+  -hosts                [ REQUIRED ] Indicate the available host name. eg: -hosts 1.1.1.1,2.2.2.2
 
-Exit status:
-  0   if OK,
-  !=0 if serious problems.
+  -w                    Number of writer per stream. eg: -w 1
+  -wcf                  Config file name for writer of specific message system client, it should be put in ${__BaseDir}/conf/. eg: -wcf writer.conf
+  -ms                   Message Size (Byte).
+  -sync                 Indicate write mode is sync, if not set, default is Async.
+  -tp                   Initial throughput (messages/sec).
+  -ftp                  Final throughput (messages/sec).
+  -ctp                  Throughput change every interval (messages/sec).
+  -ctps                 Change interval (seconds).
+  -rtpl                 Random throughput list. Throughput periodically change by the list.
+
+            Writer has four throughput strategies:
+                1. NoLimit. eg: -tp -1
+                2. Constant. eg: -tp 1000
+                3. GradualChange. eg: -tp 1000 -ftp 2000 -ctp 100 -ctps 5
+                4. GivenRandomChangeList. eg: -rtpl 1000,3000,2000,5000 -ctps 5
+
+  -r                    Number of reader per stream. eg: -r 1
+  -from                 Mode of read. 0: read from head, -1: read from tail. eg: -from 0
+  -d                    The delay time (seconds) before reader to start, run time for reader is (tr - d), if not set, default is 0. eg: -d 10
+  -rcf                  Config file name for reader of specific message system client, it should be put in ${__BaseDir}/conf/. eg: -rcf writer.conf
 
 Example:
-    $ ./$__ScriptName  -sys [ basic | kafka | dl | pulsar ] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100
-    -tp 1000 -tr 1800 -hosts node_a,node_b -rcf read.config -wcf write.config
-
-Report bugs to yaoguangzhong@ict.ac.cn
-
+    $ ./$__ScriptName  -sys basic -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100 -tp 1000 -tr 1800 -hosts node_a,node_b -rcf read.config -wcf write.config
 EOT
 }   # ----------  end of function usage  ----------
 
@@ -82,7 +57,6 @@ PREFIX=
 NUMBER=
 SYNC=""
 SIZE=
-VERBOSE=false
 DURATION=
 W=
 R=
@@ -110,7 +84,7 @@ fi
 while [ "$1" != "" ]; do
   #echo "the arg remains $#, first is $1"
   case $1 in
-    -sys|--system)
+    -sys)
       if [ -n "$2" ]; then
         SYS="$2"
         shift 2
@@ -120,7 +94,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -sn|--stream-num)
+    -sn)
       if [ -n "$2" ]; then
         NUMBER="$2"
         shift 2
@@ -130,7 +104,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -name|--prefix)
+    -name)
       if [ -n "$2" ]; then
         PREFIX="$2"
         shift 2
@@ -140,7 +114,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -tp|--write-velocity)
+    -tp)
       if [ -n "$2" ]; then
         if [ $2 -lt 0 ]; then
         VMODE=-1
@@ -196,7 +170,7 @@ while [ "$1" != "" ]; do
         shift
         continue
         ;;
-    -ms|--message-size)
+    -ms)
       if [ -n "$2" ]; then
         SIZE="$2"
         shift 2
@@ -206,7 +180,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -r|--reader-num)
+    -r)
 #      echo "Info: '-r' set to $2."
       if [ -n "$2" ]; then
         R="$2"
@@ -217,7 +191,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -w|--writer-num)
+    -w)
       if [ -n "$2" ]; then
 #        echo "Info: '-w' set to $2."
         W="$2"
@@ -228,7 +202,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-     -from|--location)
+     -from)
       if [ -n "$2" ]; then
         RMODE="$2"
         shift 2
@@ -238,7 +212,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -tr|--duration)
+    -tr)
       if [ -n "$2" ]; then
         DURATION="$2"
         shift 2
@@ -248,7 +222,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -hosts|--hosts)
+    -hosts)
       if [ -n "$2" ]; then
         HOSTS="$2"
         shift 2
@@ -258,7 +232,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -w|--writer-num)
+    -w)
       if [ -n "$2" ]; then
         W="$2"
         shift 2
@@ -268,7 +242,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -d|--delay)
+    -d)
       if [ -n "$2" ]; then
         D="$2"
         shift 2
@@ -278,7 +252,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -rcf|--reader-config)
+    -rcf)
       if [ -n "$2" ]; then
         RCF="$2"
         shift 2
@@ -288,7 +262,7 @@ while [ "$1" != "" ]; do
         exit 1
       fi
       ;;
-    -wcf|--writer-config)
+    -wcf)
       if [ -n "$2" ]; then
         WCF="$2"
         shift 2
@@ -300,14 +274,6 @@ while [ "$1" != "" ]; do
       ;;
     -h|-\?|--help)
       usage; exit 1;;
-    -v | --verbose )
-        VERBOSE=true;
-        shift
-        ;;
-    -V | --version )
-      echoinfo "$(basename "$0") -- version $__ScriptVersion";
-      exit 1;;
-
     --)              # End of all options.
       shift
       break
