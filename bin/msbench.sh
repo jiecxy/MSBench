@@ -27,7 +27,7 @@ Options:
 
   -w                    Number of writer per stream. eg: -w 1
   -wcf                  Config file name for writer of specific message system client, it should be put in ${__BaseDir}/conf/. eg: -wcf writer.conf
-  -ms                   Message Size (Byte).
+  -ms                   Message Size (Byte). eg: -ms 1024
   -sync                 Indicate write mode is sync, if not set, default is Async.
   -tp                   Initial throughput (messages/sec).
   -ftp                  Final throughput (messages/sec).
