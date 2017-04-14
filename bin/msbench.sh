@@ -106,6 +106,7 @@ fi
 #todo long options with '='
 # set option values
 #note, ctps arg should following tp or rtpl,use VMODE{-1,-2,-3,-4} to indicate four write mode
+#VMODE{-1,-2,-3,-4} means NoLimit,ConstantThroughput,GradualChangeThroughput,RandomChangeThroughput
 while [ "$1" != "" ]; do
   #echo "the arg remains $#, first is $1"
   case $1 in
