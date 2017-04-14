@@ -118,6 +118,7 @@ public class MSBClient {
 //            // TODO set the exporter
 //            exporter = new FileExporter(new FileOutputStream());
 
+            // TODO read msbench.conf
             // Get the process: Master, Reader, or Writer
             String process = res.getString(PROCESS);
             if (process.equals(MASTER)) {

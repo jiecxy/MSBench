@@ -30,6 +30,8 @@ public class WorkerCom extends Communication implements CallBack {
     private static final Logger log = LoggerFactory.getLogger(WorkerCom.class);
 
     private final int REGISTRATION_RETRIES = 6;
+    private final int REGISTRATION_INTERVAL_MS = 2*1000;
+    private final int WORKER_HEARTBEAT_INTERVAL_MS = 2*1000;
     private long lastHeartbeat = 0;
 
     private String workerID = "Worker";
@@ -55,7 +57,7 @@ public class WorkerCom extends Communication implements CallBack {
         this.exporter = null;
 //        this.exporter = exporter;
         this.job = job;
-        this.job.statIntervalInSec = STATS_INTERVAL;
+        this.job.statIntervalInSec = STATS_INTERVAL_MS/1000;
         isWriter = job.isWriter;
         workerID = isWriter ? "Writer" : "Reader";
         workerID += "-" + UUID.randomUUID().toString();
@@ -92,7 +94,7 @@ public class WorkerCom extends Communication implements CallBack {
         Command registerCmd = new Command(workerID, REGISTER_WORKER, TYPE.REQUEST);
         registerCmd.data = job;
         log.info(getWorkerLogPrefix() + "Starting register scheduler...");
-        registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS),
+        registerScheduler = getContext().system().scheduler().schedule(Duration.create(500, TimeUnit.MILLISECONDS), Duration.create(REGISTRATION_INTERVAL_MS, TimeUnit.MILLISECONDS),
                 getSelf(), registerCmd, getContext().dispatcher(), getSelf());
     }
 
@@ -249,7 +251,7 @@ public class WorkerCom extends Communication implements CallBack {
      */
     private void startHeartBeatScheduler() {
         log.info(getWorkerLogPrefix() + "Starting heartbeat scheduler...");
-        heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(WORKER_TIMEOUT_MS / 4, TimeUnit.MILLISECONDS),
+        heartbeatScheduler = getContext().system().scheduler().schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(WORKER_HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS),
                 getSelf(), new Command(workerID, HEARTBEAT, TYPE.REQUEST), getContext().dispatcher(), getSelf());
     }
 

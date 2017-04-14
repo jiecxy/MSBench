@@ -56,10 +56,10 @@ public class ReadWorker extends Worker implements ReadCallBack {
     public void run() {
 
         try {
-            log.info("Worker delay start with " + job.delayStartSec +  " s.");
+            log.info("Reader delay start with " + job.delayStartSec +  " s.");
             Thread.sleep(job.delayStartSec * 1000);
         } catch (InterruptedException e) {
-            log.error("Worker delay start got Exception " + e);
+            log.error("Reader delay start got Exception " + e);
             e.printStackTrace();
         }
 
@@ -67,7 +67,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
         startTime = System.nanoTime();
         lastStatTime = startTime;
 
-        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.from));
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.from, job.delayStartSec));
 
         while (isRunning) {
 

@@ -11,7 +11,6 @@
 #
 #        www.shellcheck.net was used to validate this script
 #
-#MSBench -sys [] -sn 2 -name ss  -w 10 -ms 100 -tp 1000 –r –from -1 -tr 1800 -hosts node_a,node_b –rcf read.config –wcf write.config
 #
 #Args：
 #-sys: 要测试的系统，需要提供用户自己根据具体系统实现MS接口的类路径
@@ -37,7 +36,7 @@
 #-1从尾读，即catchup read；
 #-2不同进程从不同地方开始读（一个读，一个写，轮转）
 #
-# ./msbench.sh -sys [kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100 -tp 1000 -tr 1800 -hosts node_a,node_b
+# ./msbench.sh -sys [ basic | kafka | dl | pulsar] -sn 1 -name topic -w 1 -sync -r 2 -from -1 -ms 100 -tp 1000 -tr 1800 -hosts node_a,node_b
 # -rcf read.config -wcf write.config -d delay
 
 __ScriptVersion="2017.03.26"
@@ -514,14 +513,14 @@ while [ $j -lt $NUMBER ]; do
             #use ssh in remote host
             CMD=
             if [ $IP != $LOCALIP ]; then
-                CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $DURATION \
+                CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $READER_DURATION \
                     -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -from $RMODE"
                 if [ ! -z $RRCF ]; then
                     CMD=${CMD}" -cf \${MSBENCH_HOME}/conf/${RRCF}"
                 fi
             else
                 #echo "start reader in local machine"
-                CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -d ${d} -home ${MSBENCH_HOME} -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
+                CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -home ${MSBENCH_HOME} -tr $READER_DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -P reader -W $IP \
                     -sys $BINDING_CLASS -sname ${PREFIX}$j -from $RMODE"
                 if [ ! -z $RRCF ]; then
                     CMD=${CMD}" -cf ${RCF}"

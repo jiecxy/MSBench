@@ -15,6 +15,7 @@ public class StatHeader implements Serializable {
     public long startTime;   // milliseconds
     public int reportingInterval; // s
     public String host;
+    public long delayStartSec;
 
     // writer
     public int messageSize;
@@ -26,7 +27,7 @@ public class StatHeader implements Serializable {
 
     public boolean isWriter;
 
-    public StatHeader(String system, String streamName, int runTime, long startTime, int reportingInterval, String host, int messageSize, ThroughputStrategy strategy, Boolean writeMode) {
+    public StatHeader(String system, String streamName, int runTime, long startTime, int reportingInterval, String host, int messageSize, ThroughputStrategy strategy, Boolean writeMode, long delayStartSec) {
         this.system = system;
         this.streamName = streamName;
         this.runTime = runTime;
@@ -36,10 +37,11 @@ public class StatHeader implements Serializable {
         this.messageSize = messageSize;
         this.strategy = strategy;
         this.writeMode = writeMode;
+        this.delayStartSec = delayStartSec;
         isWriter = true;
     }
 
-    public StatHeader(String system, String streamName, int runTime, long startTime, int reportingInterval, String host, int readFrom) {
+    public StatHeader(String system, String streamName, int runTime, long startTime, int reportingInterval, String host, int readFrom, long delayStartSec) {
         this.system = system;
         this.streamName = streamName;
         this.runTime = runTime;
@@ -47,6 +49,7 @@ public class StatHeader implements Serializable {
         this.reportingInterval = reportingInterval;
         this.host = host;
         this.readFrom = readFrom;
+        this.delayStartSec = delayStartSec;
         isWriter = false;
     }
 
@@ -77,6 +80,7 @@ public class StatHeader implements Serializable {
                 "\t" + "Stream Name: " + streamName + "\n" +
                 "\t" + "Run Time: " + runTime + " s" + "\n" +
                 "\t\t" + "Start Time: " + getStartTime() + "\n" +
+                "\t\t" + "Delay Time: " + delayStartSec + " s" + "\n" +
                 "\t" + "Reporting Interval: " + reportingInterval + " s" + "\n" +
                 "\t" + "Host: " + host;
         if (isWriter)

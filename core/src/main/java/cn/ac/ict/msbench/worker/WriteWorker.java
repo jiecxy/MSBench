@@ -81,17 +81,17 @@ public class WriteWorker extends Worker implements WriteCallBack {
     public void run() {
 
         try {
-            log.info("Worker delay start with " + job.delayStartSec +  " s.");
+            log.info("Writer delay start with " + job.delayStartSec +  " s.");
             Thread.sleep(job.delayStartSec * 1000);
         } catch (InterruptedException e) {
-            log.error("Worker delay start got Exception " + e);
+            log.error("Writer delay start got Exception " + e);
             e.printStackTrace();
         }
 
         log.info("Worker starting writing");
         startTime = System.nanoTime();
         lastStatTime = startTime;
-        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.messageSize, job.strategy, job.isSync));
+        cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.messageSize, job.strategy, job.isSync, job.delayStartSec));
 
         while (isRunning) {
             if (System.nanoTime() - startTime > job.runTimeInSec * 1e9) {
