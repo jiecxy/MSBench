@@ -48,7 +48,7 @@ public class MasterCom extends Communication {
         this.runTime = runTime;
         this.writerNum = writerNum;
         this.readerNum = readerNum;
-        log.info("Started Master.");
+        log.info("Started Master at " + masterIP + ":" + masterPort);
     }
 
     public static void main(String[] args) {

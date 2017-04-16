@@ -328,6 +328,7 @@ HOSTNUM=$(echo $IPLIST | wc -w)
 # select a master to run
 # if local ip is in the hosts list, select local machine as master, else random select one
 LOCALIP=$(hostname -i)
+LOCALNAME=$(hostname)
 MASTERIP=127.0.0.1
 location=$(($RANDOM % $HOSTNUM))
 i=0
@@ -336,7 +337,7 @@ do
     if [ $i -eq $location ]; then
         MASTERIP=$ip
     fi
-    if [ "$ip"x = "$LOCALIP"x ]; then
+    if [ "$ip"x = "$LOCALIP"x -o "$ip"x = "$LOCALNAME"x ]; then
         MASTERIP=$LOCALIP
         break
     fi

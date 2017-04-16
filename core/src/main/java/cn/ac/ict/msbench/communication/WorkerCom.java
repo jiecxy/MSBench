@@ -62,7 +62,7 @@ public class WorkerCom extends Communication implements CallBack {
         workerID = isWriter ? "Writer" : "Reader";
         workerID += "-" + UUID.randomUUID().toString();
         log.debug("Starting Worker Communication with job: " + job);
-        log.info("Started Worker Communication with ID: " + workerID);
+        log.info("Started Worker Communication with ID: " + workerID + " at " + masterIP + ":" + masterPort);
     }
 
     public static void main(String[] args) {
