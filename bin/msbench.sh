@@ -61,8 +61,7 @@ DURATION=
 W=
 R=
 RMODE=
-VELOCITY=
-VMODE=
+TP=
 FTP=
 CTP=
 CTPS=
@@ -77,10 +76,6 @@ if [ -z "${MSBENCH_HOME}" ]; then
   export MSBENCH_HOME="$(cd "`dirname "$0"`"/..; pwd)"
 fi
 
-#todo long options with '='
-# set option values
-#note, ctps arg should following tp or rtpl,use VMODE{-1,-2,-3,-4} to indicate four write mode
-#VMODE{-1,-2,-3,-4} means NoLimit,ConstantThroughput,GradualChangeThroughput,RandomChangeThroughput
 while [ "$1" != "" ]; do
   #echo "the arg remains $#, first is $1"
   case $1 in
@@ -116,12 +111,7 @@ while [ "$1" != "" ]; do
       ;;
     -tp)
       if [ -n "$2" ]; then
-        if [ $2 -lt 0 ]; then
-        VMODE=-1
-        else
-        VMODE=-2
-        fi
-        VELOCITY="$2"
+        TP="-tp $2"
         shift 2
         continue
       else
@@ -131,38 +121,30 @@ while [ "$1" != "" ]; do
       ;;
     -ftp)
       if [ -n "$2" ]; then
-      VMODE=-3
-      FTP="$2"
-      shift 2
-      continue
+          FTP="-ftp $2"
+          shift 2
+          continue
       fi
       ;;
     -ctp)
       if [ -n "$2" ]; then
-      VMODE=-3
-      CTP="$2"
-      shift 2
-      continue
+          CTP="-ctp $2"
+          shift 2
+          continue
       fi
       ;;
     -ctps)
       if [ -n "$2" ]; then
-      if [ -n "$TP" ]; then
-      VMODE=-3
-      else
-      VMODE=-4
-      fi
-      CTPS="$2"
-      shift 2
-      continue
+          CTPS="-ctps $2"
+          shift 2
+          continue
       fi
       ;;
     -rtpl)
       if [ -n "$2" ]; then
-      VMODE=-4
-      RTPL="$2"
-      shift 2
-      continue
+          RTPL="-rtpl $2"
+          shift 2
+          continue
       fi
       ;;
     -sync)
@@ -181,7 +163,6 @@ while [ "$1" != "" ]; do
       fi
       ;;
     -r)
-#      echo "Info: '-r' set to $2."
       if [ -n "$2" ]; then
         R="$2"
         shift 2
@@ -193,7 +174,6 @@ while [ "$1" != "" ]; do
       ;;
     -w)
       if [ -n "$2" ]; then
-#        echo "Info: '-w' set to $2."
         W="$2"
         shift 2
         continue
@@ -281,7 +261,7 @@ while [ "$1" != "" ]; do
     -?*)
       echo "WARN: Unknown option (ignored): $1"
       ;;
-    *)               # Default case: If no more options then break out of the loop. 全角字符在这里响应
+    *)
       echo "break out the loop"
       break
   esac
@@ -430,37 +410,15 @@ while [ $j -lt $NUMBER ]; do
             #use ssh in remote host
             CMD=
             if [ $IP != $LOCALIP ]; then
-                if [ $VMODE -eq -1 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1 $SYNC"
-                elif [ $VMODE -eq -2 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY $SYNC"
-                elif [ $VMODE -eq -3 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT}  \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS $SYNC"
-                elif [ $VMODE -eq -4 ]; then
-                    CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
-                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS $SYNC"
-                fi
+                CMD="ssh $MSBENCH_SSH_OPTS $IP source .bash_profile; \${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} \
+                        -home \${MSBENCH_HOME} -P writer -W $IP -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  $TP $FTP $CTP $CTPS $RTPL $SYNC"
                 if [ ! -z $RWCF ]; then
                     CMD=${CMD}" -cf \${MSBENCH_HOME}/conf/${RWCF}"
                 fi
             else
             #echo "start writer in local machine"
-                if [ $VMODE -eq -1 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp -1 $SYNC"
-                elif [ $VMODE -eq -2 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY $SYNC"
-                elif [ $VMODE -eq -3 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -tp $VELOCITY -ftp $FTP -ctp $CTP -ctps $CTPS $SYNC"
-                elif [ $VMODE -eq -4 ]; then
-                    CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
-                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE  -rtpl $RTPL -ctps $CTPS $SYNC"
-                fi
+                CMD="${MSBENCH_HOME}/bin/msbench-class.sh $SYS $MASTERCLASS -tr $DURATION -M ${MASTERIP}:${MSBENCH_MASTER_PORT} -home ${MSBENCH_HOME} -P writer -W $IP \
+                        -sys $BINDING_CLASS -sname ${PREFIX}$j -ms $SIZE $TP $FTP $CTP $CTPS $RTPL $SYNC"
                 if [ ! -z $RWCF ]; then
                     CMD=${CMD}" -cf ${WCF}"
                 fi
