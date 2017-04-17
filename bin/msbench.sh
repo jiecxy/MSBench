@@ -286,9 +286,9 @@ if [ -z $DURATION ]; then
     exit
 fi
 
+READER_DURATION=${DURATION}
 # argument d
 if [ ! -z $D ]; then
-    READER_DURATION=${DURATION}
     if [ ! $(expr ${DURATION} - ${D}) -gt 0 ]; then
         echo "ERROR: -tr should be greater than -d"
         exit
