@@ -27,6 +27,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     private ReadJob job;
     private Recorder end2endRecorder;
     private Recorder cumulativeEnd2endRecorder;
+    private long lastReadTime;
 
     public ReadWorker(CallBack cb, MS ms, Job job) {
         super(cb);
@@ -108,7 +109,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
         Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
         Histogram end2endReportHist = cumulativeEnd2endRecorder.getIntervalHistogram();
-        double elapsedInNano = System.nanoTime() - startTime;
+        double elapsedInNano = lastReadTime - startTime;
 
         cb.onSendStatTail(
                 new StatTail(System.currentTimeMillis(),
@@ -157,5 +158,6 @@ public class ReadWorker extends Worker implements ReadCallBack {
         numByte += msg.length;
         totalNumMsg++;
         totalNumByte += msg.length;
+        lastReadTime = System.nanoTime();
     }
 }
