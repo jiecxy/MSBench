@@ -339,7 +339,7 @@ public class MasterCom extends Communication {
                 return false;
             }
         } else {
-            if (num[0] >= readerNum) {
+            if (num[1] >= readerNum) {
                 Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
                 cmd.status = STATUS.FAIL;
                 sender.tell(cmd, getSelf());
