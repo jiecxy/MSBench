@@ -66,9 +66,9 @@ public class PulsarClient extends MS {
             } else {
                 if (from == -1) {
                     admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
-                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from end");
+                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from end with subscription name "+subscription_name);
                 } else
-                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from start");
+                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from start with subscription name "+subscription_name);
 
                 consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
                 System.out.println("created a pulsar consumer on " + prefix + streamName);
