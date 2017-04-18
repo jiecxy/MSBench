@@ -10,12 +10,12 @@ public class StatTail implements Serializable {
     public long finishTime; // milliseconds
 
     public double avgTps; // MB/s
-    public double avgLatency;  // ms
-    public double maxLatency;  // ms
-    public double percentile50;  // ms
-    public double percentile95;  // ms
-    public double percentile99;  // ms
-    public double percentile999;  // ms
+//    public double avgLatency;  // ms
+//    public double maxLatency;  // ms
+//    public double percentile50;  // ms
+//    public double percentile95;  // ms
+//    public double percentile99;  // ms
+//    public double percentile999;  // ms
 
     public long messagesSentOrReceived;
     public double dataSentOrReceived;  // MB
@@ -30,24 +30,24 @@ public class StatTail implements Serializable {
 
     public boolean isWriter;
 
-    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, double dataSentOrReceived, boolean isWriter) {
+    public StatTail(long finishTime, double avgTps, long messagesSentOrReceived, double dataSentOrReceived, boolean isWriter) {
         this.finishTime = finishTime;
         this.avgTps = avgTps;
-        this.avgLatency = avgLatency;
-        this.maxLatency = maxLatency;
-        this.percentile50 = percentile50;
-        this.percentile95 = percentile95;
-        this.percentile99 = percentile99;
-        this.percentile999 = percentile999;
+//        this.avgLatency = avgLatency;
+//       this.maxLatency = maxLatency;
+//        this.percentile50 = percentile50;
+//        this.percentile95 = percentile95;
+//        this.percentile99 = percentile99;
+//        this.percentile999 = percentile999;
         this.messagesSentOrReceived = messagesSentOrReceived;
         this.dataSentOrReceived = dataSentOrReceived;
         this.isWriter = isWriter;
         isEndToEnd = false;
     }
 
-    public StatTail(long finishTime, double avgTps, double avgLatency, double maxLatency, double percentile50, double percentile95, double percentile99, double percentile999, long messagesSentOrReceived, double dataSentOrReceived,
+    public StatTail(long finishTime, double avgTps, long messagesSentOrReceived, double dataSentOrReceived,
                     double endToEndAvgLatency, double endToEndMaxLatency, double endToEndPercentile50, double endToEndPercentile95, double endToEndPercentile99, double endToEndPercentile999, boolean isWriter) {
-        this(finishTime, avgTps, avgLatency, maxLatency, percentile50, percentile95, percentile99, percentile999, messagesSentOrReceived, dataSentOrReceived, isWriter);
+        this(finishTime, avgTps, messagesSentOrReceived, dataSentOrReceived, isWriter);
         this.endToEndAvgLatency = endToEndAvgLatency;
         this.endToEndMaxLatency = endToEndMaxLatency;
         this.endToEndPercentile50 = endToEndPercentile50;
@@ -74,14 +74,14 @@ public class StatTail implements Serializable {
                     "\t" + "Data Received: " + formatFloat(dataSentOrReceived) + " MB" + "\n";
         }
 
-        str += "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +
+        /*str += "\t" + "Avg Tps: " + formatFloat(avgTps) + " MB/s" +  "\n" +
                     "\t" + "Latency: " +  "\n" +
                     "\t\t" + "Avg Latency: " + formatFloat(avgLatency) + " ms" + "\n" +
                     "\t\t" + "Max Latency: " + formatFloat(maxLatency) + " ms"  + "\n" +
                     "\t\t" + "50 percentile: " + formatFloat(percentile50) + " ms"  + "\n" +
                     "\t\t" + "95 percentile: " + formatFloat(percentile95) + " ms"  + "\n" +
                     "\t\t" + "99 percentile: " + formatFloat(percentile99) + " ms"  + "\n" +
-                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms" + "\n";
+                    "\t\t" + "99.9 percentile: " + formatFloat(percentile999) + " ms" + "\n";*/
         if (isEndToEnd) {
             return str + "\t" + "End To End Latency: " +  "\n" +
                     "\t\t" + "Avg Latency: " + formatFloat(endToEndAvgLatency) + " ms" + "\n" +
