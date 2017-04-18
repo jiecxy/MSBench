@@ -24,32 +24,32 @@
         <dependency>
             <groupId>com.yahoo.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.2</version>
         </dependency>
         <dependency>
             <groupId>com.yahoo.pulsar</groupId>
             <artifactId>pulsar-client-admin</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.2</version>
         </dependency>
         <dependency>
             <groupId>com.yahoo.pulsar</groupId>
             <artifactId>pulsar-checksum</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.2</version>
         </dependency>
         <dependency>
             <groupId>com.yahoo.pulsar</groupId>
             <artifactId>pulsar-common</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.2</version>
         </dependency>
         <dependency>
             <groupId>com.yahoo.pulsar</groupId>
             <artifactId>pulsar-testclient</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.2</version>
         </dependency>
         <dependency>
             <groupId>com.yahoo.pulsar</groupId>
             <artifactId>pulsar-websocket</artifactId>
-            <version>1.16.2</version>
+            <version>1.17.2</version>
         </dependency>
         <dependency>
             <groupId>net.jpountz.lz4</groupId>

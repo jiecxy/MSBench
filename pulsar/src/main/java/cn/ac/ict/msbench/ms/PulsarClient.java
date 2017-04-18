@@ -19,8 +19,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,16 +57,19 @@ public class PulsarClient extends MS {
                 eventLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),
                         new DefaultThreadFactory("pulsar-perf-producer"));
             }
-            client = new PulsarClientImpl(URL, clientConf,eventLoopGroup);
+            client = new PulsarClientImpl(URL, clientConf, eventLoopGroup);
             System.out.println("pulsar client created");
             if (isProducer) {
                 System.out.println("creating a pulsar producer on " + prefix + streamName);
                 producer = client.createProducer(prefix + streamName, producerConf);
                 System.out.println("created a pulsar producer");
             } else {
-                if (from == -1)
+                if (from == -1) {
                     admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
-                System.out.println("creating a pulsar consumer on " + prefix + streamName);
+                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from end");
+                } else
+                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from start");
+
                 consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
                 System.out.println("created a pulsar consumer on " + prefix + streamName);
             }
@@ -148,15 +149,17 @@ public class PulsarClient extends MS {
         try {
             if (producer != null)
                 producer.close();
-            if (consumer != null)
-                    consumer.close();
+            if (consumer != null) {
+                consumer.unsubscribe();
+                consumer.close();
+            }
             if (admin != null) {
                 for (String stream : streams)
-                    admin.persistentTopics().delete(prefix+stream);
+                    admin.persistentTopics().delete(prefix + stream);
             }
         } catch (PulsarAdminException e) {
             throw new MSException(e);
-        }catch (PulsarClientException e) {
+        } catch (PulsarClientException e) {
             throw new MSException(e);
         }
     }
@@ -179,13 +182,27 @@ public class PulsarClient extends MS {
             }
 
         } catch (Exception e) {
-            System.out.println("hello");
+            System.out.println("send error "+e);
         }
     }
 
     @Override
     public void read(ReadCallBack readCallBack, long requestTime) {
         //System.out.println("pulsar begin to receive a msg");
+        /*CompletableFuture<Message> future = consumer.receiveAsync();
+        future.handle((msg, exception) ->
+        {
+            if (exception == null) {
+                try {
+                    //System.out.println("receive a msg");
+                    consumer.acknowledge(msg);
+                    readCallBack.handleReceivedMessage(msg.getData(), requestTime, msg.getPublishTime());
+                } catch (PulsarClientException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        });*/
         consumer.receiveAsync().thenAccept((msg) -> {
             try {
                 //System.out.println("receive a msg");
@@ -194,6 +211,9 @@ public class PulsarClient extends MS {
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }
+        }).exceptionally(exception -> {
+            System.out.println("received error" + exception);
+            return null;
         });
 //        consumerConf.setMessageListener(new MessageListener() {
 //            @Override
@@ -209,8 +229,10 @@ public class PulsarClient extends MS {
         try {
             if (producer != null)
                 producer.close();
-            if (consumer != null)
+            if (consumer != null) {
+                consumer.unsubscribe();
                 consumer.close();
+            }
             if (client != null)
                 client.close();
             if (admin != null)

@@ -150,9 +150,11 @@ public class ReadWorker extends Worker implements ReadCallBack {
         // since System.nanoTime() return the time based on JVM, not the real time, and the system always  use System.currentTimeMillis() to be the publish time of message, be care
         long end2endLatencyMillis = System.currentTimeMillis() - publishTimeInMillis;
         //System.out.println("end2endLatencyNano=" + end2endLatencyNano + " now=" + now  + " publishTimeInNano=" + end2endLatencyNano);
+        if (end2endLatencyMillis<0)
+            log.error("negative end to end latency");
         recorder.recordValue(latencyInMicros);
         cumulativeRecorder.recordValue(latencyInMicros);
-        end2endRecorder.recordValue(end2endLatencyMillis);
+        end2endRecorder.recordValue(end2endLatency cMillis);
         cumulativeEnd2endRecorder.recordValue(end2endLatencyMillis);
         numMsg++;
         numByte += msg.length;
