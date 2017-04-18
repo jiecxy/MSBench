@@ -46,6 +46,7 @@ public class DLClient extends MS {
     DistributedLogConfiguration conf = null;
     AsyncLogReader reader = null;
     AsyncLogWriter writer = null;
+    LogWriter syncwriter = null;
     ClientBuilder clientBuilder = null;
     DistributedLogClientBuilder builder = null;
     DistributedLogClient client = null;
@@ -65,7 +66,15 @@ public class DLClient extends MS {
         super(streamName, isProducer, p,from);
         uri = URI.create((String) p.remove(DLURI));
         Preconditions.checkNotNull(uri);
-        conf = new DistributedLogConfiguration();
+        conf = new DistributedLogConfiguration()
+                .setLogSegmentRollingIntervalMinutes(60) // interval to roll log segment
+                .setRetentionPeriodHours(1) // retention period
+                .setWriteQuorumSize(2) // 2 replicas
+                .setAckQuorumSize(2) // 2 replicas
+                .setEnsembleSize(3);
+        conf.setImmediateFlushEnabled(false);
+        conf.setOutputBufferSize(16000);
+        conf.setPeriodicFlushFrequencyMilliSeconds(10);
         if(!isProducer){
             readbulknum = Integer.parseInt((String) p.remove(READBULKNUM));
             Preconditions.checkNotNull(readbulknum);
@@ -109,6 +118,7 @@ public class DLClient extends MS {
                             .build();
                     DistributedLogManager dlm = namespace.openLog(streamName);
                     writer = FutureUtils.result(dlm.openAsyncLogWriter());
+                    syncwriter = dlm.startLogSegmentNonPartitioned();
                 }catch (IOException e){
                     e.printStackTrace();
                 }
@@ -178,13 +188,20 @@ public class DLClient extends MS {
         if(isSync){
             //同步问题
             if(iswriter){
+//                try {
+//                    writer.write(new LogRecord(requestTime,msg)).toJavaFuture().get();
+//                    sentCallBack.handleSentMessage(msg,requestTime);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ExecutionException e) {
+//                    e.printStackTrace();
+//                }
                 try {
-                    writer.write(new LogRecord(requestTime,msg)).toJavaFuture().get();
+                    syncwriter.write(new LogRecord(requestTime,msg));
                     sentCallBack.handleSentMessage(msg,requestTime);
-                } catch (InterruptedException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    System.out.println("Sync-write failed!");
                 }
             }else{
                 try {
@@ -194,7 +211,7 @@ public class DLClient extends MS {
                     sentCallBack.handleSentMessage(msg, requestTime);
                 }catch (Exception e){
                     e.printStackTrace();
-                    System.out.println("sync-write failed!");
+                    System.out.println("Sync-write failed!");
                 }
             }
 
@@ -266,6 +283,12 @@ public class DLClient extends MS {
             reader.asyncClose();
         if(writer!=null)
             writer.asyncClose();
+        if(syncwriter!=null)
+            try {
+                syncwriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         if(client!=null)
             client.close();
     }
