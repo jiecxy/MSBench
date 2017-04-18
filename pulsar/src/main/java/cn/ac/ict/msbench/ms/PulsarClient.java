@@ -150,8 +150,14 @@ public class PulsarClient extends MS {
             if (producer != null)
                 producer.close();
             if (consumer != null) {
-                consumer.unsubscribe();
-                consumer.close();
+                try {
+                    consumer.unsubscribe();
+                    consumer.close();
+                }catch (Exception e)
+                {
+                    System.out.println("unsubscript error "+e);
+                }
+
             }
             if (admin != null) {
                 for (String stream : streams)
@@ -212,7 +218,7 @@ public class PulsarClient extends MS {
                 e.printStackTrace();
             }
         }).exceptionally(exception -> {
-            System.out.println("received error" + exception);
+            System.out.println("received error " + exception);
             return null;
         });
 //        consumerConf.setMessageListener(new MessageListener() {
@@ -230,11 +236,24 @@ public class PulsarClient extends MS {
             if (producer != null)
                 producer.close();
             if (consumer != null) {
-                consumer.unsubscribe();
-                consumer.close();
+                try {
+                    consumer.unsubscribe();
+                    consumer.close();
+                }catch (Exception e)
+                {
+                    System.out.println("unsubscript error "+e);
+
+                }
             }
             if (client != null)
-                client.close();
+                try {
+                    client.close();
+                }
+                catch (Exception e)
+                {
+                    System.out.println("PulsarClient close error "+e);
+                }
+
             if (admin != null)
                 admin.close();
         } catch (PulsarClientException e) {
