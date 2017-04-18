@@ -143,7 +143,7 @@ public class WriteWorker extends Worker implements WriteCallBack {
                         reportHist.getValueAtPercentile(99.9)/1000.0,
                         totalNumMsg,
                         totalNumByte / 1024.0 / 1024.0,
-                        job.isSync)
+                        true)
         );
 
         if (rateLimiter != null)
