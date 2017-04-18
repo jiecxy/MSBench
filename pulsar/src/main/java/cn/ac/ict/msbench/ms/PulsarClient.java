@@ -2,6 +2,7 @@ package cn.ac.ict.msbench.ms;
 
 import cn.ac.ict.msbench.MS;
 import cn.ac.ict.msbench.exception.MSException;
+import cn.ac.ict.msbench.worker.ReadWorker;
 import cn.ac.ict.msbench.worker.callback.ReadCallBack;
 import cn.ac.ict.msbench.worker.callback.WriteCallBack;
 import com.yahoo.pulsar.client.admin.PulsarAdmin;
@@ -13,6 +14,8 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -37,17 +40,19 @@ public class PulsarClient extends MS {
     ProducerConfiguration producerConf = null;
     ConsumerConfiguration consumerConf = null;
     PulsarAdmin admin = null;
+    boolean isFirst;
+    boolean isClientClosed;
 
     public PulsarClient(String streamName, boolean isProducer, Properties p, int from) {
         super(streamName, isProducer, p, from);
         initConfig(p);
-        System.out.println("properties initialized");
+        log.info("properties initialized");
         try {
             admin = new PulsarAdmin(new URL(URL), new ClientConfiguration());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("pulsar admin created");
+        log.info("pulsar admin created");
         try {
             EventLoopGroup eventLoopGroup;
             if (SystemUtils.IS_OS_LINUX) {
@@ -58,23 +63,22 @@ public class PulsarClient extends MS {
                         new DefaultThreadFactory("pulsar-perf-producer"));
             }
             client = new PulsarClientImpl(URL, clientConf, eventLoopGroup);
-            System.out.println("pulsar client created");
+            log.info("pulsar client created");
             if (isProducer) {
-                System.out.println("creating a pulsar producer on " + prefix + streamName);
+                log.debug("creating a pulsar producer on " + prefix + streamName);
                 producer = client.createProducer(prefix + streamName, producerConf);
-                System.out.println("created a pulsar producer");
+                log.info("created a pulsar producer");
             } else {
                 if (from == -1) {
                     admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
-                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from end with subscription name "+subscription_name);
+                    log.debug("creating a pulsar consumer on " + prefix + streamName + " from end with subscription name " + subscription_name);
                 } else
-                    System.out.println("creating a pulsar consumer on " + prefix + streamName + " from start with subscription name "+subscription_name);
-
-                consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
-                System.out.println("created a pulsar consumer on " + prefix + streamName);
+                    log.debug("creating a pulsar consumer on " + prefix + streamName + " from start with subscription name " + subscription_name);
+                    //consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
+                //log.info("created a pulsar consumer on " + prefix + streamName+" with subscription name " + subscription_name);
             }
         } catch (PulsarClientException e) {
-            System.out.println("pulsar client error");
+            log.error("pulsar client error");
             e.printStackTrace();
         } catch (PulsarAdminException e) {
             e.printStackTrace();
@@ -89,6 +93,9 @@ public class PulsarClient extends MS {
     }
 
     private void initConfig(Properties prop) {
+        isFirst=true;
+        isClientClosed=false;
+
         if (prop.containsKey("serviceUrl"))
             URL = getProp(prop, "serviceUrl");
         if (prop.containsKey("destinationPrefix"))
@@ -147,24 +154,11 @@ public class PulsarClient extends MS {
     @Override
     public void finalizeMS(ArrayList<String> streams) throws MSException {
         try {
-            if (producer != null)
-                producer.close();
-            if (consumer != null) {
-                try {
-                    consumer.close();
-                }catch (Exception e)
-                {
-                    System.out.println("unsubscript error "+e);
-                }
-
-            }
             if (admin != null) {
                 for (String stream : streams)
                     admin.persistentTopics().delete(prefix + stream);
             }
         } catch (PulsarAdminException e) {
-            throw new MSException(e);
-        } catch (PulsarClientException e) {
             throw new MSException(e);
         }
     }
@@ -187,12 +181,34 @@ public class PulsarClient extends MS {
             }
 
         } catch (Exception e) {
-            System.out.println("send error "+e);
+            log.error("send error " + e);
         }
     }
 
     @Override
-    public void read(ReadCallBack readCallBack, long requestTime) {
+    public void read(ReadCallBack readCallBack) {
+        if (isFirst)
+        {
+            consumerConf.setMessageListener(new MessageListener() {
+                //            @Override
+                public void received(Consumer consumer, Message message) {
+                    try {
+                        consumer.acknowledge(message);
+                    } catch (PulsarClientException e) {
+                        log.error("fail to send ack "+e);
+                    }
+                    readCallBack.handleReceivedMessage(message.getData(),message.getPublishTime());
+                }
+            });
+            try {
+                consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
+            } catch (PulsarClientException e) {
+                log.error("fail to create consumer "+e);
+            }
+            log.info("created a pulsar consumer on " + prefix + streamName);
+            isFirst=false;
+        }
+
         //System.out.println("pulsar begin to receive a msg");
         /*CompletableFuture<Message> future = consumer.receiveAsync();
         future.handle((msg, exception) ->
@@ -208,55 +224,70 @@ public class PulsarClient extends MS {
             }
             return null;
         });*/
-        consumer.receiveAsync().thenAccept((msg) -> {
+        /*consumer.receiveAsync().handle((msg, ex) ->
+        {
+            if (ex != null) {
+                try {
+                    consumer.acknowledge(msg);
+
+                } catch (PulsarClientException e) {
+                    System.out.println("ack error");
+                }
+                try {
+                    readCallBack.handleReceivedMessage(msg.getData(), requestTime, msg.getPublishTime());
+                }catch (Exception e)
+                {
+                    System.out.println("readhandle error "+e);
+                }
+            } else
+                System.out.println("receive error " + ex);
+            return null;
+        });*/
+        /*consumer.receiveAsync().thenAccept((msg) -> {
             try {
                 //System.out.println("receive a msg");
-                consumer.acknowledge(msg);
+                consumer.acknowledgeAsync(msg);
+                log.debug("receive a msg whose id is"+msg.getMessageId());
                 readCallBack.handleReceivedMessage(msg.getData(), requestTime, msg.getPublishTime());
             } catch (Exception e) {
-                System.out.println("fail to send ack, because consumer is not available "+ e);
+                log.error("fail to send ack, because consumer is not available " + e);
             }
-        }).exceptionally(exception -> {
-            System.out.println("received error " + exception);
+        }).exceptionally(ex -> {
+            //System.out.println("received error " + ex);
             return null;
-        });
-//        consumerConf.setMessageListener(new MessageListener() {
-//            @Override
-//                public void received(Consumer consumer, Message message) {
-//                consumer.acknowledge(msg);
-//                readCallBack.handleReceivedMessage(message.getData());
-//            }
-//        });
+        });*/
+
+    }
+
+    @Override
+    public void stopRead() {
+        if (isClientClosed==false)
+        {
+            try {
+                client.close();
+                isClientClosed=true;
+            } catch (PulsarClientException e) {
+                log.error("PulsarClient close error " + e);
+            }
+        }
     }
 
 
     public void close() {
-        try {
-            if (producer != null)
-                producer.close();
-            if (consumer != null) {
-                try {
-                    consumer.close();
-                }catch (Exception e)
-                {
-                    System.out.println("unsubscript error "+e);
-
-                }
-            }
+        if (isClientClosed==false)
+        {
             if (client != null)
                 try {
                     client.close();
+                    isClientClosed=true;
+                } catch (Exception e) {
+                    log.error("PulsarClient close error " + e);
                 }
-                catch (Exception e)
-                {
-                    System.out.println("PulsarClient close error "+e);
-                }
-
-            if (admin != null)
-                admin.close();
-        } catch (PulsarClientException e) {
-            e.printStackTrace();
         }
-    }
 
+        if (admin != null)
+            admin.close();
+
+    }
+    private static final Logger log = LoggerFactory.getLogger(PulsarClient.class);
 }

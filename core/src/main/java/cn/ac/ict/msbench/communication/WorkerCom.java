@@ -184,6 +184,7 @@ public class WorkerCom extends Communication implements CallBack {
                     switch (msg.type) {
                         case REQUEST:
                             long dif = System.currentTimeMillis() - lastHeartbeat;
+                            log.debug("hearteat request dif" + dif);
                             if (dif < WORKER_TIMEOUT_MS) {
                                 log.debug(getWorkerLogPrefix() + "Sending heartbeat...");
                                 msg.data = workerID;
