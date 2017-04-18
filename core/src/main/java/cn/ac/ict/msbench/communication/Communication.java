@@ -8,7 +8,7 @@ public abstract class Communication extends UntypedActor {
     protected final boolean NEED_FINALIZE_MS = false;
 
 //    protected int CHECK_TIMEOUT_SEC = 8;
-    protected final int WORKER_TIMEOUT_MS = 8*1000;
+    protected final int WORKER_TIMEOUT_MS = 30*1000;
     protected final int STATS_INTERVAL_MS = 5*1000;
 //    protected int runTimeInSec = 0;
     protected String masterIP;
