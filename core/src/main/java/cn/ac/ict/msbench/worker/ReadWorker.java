@@ -154,7 +154,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             log.error("negative end to end latency");
         recorder.recordValue(latencyInMicros);
         cumulativeRecorder.recordValue(latencyInMicros);
-        end2endRecorder.recordValue(end2endLatency cMillis);
+        end2endRecorder.recordValue(end2endLatencyMillis);
         cumulativeEnd2endRecorder.recordValue(end2endLatencyMillis);
         numMsg++;
         numByte += msg.length;
