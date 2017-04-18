@@ -147,11 +147,11 @@ public class KafkaClient extends MS {
     }
 
     @Override
-    public void read(ReadCallBack readCallBack, long requestTimeInNano) {
+    public void read(ReadCallBack readCallBack) {
         log.debug("read messages by poll");
         ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
         for (ConsumerRecord<byte[], byte[]> record : records) {
-            readCallBack.handleReceivedMessage(record.value(), requestTimeInNano, record.timestamp());
+            readCallBack.handleReceivedMessage(record.value(), record.timestamp());
         }
     }
 
