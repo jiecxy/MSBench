@@ -151,7 +151,6 @@ public class PulsarClient extends MS {
                 producer.close();
             if (consumer != null) {
                 try {
-                    consumer.unsubscribe();
                     consumer.close();
                 }catch (Exception e)
                 {
@@ -214,8 +213,8 @@ public class PulsarClient extends MS {
                 //System.out.println("receive a msg");
                 consumer.acknowledge(msg);
                 readCallBack.handleReceivedMessage(msg.getData(), requestTime, msg.getPublishTime());
-            } catch (PulsarClientException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("fail to send ack, because consumer is not available "+ e);
             }
         }).exceptionally(exception -> {
             System.out.println("received error " + exception);
@@ -237,7 +236,6 @@ public class PulsarClient extends MS {
                 producer.close();
             if (consumer != null) {
                 try {
-                    consumer.unsubscribe();
                     consumer.close();
                 }catch (Exception e)
                 {
