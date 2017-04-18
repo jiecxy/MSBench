@@ -67,12 +67,14 @@ public class ReadWorker extends Worker implements ReadCallBack {
         log.info("Worker starting reading");
         startTime = System.nanoTime();
         lastStatTime = startTime;
-
+//        log.debug("onSendStatHeader");
         cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.from, job.delayStartSec));
 
+//        log.debug("while isRunning");
         while (isRunning) {
 
             if (System.nanoTime() - startTime > job.runTimeInSec * 1e9) {
+//                log.debug("isRunning = false");
                 isRunning = false;
                 break;
             }
@@ -85,6 +87,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
                 reportHist = recorder.getIntervalHistogram(reportHist);
                 end2endReportHist = end2endRecorder.getIntervalHistogram(end2endReportHist);
 
+//                log.debug("onSendStatWindow");
                 cb.onSendStatWindow(
                         new StatWindow(System.currentTimeMillis(),
                                 numMsg*1.0 / (elapsedInNano / 1e9),
@@ -104,6 +107,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
             requestTime = System.nanoTime();
             //System.out.println("worker start reading a msg");
+//            log.debug("msClient read requestTime" + requestTime);
             msClient.read(this, requestTime);
         }
 
@@ -111,6 +115,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
         Histogram end2endReportHist = cumulativeEnd2endRecorder.getIntervalHistogram();
         double elapsedInNano = lastReadTime - startTime;
 
+//        log.debug("onSendStatTail");
         cb.onSendStatTail(
                 new StatTail(System.currentTimeMillis(),
                         totalNumByte / 1024.0 / 1024.0 / (elapsedInNano / 1e9),
@@ -148,12 +153,18 @@ public class ReadWorker extends Worker implements ReadCallBack {
         long latencyInMicros=NANOSECONDS.toMicros(System.nanoTime() - requestTimeInNano);
         // Note:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // since System.nanoTime() return the time based on JVM, not the real time, and the system always  use System.currentTimeMillis() to be the publish time of message, be care
-        long end2endLatencyMillis = System.currentTimeMillis() - publishTimeInMillis;
+        long now = System.currentTimeMillis();
+        long end2endLatencyMillis = now - publishTimeInMillis;
+//        log.debug("handleReceivedMessage: requestTimeInNano(" + requestTimeInNano + ") end2endLatencyMillis=" + end2endLatencyMillis + " " + now + " - " + publishTimeInMillis);
         //System.out.println("end2endLatencyNano=" + end2endLatencyNano + " now=" + now  + " publishTimeInNano=" + end2endLatencyNano);
-        recorder.recordValue(latencyInMicros);
-        cumulativeRecorder.recordValue(latencyInMicros);
-        end2endRecorder.recordValue(end2endLatencyMillis);
-        cumulativeEnd2endRecorder.recordValue(end2endLatencyMillis);
+        try {
+            recorder.recordValue(latencyInMicros);
+            cumulativeRecorder.recordValue(latencyInMicros);
+            end2endRecorder.recordValue(end2endLatencyMillis);
+            cumulativeEnd2endRecorder.recordValue(end2endLatencyMillis);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            log.error("Invalid Latency! Please synchronize client's time! \n" + e);
+        }
         numMsg++;
         numByte += msg.length;
         totalNumMsg++;
