@@ -15,7 +15,6 @@ import static cn.ac.ict.msbench.communication.Command.METRICS_HEAD;
 import static cn.ac.ict.msbench.communication.Command.METRICS_TAIL;
 import static cn.ac.ict.msbench.communication.Command.METRICS_WINDOW;
 import static cn.ac.ict.msbench.exporter.Exporter.*;
-import static cn.ac.ict.msbench.exporter.Exporter.TAIL;
 
 /**
  * Created by jiecxy on 2017/3/21.
@@ -53,10 +52,10 @@ public class WorkerComInfo {
     public void insertWindow(Exporter exporter, StatWindow window) {
         stat.statWindow.add(window);
         if (exporter != null) {
-            if (window.isEndToEnd)
-                exporter.write(workerID, WINDOW_END_TO_END, window.toString());
+            if (window.isWriter)
+                exporter.write(workerID, WINDOW_WRITER, window.toString());
             else
-                exporter.write(workerID, WINDOW, window.toString());
+                exporter.write(workerID, WINDOW_READER, window.toString());
         }
 //        return true;
     }
@@ -64,10 +63,10 @@ public class WorkerComInfo {
     public void insertTail(Exporter exporter, StatTail tail) {
         stat.tail = tail;
         if (exporter != null) {
-            if (tail.isEndToEnd)
-                exporter.write(workerID, TAIL_END_TO_END, tail.toString());
+            if (tail.isWriter)
+                exporter.write(workerID, TAIL_WRITER, tail.toString());
             else
-                exporter.write(workerID, TAIL, tail.toString());
+                exporter.write(workerID, TAIL_READER, tail.toString());
         }
     }
 }

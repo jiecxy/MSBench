@@ -146,13 +146,21 @@ public class KafkaClient extends MS {
         }
     }
 
+    private boolean isRun = true;
     @Override
     public void read(ReadCallBack readCallBack) {
         log.debug("read messages by poll");
-        ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
-        for (ConsumerRecord<byte[], byte[]> record : records) {
-            readCallBack.handleReceivedMessage(record.value(), record.timestamp());
+        while (isRun) {
+            ConsumerRecords<byte[], byte[]> records = consumer.poll(100);
+            for (ConsumerRecord<byte[], byte[]> record : records) {
+                readCallBack.handleReceivedMessage(record.value(), record.timestamp());
+            }
         }
+    }
+
+    @Override
+    public void stopRead() {
+        isRun = false;
     }
 
     @Override

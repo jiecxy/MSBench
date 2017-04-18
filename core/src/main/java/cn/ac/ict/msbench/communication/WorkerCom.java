@@ -338,10 +338,10 @@ public class WorkerCom extends Communication implements CallBack {
     private int insertWindow(Exporter exporter, StatWindow window) {
         stat.statWindow.add(window);
         if (exporter != null) {
-            if (window.isEndToEnd)
-                exporter.write(workerID, WINDOW_END_TO_END, window.toString());
+            if (window.isWriter)
+                exporter.write(workerID, WINDOW_WRITER, window.toString());
             else
-                exporter.write(workerID, WINDOW, window.toString());
+                exporter.write(workerID, WINDOW_READER, window.toString());
         }
         return stat.statWindow.size() - 1;
     }
@@ -349,10 +349,10 @@ public class WorkerCom extends Communication implements CallBack {
     private void insertTail(Exporter exporter, StatTail tail) {
         stat.tail = tail;
         if (exporter != null) {
-            if (tail.isEndToEnd)
-                exporter.write(workerID, TAIL_END_TO_END, tail.toString());
+            if (tail.isWriter)
+                exporter.write(workerID, TAIL_WRITER, tail.toString());
             else
-                exporter.write(workerID, TAIL, tail.toString());
+                exporter.write(workerID, TAIL_READER, tail.toString());
         }
     }
 }

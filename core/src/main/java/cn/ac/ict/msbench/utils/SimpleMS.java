@@ -70,7 +70,7 @@ public class SimpleMS extends MS {
     }
 
     @Override
-    public void read(ReadCallBack readCallBack, long requestTimeInNano) {
+    public void read(ReadCallBack readCallBack) {
 //        System.out.println("receiving message from ");
         long publishTimeInMillis =System.currentTimeMillis();
         try {
@@ -79,8 +79,13 @@ public class SimpleMS extends MS {
             e.printStackTrace();
         }
         //System.out.println("received SEND ack");
-        readCallBack.handleReceivedMessage("my-message".getBytes(), requestTimeInNano, publishTimeInMillis);
+        readCallBack.handleReceivedMessage("my-message".getBytes(), publishTimeInMillis);
         return;
+    }
+
+    @Override
+    public void stopRead() {
+
     }
 
     public void close() {

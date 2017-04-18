@@ -33,6 +33,9 @@ public class WriteWorker extends Worker implements WriteCallBack {
     private Generator generator = null;
     private ShiftableRateLimiter rateLimiter;
     private WriteJob job;
+    private Recorder recorder = null;
+    private Recorder cumulativeRecorder = null;
+    private long requestTime;     // ns
 
     public WriteWorker(CallBack cb, MS ms, Job job) {
         super(cb);
@@ -111,7 +114,8 @@ public class WriteWorker extends Worker implements WriteCallBack {
                         numMsg,
                         numByte / (elapsedInNano / 1e9) / 1024.0 / 1024.0,
                         reportHist.getMean()/1000.0,
-                        reportHist.getMaxValue()/1000.0));
+                        reportHist.getMaxValue()/1000.0,
+                        true));
 
                 numMsg = 0;
                 numByte = 0;

@@ -7,7 +7,7 @@ import cn.ac.ict.msbench.worker.callback.ReadCallBack;
  */
 public class SimpleReadCallBack implements ReadCallBack {
     @Override
-    public void handleReceivedMessage(byte[] msg, long requestTime,long publishTime) {
+    public void handleReceivedMessage(byte[] msg,long publishTime) {
         System.out.println("Received msg "+new String(msg));
         return;
     }

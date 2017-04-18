@@ -1,7 +1,5 @@
 package cn.ac.ict.msbench.exporter;
 
-import cn.ac.ict.msbench.communication.MasterCom;
-import cn.ac.ict.msbench.communication.WorkerComInfo;
 import cn.ac.ict.msbench.stat.StatWindow;
 import cn.ac.ict.msbench.utils.Utils;
 import org.slf4j.Logger;
@@ -49,13 +47,13 @@ public class FileExporter implements Exporter {
                 files.put(fileID, new FileInfo(createFile(fileID)));
             }
             if (!files.get(fileID).writenWindowHeader) {
-                if (WINDOW == metrics) {
+                if (WINDOW_WRITER == metrics) {
                     files.get(fileID).bw.newLine();
-                    files.get(fileID).bw.write(StatWindow.printHead());
+                    files.get(fileID).bw.write(StatWindow.printWriteHead());
                     files.get(fileID).writenWindowHeader = true;
-                } else if (WINDOW_END_TO_END == metrics) {
+                } else if (WINDOW_READER == metrics) {
                     files.get(fileID).bw.newLine();
-                    files.get(fileID).bw.write(StatWindow.printHeadWithEndToEnd());
+                    files.get(fileID).bw.write(StatWindow.printReadHead());
                     files.get(fileID).writenWindowHeader = true;
                 }
             }

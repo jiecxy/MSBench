@@ -20,9 +20,9 @@ public class Worker implements Runnable {
     long numByte;
     long totalNumMsg;
     long totalNumByte;
-    long requestTime;     // ns
-    Recorder recorder = null;
-    Recorder cumulativeRecorder = null;
+//    long requestTime;     // ns
+//    Recorder recorder = null;
+//    Recorder cumulativeRecorder = null;
 
     public Worker(CallBack cb) {
         this.cb = cb;

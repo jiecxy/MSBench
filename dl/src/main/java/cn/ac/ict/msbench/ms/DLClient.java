@@ -254,27 +254,50 @@ public class DLClient extends MS {
         }
     }
 
+    private boolean isRun = true;
     @Override
-    public void read(final ReadCallBack readCallBack, final long requestTime) {
-        reader.readBulk(readbulknum).addEventListener(
-                new FutureEventListener<List<LogRecordWithDLSN>>() {
-                    @Override
-                    public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
-                        for (LogRecordWithDLSN log : logRecordWithDLSNs){
-                            readCallBack.handleReceivedMessage(log.getPayload(),requestTime,log.getTransactionId());
+    public void read(final ReadCallBack readCallBack) {
+        while (isRun) {
+            reader.readNext().addEventListener(
+                    new FutureEventListener<LogRecordWithDLSN>() {
+                        @Override
+                        public void onFailure(Throwable cause) {
+                            if (cause instanceof DLException) {
+                                DLException dle = (DLException) cause;
+                                dle.printStackTrace();
+                                System.out.println("read failed!");
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Throwable cause) {
-                        if (cause instanceof DLException) {
-                            DLException dle = (DLException) cause;
-                            dle.printStackTrace();
-                            System.out.println("read failed!");
+                        @Override
+                        public void onSuccess(LogRecordWithDLSN log) {
+                            readCallBack.handleReceivedMessage(log.getPayload(), log.getTransactionId());
                         }
                     }
-                }
-        );
+//        new FutureEventListener<List<LogRecordWithDLSN>>() {
+//                    @Override
+//                    public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
+//                        for (LogRecordWithDLSN log : logRecordWithDLSNs){
+//                            readCallBack.handleReceivedMessage(log.getPayload(), log.getTransactionId());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Throwable cause) {
+//                        if (cause instanceof DLException) {
+//                            DLException dle = (DLException) cause;
+//                            dle.printStackTrace();
+//                            System.out.println("read failed!");
+//                        }
+//                    }
+//                }
+            );
+        }
+    }
+
+    @Override
+    public void stopRead() {
+        isRun = false;
     }
 
     @Override

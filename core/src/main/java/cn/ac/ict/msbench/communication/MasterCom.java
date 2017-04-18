@@ -139,7 +139,7 @@ public class MasterCom extends Communication {
                     switch (msg.type) {
                         case RESPONSE:
                             log.debug(getMasterLogPrefix() + "Received METRICS_HEAD from worker (" + msg.from + "): " +  msg.data);
-//                            System.out.print(StatWindow.printHead());
+//                            System.out.print(StatWindow.printWriteHead());
                             workers.get(msg.from).insertHeader(exporter, (StatHeader) msg.data);
                             break;
                         default:

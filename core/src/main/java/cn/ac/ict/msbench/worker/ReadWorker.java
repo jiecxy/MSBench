@@ -38,8 +38,8 @@ public class ReadWorker extends Worker implements ReadCallBack {
         numByte = 0;
         totalNumMsg = 0;
         totalNumByte = 0;
-        recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
-        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+//        recorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
+//        cumulativeRecorder = new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
         end2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
         cumulativeEnd2endRecorder=new Recorder(TimeUnit.SECONDS.toMillis(120000), 5);
     }
@@ -88,11 +88,11 @@ public class ReadWorker extends Worker implements ReadCallBack {
             }
 
             if (System.nanoTime() - lastStatTime > job.statIntervalInSec * 1e9) {
-                Histogram reportHist = null;
+//                Histogram reportHist = null;
                 Histogram end2endReportHist = null;
                 long now = System.nanoTime();
                 double elapsedInNano = now - lastStatTime;
-                reportHist = recorder.getIntervalHistogram(reportHist);
+//                reportHist = recorder.getIntervalHistogram(reportHist);
                 end2endReportHist = end2endRecorder.getIntervalHistogram(end2endReportHist);
 
 //                log.debug("onSendStatWindow");
@@ -101,24 +101,19 @@ public class ReadWorker extends Worker implements ReadCallBack {
                                 numMsg*1.0 / (elapsedInNano / 1e9),
                                 numMsg,
                                 numByte / (elapsedInNano /1e9) / 1024.0 / 1024.0,
-                                reportHist.getMean()/1000.0,
-                                reportHist.getMaxValue()/1000.0,
                                 end2endReportHist.getMean(),
-                                end2endReportHist.getMaxValue()));
+                                end2endReportHist.getMaxValue(),
+                                false));
 
                 numMsg = 0;
                 numByte = 0;
-                reportHist.reset();
+//                reportHist.reset();
                 end2endReportHist.reset();
                 lastStatTime = System.nanoTime();
             }
-
-            requestTime = System.nanoTime();
-            //System.out.println("worker start reading a msg");
 //            log.debug("msClient read requestTime" + requestTime);
-            //msClient.read(this, requestTime);
         }
-        Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
+//        Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
         Histogram end2endReportHist = cumulativeEnd2endRecorder.getIntervalHistogram();
         double elapsedInNano = lastReadTime - startTime;
 
@@ -126,20 +121,14 @@ public class ReadWorker extends Worker implements ReadCallBack {
         cb.onSendStatTail(
                 new StatTail(System.currentTimeMillis(),
                         totalNumByte / 1024.0 / 1024.0 / (elapsedInNano / 1e9),
-                        reportHist.getMean()/1000.0,
-                        reportHist.getMaxValue()/1000.0,
-                        reportHist.getValueAtPercentile(50)/1000.0,
-                        reportHist.getValueAtPercentile(95)/1000.0,
-                        reportHist.getValueAtPercentile(99)/1000.0,
-                        reportHist.getValueAtPercentile(99.9)/1000.0,
-                        totalNumMsg,
-                        totalNumByte / 1024.0 / 1024.0,
                         end2endReportHist.getMean(),
                         end2endReportHist.getMaxValue(),
                         end2endReportHist.getValueAtPercentile(50),
                         end2endReportHist.getValueAtPercentile(95),
                         end2endReportHist.getValueAtPercentile(99),
                         end2endReportHist.getValueAtPercentile(99.9),
+                        totalNumMsg,
+                        totalNumByte / 1024.0 / 1024.0,
                         false)
         );
     }
@@ -179,14 +168,15 @@ public class ReadWorker extends Worker implements ReadCallBack {
         totalNumByte += msg.length;
         lastReadTime = System.nanoTime();
     }
+
     class ReadWork extends Thread {
         @Override
         public void run() {
             super.run();
             msClient.read(ReadWorker.this::handleReceivedMessage);
         }
-        public void shutdown()
-        {
+
+        public void shutdown() {
             msClient.stopRead();
         }
     }
