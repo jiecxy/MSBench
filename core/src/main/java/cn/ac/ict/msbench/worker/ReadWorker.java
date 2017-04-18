@@ -164,6 +164,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             cumulativeEnd2endRecorder.recordValue(end2endLatencyMillis);
         } catch (ArrayIndexOutOfBoundsException e) {
             log.error("Invalid Latency! Please synchronize client's time! \n" + e);
+            stopWork();
         }
         numMsg++;
         numByte += msg.length;
