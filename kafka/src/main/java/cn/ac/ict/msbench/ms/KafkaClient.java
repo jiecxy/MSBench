@@ -145,7 +145,7 @@ public class KafkaClient extends MS {
                     });
         }
     }
-    //TODO 配置读的位置，提交offset
+
     @Override
     public void read(ReadCallBack readCallBack, long requestTimeInNano) {
         log.debug("read messages by poll");

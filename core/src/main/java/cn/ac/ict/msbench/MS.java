@@ -63,7 +63,9 @@ public abstract class MS {
      * @param
      * @return
      */
-    public abstract void read(ReadCallBack readCallBack, long requestTimeInNano);
+    public abstract void read(ReadCallBack readCallBack);
+
+    public abstract void stopRead();
 
     /**
      * close the Message System.
