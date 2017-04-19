@@ -71,7 +71,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
         cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.from, job.delayStartSec));
 
         log.debug("ReadWork starts running");
-        ReadWork rw=new ReadWork();
+        ReadWork rw = new ReadWork();
         rw.start();
         while (isRunning) {
             try {
@@ -82,7 +82,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
             if (System.nanoTime() - startTime > job.runTimeInSec * 1e9) {
 //                log.debug("isRunning = false");
-                rw.shutdown();
+
                 isRunning = false;
                 break;
             }
@@ -113,6 +113,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             }
 //            log.debug("msClient read requestTime" + requestTime);
         }
+        rw.shutdown();
 //        Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
         Histogram end2endReportHist = cumulativeEnd2endRecorder.getIntervalHistogram();
         double elapsedInNano = lastReadTime - startTime;

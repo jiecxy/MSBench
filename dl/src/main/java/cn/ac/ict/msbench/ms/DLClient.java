@@ -61,10 +61,14 @@ public class DLClient extends MS {
     List<String> serversetPaths = new ArrayList<String>();
     List<String> finagleNames = new ArrayList<String>();
     boolean iswriter = true;
+    AsyncLogReader reader1;
 
     public DLClient(String streamName, boolean isProducer, Properties p,int from) {
         super(streamName, isProducer, p,from);
-        uri = URI.create((String) p.remove(DLURI));
+
+        System.out.println("Properties " + p);
+
+        uri = URI.create(p.getProperty(DLURI));
         Preconditions.checkNotNull(uri);
         conf = new DistributedLogConfiguration()
                 .setLogSegmentRollingIntervalMinutes(60) // interval to roll log segment
@@ -75,9 +79,12 @@ public class DLClient extends MS {
         conf.setImmediateFlushEnabled(false);
         conf.setOutputBufferSize(16000);
         conf.setPeriodicFlushFrequencyMilliSeconds(10);
+
+
         if(!isProducer){
             readbulknum = Integer.parseInt((String) p.remove(READBULKNUM));
             Preconditions.checkNotNull(readbulknum);
+
             try {
                 namespace = DistributedLogNamespaceBuilder.newBuilder()
                         .conf(conf)
@@ -257,23 +264,28 @@ public class DLClient extends MS {
     private boolean isRun = true;
     @Override
     public void read(final ReadCallBack readCallBack) {
-        while (isRun) {
-            reader.readNext().addEventListener(
-                    new FutureEventListener<LogRecordWithDLSN>() {
-                        @Override
-                        public void onFailure(Throwable cause) {
-                            if (cause instanceof DLException) {
-                                DLException dle = (DLException) cause;
-                                dle.printStackTrace();
-                                System.out.println("read failed!");
-                            }
-                        }
-
-                        @Override
-                        public void onSuccess(LogRecordWithDLSN log) {
-                            readCallBack.handleReceivedMessage(log.getPayload(), log.getTransactionId());
+        System.out.println("start read!");
+        reader.readNext().addEventListener(
+                new FutureEventListener<LogRecordWithDLSN>() {
+                    @Override
+                    public void onFailure(Throwable cause) {
+                        System.out.println("read failed1! " + cause);
+                        if (cause instanceof DLException) {
+                            DLException dle = (DLException) cause;
+                            dle.printStackTrace();
+                            System.out.println("read failed!");
                         }
                     }
+
+                    @Override
+                    public void onSuccess(LogRecordWithDLSN log) {
+                        System.out.println("read onSuccess!");
+                        readCallBack.handleReceivedMessage(log.getPayload(), log.getTransactionId());
+                        if (isRun) {
+                            reader.readNext().addEventListener(this);
+                        }
+                    }
+                }
 //        new FutureEventListener<List<LogRecordWithDLSN>>() {
 //                    @Override
 //                    public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
@@ -291,8 +303,7 @@ public class DLClient extends MS {
 //                        }
 //                    }
 //                }
-            );
-        }
+        );
     }
 
     @Override
@@ -302,17 +313,29 @@ public class DLClient extends MS {
 
     @Override
     public void close() {
-        if(reader!=null)
-            reader.asyncClose();
-        if(writer!=null)
-            writer.asyncClose();
-        if(syncwriter!=null)
+        if(reader != null) {
+            try {
+                FutureUtils.result(reader.asyncClose());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(writer != null) {
+            try {
+                FutureUtils.result(writer.asyncClose());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(syncwriter != null)
             try {
                 syncwriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        if(client!=null)
+        if(client != null)
             client.close();
     }
 }
