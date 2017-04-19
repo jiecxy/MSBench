@@ -196,7 +196,7 @@ public class DLClient extends MS {
     public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTime) {
         if(isSync){
             //同步问题
-            if(iswriter){
+            if (iswriter) {
 //                try {
 //                    writer.write(new LogRecord(requestTime,msg)).toJavaFuture().get();
 //                    sentCallBack.handleSentMessage(msg,requestTime);
@@ -206,40 +206,39 @@ public class DLClient extends MS {
 //                    e.printStackTrace();
 //                }
                 try {
-                    syncwriter.write(new LogRecord(requestTime,msg));
-                    sentCallBack.handleSentMessage(msg,requestTime);
+                    syncwriter.write(new LogRecord(System.currentTimeMillis(), msg));
+                    sentCallBack.handleSentMessage(msg, requestTime);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    System.out.println("Sync-write failed!");
+                    log.error("Sync-write failed!");
                 }
-            }else{
+            } else {
                 try {
                     //todo use twitter's future's wait func
                     client.write(streamName,ByteBuffer.wrap(msg)).toJavaFuture().get();
                     // client.write(streamName,ByteBuffer.wrap(msg)).get();
                     sentCallBack.handleSentMessage(msg, requestTime);
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("Sync-write failed!");
+                    log.error("Sync-write failed!");
                 }
             }
-
-        }else{
-            if(iswriter){
-                writer.write(new LogRecord(requestTime,msg)).addEventListener(
+        } else {
+            if (iswriter) {
+                writer.write(new LogRecord(System.currentTimeMillis(), msg)).addEventListener(
                         new FutureEventListener<DLSN>() {
                             @Override
                             public void onFailure(Throwable cause) {
-                                System.out.println("Async-write failed!");
+                                log.error("Async-write failed!");
                             }
 
                             @Override
                             public void onSuccess(DLSN value) {
-                                sentCallBack.handleSentMessage(msg,requestTime);
+                                sentCallBack.handleSentMessage(msg, requestTime);
                             }
                         }
                 );
-            }else{
+            } else {
                 client.write(streamName, ByteBuffer.wrap(msg)).addEventListener(
                         new FutureEventListener<DLSN>() {
                             @Override
@@ -253,7 +252,7 @@ public class DLClient extends MS {
                                 if (cause instanceof DLException) {
                                     DLException dle = (DLException) cause;
                                     dle.printStackTrace();
-                                    System.out.println("Async-write failed!");
+                                    log.error("Async-write failed!");
                                 }
                             }
                         }
@@ -299,7 +298,8 @@ public class DLClient extends MS {
             try {
                 FutureUtils.result(reader.asyncClose());
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                log.warn("Failed to close reader");
             }
         }
 

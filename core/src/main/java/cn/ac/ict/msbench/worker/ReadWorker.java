@@ -81,21 +81,17 @@ public class ReadWorker extends Worker implements ReadCallBack {
             }
 
             if (System.nanoTime() - startTime > job.runTimeInSec * 1e9) {
-//                log.debug("isRunning = false");
+                log.debug("Finished worker with " + (System.nanoTime() - startTime)/1e9 + " s");
 
                 isRunning = false;
                 break;
             }
 
             if (System.nanoTime() - lastStatTime > job.statIntervalInSec * 1e9) {
-//                Histogram reportHist = null;
                 Histogram end2endReportHist = null;
                 long now = System.nanoTime();
                 double elapsedInNano = now - lastStatTime;
-//                reportHist = recorder.getIntervalHistogram(reportHist);
                 end2endReportHist = end2endRecorder.getIntervalHistogram(end2endReportHist);
-
-//                log.debug("onSendStatWindow");
                 cb.onSendStatWindow(
                         new StatWindow(System.currentTimeMillis(),
                                 numMsg*1.0 / (elapsedInNano / 1e9),
@@ -107,14 +103,13 @@ public class ReadWorker extends Worker implements ReadCallBack {
 
                 numMsg = 0;
                 numByte = 0;
-//                reportHist.reset();
                 end2endReportHist.reset();
                 lastStatTime = System.nanoTime();
             }
-//            log.debug("msClient read requestTime" + requestTime);
         }
+
+        log.debug("Shutting down ReadWork...");
         rw.shutdown();
-//        Histogram reportHist = cumulativeRecorder.getIntervalHistogram();
         Histogram end2endReportHist = cumulativeEnd2endRecorder.getIntervalHistogram();
         double elapsedInNano = lastReadTime - startTime;
 
@@ -160,7 +155,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
             end2endRecorder.recordValue(end2endLatencyMillis);
             cumulativeEnd2endRecorder.recordValue(end2endLatencyMillis);
         } catch (ArrayIndexOutOfBoundsException e) {
-            log.error("Invalid Latency! Please synchronize client's time! \n" + e);
+            log.error("Invalid End to End Latency " + end2endLatencyMillis + "! Please synchronize client's time! \n" + e);
             stopWork();
         }
         numMsg++;
