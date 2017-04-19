@@ -69,18 +69,12 @@ public class PulsarClient extends MS {
                 producer = client.createProducer(prefix + streamName, producerConf);
                 log.info("created a pulsar producer");
             } else {
-                if (from == -1) {
-                    admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
-                    log.debug("creating a pulsar consumer on " + prefix + streamName + " from end with subscription name " + subscription_name);
-                } else
-                    log.debug("creating a pulsar consumer on " + prefix + streamName + " from start with subscription name " + subscription_name);
+
                     //consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
                 //log.info("created a pulsar consumer on " + prefix + streamName+" with subscription name " + subscription_name);
             }
         } catch (PulsarClientException e) {
-            log.error("pulsar client error");
-            e.printStackTrace();
-        } catch (PulsarAdminException e) {
+            log.error("pulsar client error "+e);
             e.printStackTrace();
         }
     }
@@ -201,9 +195,16 @@ public class PulsarClient extends MS {
                 }
             });
             try {
+                if (from == -1) {
+                    admin.persistentTopics().skipAllMessages(prefix + streamName, subscription_name);
+                    log.debug("creating a pulsar consumer on " + prefix + streamName + " from end with subscription name " + subscription_name);
+                } else
+                    log.debug("creating a pulsar consumer on " + prefix + streamName + " from start with subscription name " + subscription_name);
                 consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
             } catch (PulsarClientException e) {
                 log.error("fail to create consumer "+e);
+            } catch (PulsarAdminException e) {
+                log.error("fail to reset cursor "+e);
             }
             log.info("created a pulsar consumer on " + prefix + streamName);
             isFirst=false;
