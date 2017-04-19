@@ -335,7 +335,7 @@ public class MasterCom extends Communication {
                 Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
                 cmd.status = STATUS.FAIL;
                 sender.tell(cmd, getSelf());
-                log.warn(getMasterLogPrefix() + "Refused registration from writer " + request.from + ", Because there are enough writer.");
+                log.warn(getMasterLogPrefix() + "Refused registration from writer " + request.from + ", Because there have been"+num[0]+ "writer for "+writerNum+" writers");
                 return false;
             }
         } else {
@@ -343,7 +343,7 @@ public class MasterCom extends Communication {
                 Command cmd = new Command(masterID, REGISTER_WORKER, TYPE.RESPONSE);
                 cmd.status = STATUS.FAIL;
                 sender.tell(cmd, getSelf());
-                log.warn(getMasterLogPrefix() + "Refused registration from reader " + request.from + ", Because there are enough reader.");
+                log.warn(getMasterLogPrefix() + "Refused registration from reader " + request.from + ", Because there have been"+num[1]+ "readers for "+readerNum+" readers");
                 return false;
             }
         }

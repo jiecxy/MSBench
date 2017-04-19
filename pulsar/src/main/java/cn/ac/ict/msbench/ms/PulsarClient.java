@@ -69,7 +69,6 @@ public class PulsarClient extends MS {
                 producer = client.createProducer(prefix + streamName, producerConf);
                 log.info("created a pulsar producer");
             } else {
-
                     //consumer = client.subscribe(prefix + streamName, subscription_name, consumerConf);
                 //log.info("created a pulsar consumer on " + prefix + streamName+" with subscription name " + subscription_name);
             }
