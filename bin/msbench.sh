@@ -434,7 +434,7 @@ while [ $j -lt $NUMBER ]; do
         i=0
         while [ $i -lt $R ]; do
             #assign from the end
-            ((tmp=$i*$j+$j))
+            ((tmp=$R*$j+$i))
             LOCATE=$((${IPSIZE}-1-$((${tmp}%${IPSIZE}))))
             IP=${IPARRY[$LOCATE]}
             #use ssh in remote host
