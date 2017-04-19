@@ -128,8 +128,8 @@ public class MSBClient {
                 }
 
                 ArrayList<String> streams = getStreamNames(getIntArgOrException(res, STREAM_NUM), getStringArgOrException(res, STREAM_NAME_PREFIX));
-                Integer writerNum = res.getInt(WRITER_NUM)*streams.size();
-                Integer readerNum = res.getInt(READER_NUM)*streams.size();
+                Integer writerNum = res.getInt(WRITER_NUM);
+                Integer readerNum = res.getInt(READER_NUM);
                 if (writerNum == null && readerNum == null) {
                     throw new ArgumentParserException("Argument -w or -r is required!", parser);
                 }
@@ -259,14 +259,14 @@ public class MSBClient {
                 + "\t" + "masterPort" + " = " + masterPort + "\n"
                 + "\t" + "runTimeInSec" + " = " + runTime + "\n"
                 + "\t" + "streams" + " = " + streams + "\n"
-                + "\t" + "writerNum" + " = " + writerNum + "\n"
-                + "\t" + "readerNum" + " = " + readerNum + "\n"
+                + "\t" + "writerNumPerStream" + " = " + writerNum + "\n"
+                + "\t" + "readerNumPerStream" + " = " + readerNum + "\n"
                 + "\t" + "with Akka Conf: " + akkaConf.toString());
 
 //        props.setProperty("akka.actor.serializers.proto", "akka.remote.serialization.ProtobufSerializer");
 
         ActorSystem system = ActorSystem.create("MSBenchMaster", akkaConf);
-        system.actorOf(Props.create(MasterCom.class, exporter, masterIP, masterPort, runTime, streams, writerNum, readerNum), "master");
+        system.actorOf(Props.create(MasterCom.class, exporter, masterIP, masterPort, runTime, streams, writerNum*streams.size(), readerNum*streams.size()), "master");
         system.awaitTermination();
     }
 
