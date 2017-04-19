@@ -51,6 +51,7 @@ if [ -z "$CLASSPATH" ] ; then
 else
     CLASSPATH="$CLASSPATH:$MSBENCH_HOME/conf"
 fi
+
 # Core libraries
 for f in "$MSBENCH_HOME"/lib/*.jar ; do
 if [ -r "$f" ] ; then

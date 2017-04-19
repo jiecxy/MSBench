@@ -20,6 +20,8 @@ import com.twitter.finagle.thrift.ClientId;
 import com.twitter.util.Duration$;
 import com.twitter.util.FutureEventListener;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,6 +36,9 @@ import java.util.concurrent.ExecutionException;
  * Created by jiecxy on 2017/3/15.
  */
 public class DLClient extends MS {
+
+    private static final Logger log = LoggerFactory.getLogger(DLClient.class);
+
     private static final String SERVERSETPATHS = "serversetpaths";
     private static final String FINAGLENAMES = "finagleNames";
     private static final String DLURI = "uri";
@@ -61,12 +66,10 @@ public class DLClient extends MS {
     List<String> serversetPaths = new ArrayList<String>();
     List<String> finagleNames = new ArrayList<String>();
     boolean iswriter = true;
-    AsyncLogReader reader1;
+    DistributedLogManager dlm = null;
 
     public DLClient(String streamName, boolean isProducer, Properties p,int from) {
         super(streamName, isProducer, p,from);
-
-        System.out.println("Properties " + p);
 
         uri = URI.create(p.getProperty(DLURI));
         Preconditions.checkNotNull(uri);
@@ -80,8 +83,7 @@ public class DLClient extends MS {
         conf.setOutputBufferSize(16000);
         conf.setPeriodicFlushFrequencyMilliSeconds(10);
 
-
-        if(!isProducer){
+        if (!isProducer) {
             readbulknum = Integer.parseInt((String) p.remove(READBULKNUM));
             Preconditions.checkNotNull(readbulknum);
 
@@ -90,7 +92,7 @@ public class DLClient extends MS {
                         .conf(conf)
                         .uri(uri)
                         .build();
-                DistributedLogManager dlm = namespace.openLog(streamName);
+                dlm = namespace.openLog(streamName);
                 DLSN lastDLSN;
                 if(from == 0){
                     lastDLSN = DLSN.InitialDLSN;
@@ -101,7 +103,7 @@ public class DLClient extends MS {
             }catch (IOException e){
                 e.printStackTrace();
             }
-        }else{
+        } else {
             serversetPaths = Arrays.asList(StringUtils.split((String) p.remove(SERVERSETPATHS), ','));
             finagleNames = Arrays.asList(StringUtils.split((String) p.remove(FINAGLENAMES), ','));
             hostConnectionLimit = Integer.parseInt((String) p.remove(HOSTCONNECTIONLIMIT));
@@ -117,7 +119,7 @@ public class DLClient extends MS {
             Preconditions.checkArgument(hostConnectionLimit > 0,
                     "host connection limit must be > 0");
             Preconditions.checkNotNull(iswriter);
-            if(iswriter){
+            if (iswriter) {
                 try {
                     namespace = DistributedLogNamespaceBuilder.newBuilder()
                             .conf(conf)
@@ -129,7 +131,7 @@ public class DLClient extends MS {
                 }catch (IOException e){
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 clientBuilder = ClientBuilder.get()
                         .hostConnectionLimit(hostConnectionLimit)
                         .hostConnectionCoresize(hostConnectionCoresize)
@@ -264,45 +266,25 @@ public class DLClient extends MS {
     private boolean isRun = true;
     @Override
     public void read(final ReadCallBack readCallBack) {
-        System.out.println("start read!");
         reader.readNext().addEventListener(
                 new FutureEventListener<LogRecordWithDLSN>() {
                     @Override
                     public void onFailure(Throwable cause) {
-                        System.out.println("read failed1! " + cause);
                         if (cause instanceof DLException) {
                             DLException dle = (DLException) cause;
                             dle.printStackTrace();
-                            System.out.println("read failed!");
+                            log.error("Message Read failed!");
                         }
                     }
 
                     @Override
                     public void onSuccess(LogRecordWithDLSN log) {
-                        System.out.println("read onSuccess!");
                         readCallBack.handleReceivedMessage(log.getPayload(), log.getTransactionId());
                         if (isRun) {
                             reader.readNext().addEventListener(this);
                         }
                     }
                 }
-//        new FutureEventListener<List<LogRecordWithDLSN>>() {
-//                    @Override
-//                    public void onSuccess(List<LogRecordWithDLSN> logRecordWithDLSNs) {
-//                        for (LogRecordWithDLSN log : logRecordWithDLSNs){
-//                            readCallBack.handleReceivedMessage(log.getPayload(), log.getTransactionId());
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Throwable cause) {
-//                        if (cause instanceof DLException) {
-//                            DLException dle = (DLException) cause;
-//                            dle.printStackTrace();
-//                            System.out.println("read failed!");
-//                        }
-//                    }
-//                }
         );
     }
 
@@ -313,7 +295,7 @@ public class DLClient extends MS {
 
     @Override
     public void close() {
-        if(reader != null) {
+        if (reader != null) {
             try {
                 FutureUtils.result(reader.asyncClose());
             } catch (IOException e) {
@@ -321,7 +303,7 @@ public class DLClient extends MS {
             }
         }
 
-        if(writer != null) {
+        if (writer != null) {
             try {
                 FutureUtils.result(writer.asyncClose());
             } catch (IOException e) {
@@ -329,13 +311,24 @@ public class DLClient extends MS {
             }
         }
 
-        if(syncwriter != null)
+        if (syncwriter != null)
             try {
                 syncwriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        if(client != null)
+        if (client != null) {
             client.close();
+        }
+        if (dlm != null) {
+            try {
+                dlm.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (namespace != null) {
+            namespace.close();
+        }
     }
 }
