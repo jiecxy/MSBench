@@ -128,8 +128,8 @@ public class MSBClient {
                 }
 
                 ArrayList<String> streams = getStreamNames(getIntArgOrException(res, STREAM_NUM), getStringArgOrException(res, STREAM_NAME_PREFIX));
-                Integer writerNum = res.getInt(WRITER_NUM);
-                Integer readerNum = res.getInt(READER_NUM);
+                Integer writerNum = res.getInt(WRITER_NUM)*streams.size();
+                Integer readerNum = res.getInt(READER_NUM)*streams.size();
                 if (writerNum == null && readerNum == null) {
                     throw new ArgumentParserException("Argument -w or -r is required!", parser);
                 }
