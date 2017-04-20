@@ -177,9 +177,11 @@ public class KafkaClient extends MS {
 
     @Override
     public void close() {
+        isRun = false;
         if (producer != null)
             producer.close();
-        if (consumer != null)
+        if (consumer != null) {
             consumer.close();
+        }
     }
 }

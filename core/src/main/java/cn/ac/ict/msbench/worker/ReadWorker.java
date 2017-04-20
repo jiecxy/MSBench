@@ -28,6 +28,7 @@ public class ReadWorker extends Worker implements ReadCallBack {
     private Recorder end2endRecorder;
     private Recorder cumulativeEnd2endRecorder;
     private long lastReadTime;
+    private ReadWork rw = null;
 
     public ReadWorker(CallBack cb, MS ms, Job job) {
         super(cb);
@@ -71,8 +72,10 @@ public class ReadWorker extends Worker implements ReadCallBack {
         cb.onSendStatHeader(new StatHeader(job.system, job.streamName, job.runTimeInSec, System.currentTimeMillis(), job.statIntervalInSec, job.host, job.from, job.delayStartSec));
 
         log.debug("ReadWork starts running");
-        ReadWork rw = new ReadWork();
+        // Start a thread to do read operations
+        rw = new ReadWork();
         rw.start();
+
         while (isRunning) {
             try {
                 Thread.sleep(500);
@@ -132,10 +135,17 @@ public class ReadWorker extends Worker implements ReadCallBack {
     @Override
     public void stopWork() {
         log.info("Stopping reader thread");
-        isRunning = false;
-        if (msClient != null)
-            msClient.close();
-        return;
+        try {
+            isRunning = false;
+
+            if (rw != null) {
+                rw.shutdown();
+            }
+            if (msClient != null)
+                msClient.close();
+        } catch (Exception e) {
+            log.error("Reader failed to stop!" + e);
+        }
     }
 
     @Override

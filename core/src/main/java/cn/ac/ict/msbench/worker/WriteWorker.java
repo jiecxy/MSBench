@@ -156,11 +156,15 @@ public class WriteWorker extends Worker implements WriteCallBack {
 
     public void stopWork() {
         log.info("Stopping writer thread");
-        isRunning = false;
-        if (rateLimiter != null)
-            rateLimiter.close();
-        if (msClient != null)
-            msClient.close();
+        try {
+            isRunning = false;
+            if (rateLimiter != null)
+                rateLimiter.close();
+            if (msClient != null)
+                msClient.close();
+        } catch (Exception e) {
+            log.error("Writer failed to stop! " + e);
+        }
     }
 
     @Override

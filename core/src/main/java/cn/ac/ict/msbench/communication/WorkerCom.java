@@ -268,8 +268,13 @@ public class WorkerCom extends Communication implements CallBack {
     }
 
     private void stopWorker() {
-        if (worker != null)
-            worker.stopWork();
+        try {
+            if (worker != null)
+                worker.stopWork();
+        } catch (Exception e) {
+            log.error("Failed to close worker");
+        }
+
     }
 
     private void stopAll() {
