@@ -82,6 +82,13 @@ public class DLClient extends MS {
         conf.setImmediateFlushEnabled(false);
         conf.setOutputBufferSize(16000);
         conf.setPeriodicFlushFrequencyMilliSeconds(10);
+        conf.setEnableReadAhead(true)
+                .setTraceReadAheadDeliveryLatency(true)
+                .setNumWorkerThreads(16)
+                .setOutputBufferSize(1024*1024)
+                .setReadAheadMaxRecords(1000)
+                .setReadLACLongPollTimeout(10000)
+                .setTraceReadAheadMetadataChanges(true);
 
         if (!isProducer) {
             readbulknum = Integer.parseInt((String) p.remove(READBULKNUM));
