@@ -187,11 +187,7 @@ public class PulsarClient extends MS {
             consumerConf.setMessageListener(new MessageListener() {
                 //            @Override
                 public void received(Consumer consumer, Message message) {
-                    try {
-                        consumer.acknowledge(message);
-                    } catch (PulsarClientException e) {
-                        log.error("fail to send ack " + e);
-                    }
+                    consumer.acknowledgeAsync(message);
                     readCallBack.handleReceivedMessage(message.getData(), message.getPublishTime());
                 }
             });
