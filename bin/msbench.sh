@@ -406,7 +406,8 @@ while [ $j -lt $NUMBER ]; do
         i=0
         while [ $i -lt $W ]; do
             #use module to choose ip
-            IP=${IPARRY[$((${i}%${IPSIZE}))]}
+            ((tmp=$W*$j+$i))
+            IP=${IPARRY[$((${tmp}%${IPSIZE}))]}
             #use ssh in remote host
             CMD=
             if [ $IP != $LOCALIP ]; then
