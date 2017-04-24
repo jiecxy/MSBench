@@ -46,17 +46,18 @@ public class DLClient extends MS {
     private static final String HOSTCONNECTIONCORESIZE = "hostConnectionCoresize";
     private static final String THRIFTMUX = "thriftmux";
     private static final String READBULKNUM = "readbulknum";
-    private static final String ISWRITER ="iswriter";
+    private static final String ISWRITER = "iswriter";
 
     DistributedLogConfiguration conf = null;
     AsyncLogReader reader = null;
     AsyncLogWriter writer = null;
-    LogWriter syncwriter = null;
+    //LogWriter syncwriter = null;
     ClientBuilder clientBuilder = null;
     DistributedLogClientBuilder builder = null;
     DistributedLogClient client = null;
     DistributedLogNamespace namespace = null;
     DLZkServerSet[] serverSets = null;
+    DLSN lastDLSN;
     //参数
     URI uri = null;
     int readbulknum = 10;
@@ -68,8 +69,8 @@ public class DLClient extends MS {
     boolean iswriter = true;
     DistributedLogManager dlm = null;
 
-    public DLClient(String streamName, boolean isProducer, Properties p,int from) {
-        super(streamName, isProducer, p,from);
+    public DLClient(String streamName, boolean isProducer, Properties p, int from) {
+        super(streamName, isProducer, p, from);
 
         uri = URI.create(p.getProperty(DLURI));
         Preconditions.checkNotNull(uri);
@@ -85,10 +86,28 @@ public class DLClient extends MS {
         conf.setEnableReadAhead(true)
                 .setTraceReadAheadDeliveryLatency(true)
                 .setNumWorkerThreads(16)
-                .setOutputBufferSize(1024*1024)
-                .setReadAheadMaxRecords(1000)
+                .setReadAheadMaxRecords(10000)
+                .setReadAheadBatchSize(30)
                 .setReadLACLongPollTimeout(10000)
                 .setTraceReadAheadMetadataChanges(true);
+//        conf.setEnableReadAhead(true)
+//                .setTraceReadAheadDeliveryLatency(true)
+//                .setNumWorkerThreads(16)
+//                .setReadAheadMaxRecords(1000)
+//                .setReadLACLongPollTimeout(10000)
+//                .setTraceReadAheadMetadataChanges(true)
+//                .setZKNumRetries(100)
+//                .setZKSessionTimeoutSeconds(60)
+//                .setZKRetryBackoffStartMillis(100)
+//                .setZKRetryBackoffMaxMillis(200)
+//                .setBKClientZKSessionTimeout(60)
+//                .setDLLedgerMetadataLayoutVersion(5)
+//                .setEnableLedgerAllocatorPool(false)
+//                .setCreateStreamIfNotExists(true)
+//                .setEncodeRegionIDInLogSegmentMetadata(true)
+//                .setLogSegmentRollingIntervalMinutes(120)
+//                .setLogSegmentRollingConcurrency(1)
+//                .setSanityCheckTxnID(false);
 
         if (!isProducer) {
             readbulknum = Integer.parseInt((String) p.remove(READBULKNUM));
@@ -100,14 +119,20 @@ public class DLClient extends MS {
                         .uri(uri)
                         .build();
                 dlm = namespace.openLog(streamName);
-                DLSN lastDLSN;
-                if(from == 0){
-                    lastDLSN = DLSN.InitialDLSN;
-                }else{
-                    lastDLSN = dlm.getLastDLSN();
-                }
-                reader = FutureUtils.result(dlm.openAsyncLogReader(lastDLSN));
-            }catch (IOException e){
+
+//                if(from == 0){
+//                    lastDLSN = DLSN.InitialDLSN;
+//                }else{
+//                    try {
+//                        lastDLSN = dlm.getLastDLSN();
+//                    }catch (IOException ioe){
+//                        System.out.println("Failed on getting last dlsn from stream ");
+//                        return;
+//                    }
+//
+//                }
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -116,7 +141,7 @@ public class DLClient extends MS {
             hostConnectionLimit = Integer.parseInt((String) p.remove(HOSTCONNECTIONLIMIT));
             hostConnectionCoresize = Integer.parseInt((String) p.remove(HOSTCONNECTIONCORESIZE));
             thriftmux = Boolean.parseBoolean((String) p.remove(THRIFTMUX));
-            iswriter = Boolean.parseBoolean((String)p.remove(ISWRITER));
+            iswriter = Boolean.parseBoolean((String) p.remove(ISWRITER));
             serverSets = createServerSets(serversetPaths);
 
             Preconditions.checkArgument(!finagleNames.isEmpty() || !serversetPaths.isEmpty(),
@@ -134,8 +159,8 @@ public class DLClient extends MS {
                             .build();
                     DistributedLogManager dlm = namespace.openLog(streamName);
                     writer = FutureUtils.result(dlm.openAsyncLogWriter());
-                    syncwriter = dlm.startLogSegmentNonPartitioned();
-                }catch (IOException e){
+                    //syncwriter = dlm.startLogSegmentNonPartitioned();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
@@ -159,7 +184,7 @@ public class DLClient extends MS {
                     ServerSet local = serverSets[0].getServerSet();
                     ServerSet[] remotes = new ServerSet[serverSets.length - 1];
                     for (int i = 1; i < serverSets.length; i++) {
-                        remotes[i-1] = serverSets[i].getServerSet();
+                        remotes[i - 1] = serverSets[i].getServerSet();
                     }
                     builder = builder.serverSets(local, remotes);
                 }
@@ -185,11 +210,11 @@ public class DLClient extends MS {
 
     @Override
     public void finalizeMS(ArrayList<String> streams) throws MSException {
-        for (String stream : streams){
+        for (String stream : streams) {
             try {
-                if(client == null){
+                if (client == null) {
                     namespace.deleteLog(stream);
-                }else{
+                } else {
                     client.delete(stream);
                 }
             } catch (IOException e) {
@@ -201,28 +226,34 @@ public class DLClient extends MS {
     //final
     @Override
     public void send(boolean isSync, final byte[] msg, final WriteCallBack sentCallBack, final long requestTime) {
-        if(isSync){
+        if (isSync) {
             //同步问题
             if (iswriter) {
-//                try {
-//                    writer.write(new LogRecord(requestTime,msg)).toJavaFuture().get();
-//                    sentCallBack.handleSentMessage(msg,requestTime);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                } catch (ExecutionException e) {
-//                    e.printStackTrace();
-//                }
                 try {
-                    syncwriter.write(new LogRecord(System.currentTimeMillis(), msg));
+                    writer.write(new LogRecord(requestTime, msg)).toJavaFuture().get();
                     sentCallBack.handleSentMessage(msg, requestTime);
-                } catch (IOException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
-                    log.error("Sync-write failed!");
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
                 }
+//                try {
+////                    syncwriter.write(new LogRecord(System.currentTimeMillis(), msg));
+////                    // flush the records
+////                    syncwriter.setReadyToFlush();
+////                    // commit the records to make them visible to readers
+////                    syncwriter.flushAndSync();
+////                    // seal the log stream
+////                    syncwriter.markEndOfStream();
+////                    sentCallBack.handleSentMessage(msg, requestTime);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    log.error("Sync-write failed!");
+//                }
             } else {
                 try {
                     //todo use twitter's future's wait func
-                    client.write(streamName,ByteBuffer.wrap(msg)).toJavaFuture().get();
+                    client.write(streamName, ByteBuffer.wrap(msg)).toJavaFuture().get();
                     // client.write(streamName,ByteBuffer.wrap(msg)).get();
                     sentCallBack.handleSentMessage(msg, requestTime);
                 } catch (Exception e) {
@@ -270,8 +301,26 @@ public class DLClient extends MS {
     }
 
     private boolean isRun = true;
+
     @Override
     public void read(final ReadCallBack readCallBack) {
+        if (from == 0) {
+            lastDLSN = DLSN.InitialDLSN;
+        } else {
+            try {
+                lastDLSN = dlm.getLastDLSN();
+            } catch (IOException ioe) {
+                log.error("Failed on getting last dlsn from stream ");
+                return;
+            }
+        }
+        try {
+            reader = FutureUtils.result(dlm.openAsyncLogReader(lastDLSN));
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("Failed to open reader!");
+        }
+
         reader.readNext().addEventListener(
                 new FutureEventListener<LogRecordWithDLSN>() {
                     @Override
@@ -318,12 +367,12 @@ public class DLClient extends MS {
             }
         }
 
-        if (syncwriter != null)
-            try {
-                syncwriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//        if (syncwriter != null)
+//            try {
+//                syncwriter.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         if (client != null) {
             client.close();
         }
